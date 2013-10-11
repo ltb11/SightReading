@@ -149,7 +149,7 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 	public void testImageLoad() {
 		File sdDir = Environment.getExternalStorageDirectory();
 		String sdPath = sdDir.getAbsolutePath();
-		Mat houghMat = Highgui.imread(sdPath + "/DCIM/linesTest.png", 0);
+		Mat houghMat = Highgui.imread(sdPath + "/DCIM/square.png", 0);
 
 		if (houghMat == null) {
 			Log.i(TAG, "There was a problem loading the image");
@@ -191,7 +191,12 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		Point pt2 = new Point();
 		double a, b;
 		double x0, y0;
-		Scalar color = new Scalar(128, 128, 128);
+		Scalar color = new Scalar(255, 0, 0);
+
+		Mat imageMat = new Mat();
+		Imgproc.cvtColor(houghMat, imageMat, Imgproc.COLOR_GRAY2BGR);
+		
+		//imageMat.convert
 
 		for (int i = 0; i < lines.cols(); i++) {
 			data = lines.get(0, i);
@@ -205,16 +210,14 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 			pt1.y = Math.round(y0 + 10*a);
 			pt2.x = Math.round(x0 - 10*(-b));
 			pt2.y = Math.round(y0 - 10*a);
-			Core.line(houghMat, pt1, pt2, color, 1);
+			Core.line(imageMat, pt1, pt2, color, 1);
 			// Core.line(test, pt1, pt2, color, 1);
 		}
 
-		// Mat imageMat = new Mat();
-		// Imgproc.cvtColor(houghMat, imageMat, Imgproc.COLOR_GRAY2BGRA, 4);
 		// Bitmap bmp = Bitmap.createBitmap(imageMat.cols(), imageMat.rows(),
 		// Bitmap.Config.ARGB_8888);
-
-		Highgui.imwrite(sdPath + "/DCIM/workedOutBars.png", houghMat);
+		
+		Highgui.imwrite(sdPath + "/DCIM/squareOut.png", imageMat);
 		// Highgui.imwrite(sdPath + "/DCIM/test.png", test);
 		finish();
 	}
