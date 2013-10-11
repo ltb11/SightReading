@@ -17,6 +17,7 @@ import org.opencv.core.Scalar;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
+import utils.Utils;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Environment;
@@ -29,7 +30,7 @@ import android.view.WindowManager;
 
 public class SightReadingActivity extends Activity implements OnTouchListener,
 		CvCameraViewListener2 {
-	private static final String TAG = "OCVSample::Activity";
+	private static final String TAG = "SightReadingActivity";
 
 	private boolean mIsColorSelected = false;
 	private Mat mRgba;
@@ -149,7 +150,7 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 	public void testImageLoad() {
 		File sdDir = Environment.getExternalStorageDirectory();
 		String sdPath = sdDir.getAbsolutePath();
-		Mat houghMat = Highgui.imread(sdPath + "/DCIM/simpleBars.png", 0);
+		Mat houghMat = Highgui.imread(sdPath + "/DCIM/square.png", 0);
 
 		if (houghMat == null) {
 			Log.i(TAG, "There was a problem loading the image");
@@ -171,13 +172,19 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		
 		//Mat houghMatBis = new Mat(houghMat, Range.all());
 
-		Highgui.imwrite(sdPath + "/DCIM/workedOutBars2.png", houghMat);
+		//Highgui.imwrite(sdPath + "/DCIM/workedOutBars2.png", houghMat);
 
 		// Mat test = new Mat(houghMat.size(), houghMat.type());
 
 		Mat lines = new Mat();
 
 		Imgproc.HoughLines(houghMat, lines, 1, Math.PI / 180, 200);
+		
+		for (int i = 0; i < lines.cols();i++) {
+			Log.v(TAG, lines.get(0, i)[0] + "," + lines.get(0, i)[1]*180/Math.PI);
+		}
+		
+		Log.v(TAG, lines.toString());
 
 		double[] data;
 		double rho, theta;
@@ -185,9 +192,22 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		Point pt2 = new Point();
 		double a, b;
 		double x0, y0;
-		Scalar color = new Scalar(128, 128, 128);
+
+		Mat imageMat = new Mat();
+		Imgproc.cvtColor(houghMat, imageMat, Imgproc.COLOR_GRAY2BGR);
+		
+		Scalar c1 = new Scalar (255, 0, 0);
+		Scalar c2 = new Scalar (0, 255, 0);
+		Scalar c3 = new Scalar (0, 0, 255);
+		Scalar c4 = new Scalar (128, 128, 128);
+		
+		Scalar[] cs = new Scalar[] {c1, c2, c3, c4};
+		
+		//imageMat.convert
 
 		for (int i = 0; i < lines.cols(); i++) {
+			Scalar color = Utils.createHsvColor(10*i, 255, 255);
+			
 			data = lines.get(0, i);
 			rho = data[0];
 			theta = data[1];
@@ -195,20 +215,19 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 			b = Math.sin(theta);
 			x0 = a * rho;
 			y0 = b * rho;
-			pt1.x = Math.round(x0 + 1000 * (-b));
-			pt1.y = Math.round(y0 + 1000 * a);
-			pt2.x = Math.round(x0 - 1000 * (-b));
-			pt2.y = Math.round(y0 - 1000 * a);
-			Core.line(houghMat, pt1, pt2, color, 1);
+			pt1.x = Math.round(x0 + 10*(-b));
+			pt1.y = Math.round(y0 + 10*a);
+			pt2.x = Math.round(x0 - 10*(-b));
+			pt2.y = Math.round(y0 - 10*a);
+			Core.line(imageMat, pt1, pt2, cs[i], 1);
 			// Core.line(test, pt1, pt2, color, 1);
 		}
 
-		// Mat imageMat = new Mat();
-		// Imgproc.cvtColor(houghMat, imageMat, Imgproc.COLOR_GRAY2BGRA, 4);
 		// Bitmap bmp = Bitmap.createBitmap(imageMat.cols(), imageMat.rows(),
 		// Bitmap.Config.ARGB_8888);
-
-		Highgui.imwrite(sdPath + "/DCIM/workedOutBars.png", houghMat);
+		
+		Highgui.imwrite(sdPath + "/DCIM/squareOut.png", imageMat);
 		// Highgui.imwrite(sdPath + "/DCIM/test.png", test);
+		finish();
 	}
 }
