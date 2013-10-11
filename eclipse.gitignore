@@ -28,8 +28,3 @@ proguard/
 *.iws
 .idea/
 
-# Generated project folders
-*/bin/
-*/gen/
-*/.settings/
-
