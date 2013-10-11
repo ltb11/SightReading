@@ -12,6 +12,7 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Range;
 import org.opencv.core.Scalar;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
@@ -154,17 +155,23 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 			Log.i(TAG, "There was a problem loading the image");
 		}
 		
+		Imgproc.Canny(houghMat, houghMat, 0, 100);
+		
+		Mat houghMatBis = new Mat(houghMat, Range.all());
+		
+		//Mat test = new Mat(houghMat.size(), houghMat.type());
+		
 		Mat lines = new Mat();
 
-		Imgproc.HoughLines(houghMat, lines, 1, Math.PI/180, 1);
-
+		Imgproc.HoughLines(houghMatBis, lines, 1, Math.PI/180, 200);
+		
 		double[] data;
 		double rho, theta;
 		Point pt1 = new Point();
 		Point pt2 = new Point();
 		double a, b;
 		double x0, y0;
-		Scalar color = new Scalar(0, 0, 255);
+		Scalar color = new Scalar(128, 128, 128);
 
 		for( int i = 0; i < lines.cols(); i++ )
 		{
@@ -179,13 +186,16 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 			pt1.y = Math.round(y0 + 1000*a);
 			pt2.x = Math.round(x0 - 1000*(-b));
 			pt2.y = Math.round(y0 - 1000 *a);
-			Core.line(houghMat, pt1, pt2, color, 3);
+			Core.line(houghMat, pt1, pt2, color, 1);
+			//Core.line(test, pt1, pt2, color, 1);
 		}
-		
-		Mat imageMat = new Mat(); 
-		Imgproc.cvtColor(houghMat, imageMat, Imgproc.COLOR_GRAY2BGRA, 4);
+	
+		//Mat imageMat = new Mat(); 
+		//Imgproc.cvtColor(houghMat, imageMat, Imgproc.COLOR_GRAY2BGRA, 4);
 		//Bitmap bmp = Bitmap.createBitmap(imageMat.cols(), imageMat.rows(), Bitmap.Config.ARGB_8888);
 
 		Highgui.imwrite(sdPath + "/DCIM/workedOutBars.png", houghMat);
+		//Highgui.imwrite(sdPath + "/DCIM/test.png", test);
+		//Highgui.imwrite(sdPath + "/DCIM/workedOutBars2.png", houghMatBis);
 	}
 }
