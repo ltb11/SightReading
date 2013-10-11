@@ -8,10 +8,13 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.highgui.Highgui;
+import org.opencv.imgproc.Imgproc;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -150,7 +153,39 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		if (houghMat == null) {
 			Log.i(TAG, "There was a problem loading the image");
 		}
+		
+		Mat lines = new Mat();
 
-		Highgui.imwrite(sdPath + "/DCIM/sbtest.png", houghMat);
+		Imgproc.HoughLines(houghMat, lines, 1, Math.PI/180, 1);
+
+		double[] data;
+		double rho, theta;
+		Point pt1 = new Point();
+		Point pt2 = new Point();
+		double a, b;
+		double x0, y0;
+		Scalar color = new Scalar(0, 0, 255);
+
+		for( int i = 0; i < lines.cols(); i++ )
+		{
+			data = lines.get(0, i);
+			rho = data[0];
+			theta = data[1];
+			a = Math.cos(theta);
+			b = Math.sin(theta);
+			x0 = a*rho;
+			y0 = b*rho;
+			pt1.x = Math.round(x0 + 1000*(-b));
+			pt1.y = Math.round(y0 + 1000*a);
+			pt2.x = Math.round(x0 - 1000*(-b));
+			pt2.y = Math.round(y0 - 1000 *a);
+			Core.line(houghMat, pt1, pt2, color, 3);
+		}
+		
+		Mat imageMat = new Mat(); 
+		Imgproc.cvtColor(houghMat, imageMat, Imgproc.COLOR_GRAY2BGRA, 4);
+		//Bitmap bmp = Bitmap.createBitmap(imageMat.cols(), imageMat.rows(), Bitmap.Config.ARGB_8888);
+
+		Highgui.imwrite(sdPath + "/DCIM/workedOutBars.png", houghMat);
 	}
 }

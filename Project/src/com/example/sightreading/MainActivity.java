@@ -43,6 +43,7 @@ public class MainActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		System.loadLibrary("opencv_java");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
@@ -53,17 +54,22 @@ public class MainActivity extends Activity {
 			//
 		}
 
-		String filename = "assets/simpleBars.png";
+		File imgFile = new  File("/Pictures/test.jpg");
+		Mat houghMat = new Mat();
+		if(imgFile.exists())
+		{ 
+			houghMat = Highgui.imread(imgFile.getAbsolutePath());
+		}
 
 		//Mat src = Highgui.imread(filename, 0);
 		//Mat dst, cdst;
 		//Imgproc.Canny(src, dst, 50, 200, 3, false);
 		//cvtColor(dst, cdst, CV_GRAY2BGR);
 
-		Mat houghMat = Highgui.imread(filename, 0);
+		//Mat houghMat = Highgui.imread(filename, 0);
 		Mat lines = new Mat();
 
-		Imgproc.HoughLines(houghMat, lines, 1, Math.PI/180, 100, 0, 0 );
+		Imgproc.HoughLines(houghMat, lines, 1, Math.PI/180, 1);
 
 		double[] data;
 		double rho, theta;
@@ -89,7 +95,7 @@ public class MainActivity extends Activity {
 			Core.line(houghMat, pt1, pt2, color, 3);
 		}
 
-		Mat imageMat = null; 
+		Mat imageMat = new Mat(); 
 		Imgproc.cvtColor(houghMat, imageMat, Imgproc.COLOR_GRAY2BGRA, 4);
 		Bitmap bmp = Bitmap.createBitmap(imageMat.cols(), imageMat.rows(), Bitmap.Config.ARGB_8888);
 
