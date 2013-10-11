@@ -154,17 +154,31 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		if (houghMat == null) {
 			Log.i(TAG, "There was a problem loading the image");
 		}
+
+		//Imgproc.Canny(houghMat, houghMat, 0, 100);
+
+		for (int i = 0; i < houghMat.height(); i++) {
+			for (int j = 0; j < houghMat.width(); j++) {
+				for (int k = 0; k < houghMat.channels(); k++) {
+					double[] values = houghMat.get(i,j);
+					for (int d = 0; d < values.length; d++) {
+						values[d] = 255 - values[d];
+					}
+					houghMat.put(i, j, values);
+				}
+			}
+		}
 		
-		Imgproc.Canny(houghMat, houghMat, 0, 100);
-		
-		Mat houghMatBis = new Mat(houghMat, Range.all());
-		
-		//Mat test = new Mat(houghMat.size(), houghMat.type());
-		
+		//Mat houghMatBis = new Mat(houghMat, Range.all());
+
+		Highgui.imwrite(sdPath + "/DCIM/workedOutBars2.png", houghMat);
+
+		// Mat test = new Mat(houghMat.size(), houghMat.type());
+
 		Mat lines = new Mat();
 
-		Imgproc.HoughLines(houghMatBis, lines, 1, Math.PI/180, 200);
-		
+		Imgproc.HoughLines(houghMat, lines, 1, Math.PI / 180, 200);
+
 		double[] data;
 		double rho, theta;
 		Point pt1 = new Point();
@@ -173,29 +187,28 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		double x0, y0;
 		Scalar color = new Scalar(128, 128, 128);
 
-		for( int i = 0; i < lines.cols(); i++ )
-		{
+		for (int i = 0; i < lines.cols(); i++) {
 			data = lines.get(0, i);
 			rho = data[0];
 			theta = data[1];
 			a = Math.cos(theta);
 			b = Math.sin(theta);
-			x0 = a*rho;
-			y0 = b*rho;
-			pt1.x = Math.round(x0 + 1000*(-b));
-			pt1.y = Math.round(y0 + 1000*a);
-			pt2.x = Math.round(x0 - 1000*(-b));
-			pt2.y = Math.round(y0 - 1000 *a);
+			x0 = a * rho;
+			y0 = b * rho;
+			pt1.x = Math.round(x0 + 1000 * (-b));
+			pt1.y = Math.round(y0 + 1000 * a);
+			pt2.x = Math.round(x0 - 1000 * (-b));
+			pt2.y = Math.round(y0 - 1000 * a);
 			Core.line(houghMat, pt1, pt2, color, 1);
-			//Core.line(test, pt1, pt2, color, 1);
+			// Core.line(test, pt1, pt2, color, 1);
 		}
-	
-		//Mat imageMat = new Mat(); 
-		//Imgproc.cvtColor(houghMat, imageMat, Imgproc.COLOR_GRAY2BGRA, 4);
-		//Bitmap bmp = Bitmap.createBitmap(imageMat.cols(), imageMat.rows(), Bitmap.Config.ARGB_8888);
+
+		// Mat imageMat = new Mat();
+		// Imgproc.cvtColor(houghMat, imageMat, Imgproc.COLOR_GRAY2BGRA, 4);
+		// Bitmap bmp = Bitmap.createBitmap(imageMat.cols(), imageMat.rows(),
+		// Bitmap.Config.ARGB_8888);
 
 		Highgui.imwrite(sdPath + "/DCIM/workedOutBars.png", houghMat);
-		//Highgui.imwrite(sdPath + "/DCIM/test.png", test);
-		//Highgui.imwrite(sdPath + "/DCIM/workedOutBars2.png", houghMatBis);
+		// Highgui.imwrite(sdPath + "/DCIM/test.png", test);
 	}
 }
