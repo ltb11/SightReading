@@ -29,7 +29,7 @@ import android.view.WindowManager;
 
 public class SightReadingActivity extends Activity implements OnTouchListener,
 		CvCameraViewListener2 {
-	private static final String TAG = "OCVSample::Activity";
+	private static final String TAG = "SightReadingActivity";
 
 	private boolean mIsColorSelected = false;
 	private Mat mRgba;
@@ -149,7 +149,7 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 	public void testImageLoad() {
 		File sdDir = Environment.getExternalStorageDirectory();
 		String sdPath = sdDir.getAbsolutePath();
-		Mat houghMat = Highgui.imread(sdPath + "/DCIM/simpleBars.png", 0);
+		Mat houghMat = Highgui.imread(sdPath + "/DCIM/linesTest.png", 0);
 
 		if (houghMat == null) {
 			Log.i(TAG, "There was a problem loading the image");
@@ -171,13 +171,19 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		
 		//Mat houghMatBis = new Mat(houghMat, Range.all());
 
-		Highgui.imwrite(sdPath + "/DCIM/workedOutBars2.png", houghMat);
+		//Highgui.imwrite(sdPath + "/DCIM/workedOutBars2.png", houghMat);
 
 		// Mat test = new Mat(houghMat.size(), houghMat.type());
 
 		Mat lines = new Mat();
 
 		Imgproc.HoughLines(houghMat, lines, 1, Math.PI / 180, 200);
+		
+		for (int i = 0; i < lines.cols();i++) {
+			Log.v(TAG, lines.get(0, i)[0] + "," + lines.get(0, i)[1]*180/Math.PI);
+		}
+		
+		Log.v(TAG, lines.toString());
 
 		double[] data;
 		double rho, theta;
@@ -195,10 +201,10 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 			b = Math.sin(theta);
 			x0 = a * rho;
 			y0 = b * rho;
-			pt1.x = Math.round(x0 + 1000 * (-b));
-			pt1.y = Math.round(y0 + 1000 * a);
-			pt2.x = Math.round(x0 - 1000 * (-b));
-			pt2.y = Math.round(y0 - 1000 * a);
+			pt1.x = Math.round(x0 + 10*(-b));
+			pt1.y = Math.round(y0 + 10*a);
+			pt2.x = Math.round(x0 - 10*(-b));
+			pt2.y = Math.round(y0 - 10*a);
 			Core.line(houghMat, pt1, pt2, color, 1);
 			// Core.line(test, pt1, pt2, color, 1);
 		}
@@ -210,5 +216,6 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 
 		Highgui.imwrite(sdPath + "/DCIM/workedOutBars.png", houghMat);
 		// Highgui.imwrite(sdPath + "/DCIM/test.png", test);
+		finish();
 	}
 }
