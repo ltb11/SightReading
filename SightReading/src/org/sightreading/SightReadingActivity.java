@@ -12,7 +12,6 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
-import org.opencv.core.Range;
 import org.opencv.core.Scalar;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
@@ -55,7 +54,8 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		public void onManagerConnected(int status) {
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
-				testImageLoad();
+				testImageLoad("/DCIM/simpleBars.png", "/DCIM/simpleBarsOut.png");
+				testImageLoad("/DCIM/square.png", "/DCIM/squareOut.png");
 			}
 				break;
 			default: {
@@ -127,7 +127,7 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 	}
 
 	public boolean onTouch(View v, MotionEvent event) {
-		testImageLoad();
+		testImageLoad("/DCIM/simpleBars.png", "/DCIM/simpleBarsOut.png");
 
 		return false; // don't need subsequent touch events
 	}
@@ -147,21 +147,19 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		return mRgba;
 	}
 
-	public void testImageLoad() {
+	public void testImageLoad(String src, String dst) {
 		File sdDir = Environment.getExternalStorageDirectory();
 		String sdPath = sdDir.getAbsolutePath();
-		Mat houghMat = Highgui.imread(sdPath + "/DCIM/square.png", 0);
+		Mat houghMat = Highgui.imread(sdPath + src, 0);
 
 		if (houghMat == null) {
 			Log.i(TAG, "There was a problem loading the image");
 		}
 
-		//Imgproc.Canny(houghMat, houghMat, 0, 100);
-
 		for (int i = 0; i < houghMat.height(); i++) {
 			for (int j = 0; j < houghMat.width(); j++) {
 				for (int k = 0; k < houghMat.channels(); k++) {
-					double[] values = houghMat.get(i,j);
+					double[] values = houghMat.get(i, j);
 					for (int d = 0; d < values.length; d++) {
 						values[d] = 255 - values[d];
 					}
@@ -169,65 +167,36 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 				}
 			}
 		}
-		
-		//Mat houghMatBis = new Mat(houghMat, Range.all());
-
-		//Highgui.imwrite(sdPath + "/DCIM/workedOutBars2.png", houghMat);
-
-		// Mat test = new Mat(houghMat.size(), houghMat.type());
 
 		Mat lines = new Mat();
 
-		Imgproc.HoughLines(houghMat, lines, 1, Math.PI / 180, 200);
-		
-		for (int i = 0; i < lines.cols();i++) {
-			Log.v(TAG, lines.get(0, i)[0] + "," + lines.get(0, i)[1]*180/Math.PI);
-		}
-		
-		Log.v(TAG, lines.toString());
+		Imgproc.HoughLinesP(houghMat, lines, 1, Math.PI / 180, 300);
 
 		double[] data;
-		double rho, theta;
-		Point pt1 = new Point();
-		Point pt2 = new Point();
-		double a, b;
-		double x0, y0;
-
 		Mat imageMat = new Mat();
 		Imgproc.cvtColor(houghMat, imageMat, Imgproc.COLOR_GRAY2BGR);
-		
-		Scalar c1 = new Scalar (255, 0, 0);
-		Scalar c2 = new Scalar (0, 255, 0);
-		Scalar c3 = new Scalar (0, 0, 255);
-		Scalar c4 = new Scalar (128, 128, 128);
-		
-		Scalar[] cs = new Scalar[] {c1, c2, c3, c4};
-		
-		//imageMat.convert
+
+		Scalar c1 = new Scalar(255, 0, 0);
+		Scalar c2 = new Scalar(0, 255, 0);
+		Scalar c3 = new Scalar(0, 0, 255);
+		Scalar[] cs = new Scalar[] { c1, c2, c3};
+		int j = 0;
 
 		for (int i = 0; i < lines.cols(); i++) {
-			Scalar color = Utils.createHsvColor(10*i, 255, 255);
-			
 			data = lines.get(0, i);
-			rho = data[0];
-			theta = data[1];
-			a = Math.cos(theta);
-			b = Math.sin(theta);
-			x0 = a * rho;
-			y0 = b * rho;
-			pt1.x = Math.round(x0 + 10*(-b));
-			pt1.y = Math.round(y0 + 10*a);
-			pt2.x = Math.round(x0 - 10*(-b));
-			pt2.y = Math.round(y0 - 10*a);
-			Core.line(imageMat, pt1, pt2, cs[i], 1);
-			// Core.line(test, pt1, pt2, color, 1);
+			Point pt1 = new Point(data[0], data[1]);
+			Point pt2 = new Point(data[2], data[3]);
+			/*
+			 * Need to check that the given line is not an almost-parallel line
+			 * to an already existing line
+			 */
+			if (Utils.areTwoLinesDifferent(pt1, pt2, lines, i)) {
+				Core.line(imageMat, pt1, pt2, cs[j % 3], 1);
+				j++;
+			}
 		}
 
-		// Bitmap bmp = Bitmap.createBitmap(imageMat.cols(), imageMat.rows(),
-		// Bitmap.Config.ARGB_8888);
-		
-		Highgui.imwrite(sdPath + "/DCIM/squareOut.png", imageMat);
-		// Highgui.imwrite(sdPath + "/DCIM/test.png", test);
+		Highgui.imwrite(sdPath + dst, imageMat);
 		finish();
 	}
 }

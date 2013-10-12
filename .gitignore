@@ -7,3 +7,12 @@ SightReading/gen/*
 SightReading/project.properties
 SightReading/.settings/org.eclipse.cdt.core.prefs
 SightReading/.settings/org.eclipse.jdt.core.prefs
+SightReading/.gradle/
+SightReading/.idea/
+SightReading/build.gradle
+SightReading/build/
+SightReading/gradle/
+SightReading/gradlew
+SightReading/gradlew.bat
+SightReading/local.properties
+SightReading/SightReading.iml
