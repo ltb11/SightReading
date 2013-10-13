@@ -29,7 +29,7 @@ import android.view.WindowManager;
 
 public class SightReadingActivity extends Activity implements OnTouchListener,
 		CvCameraViewListener2 {
-	private static final String TAG = "SightReadingActivity";
+	public static final String TAG = "SightReadingActivity";
 
 	private boolean mIsColorSelected = false;
 	private Mat mRgba;
@@ -55,7 +55,9 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
 				testImageLoad("/DCIM/simpleBars.png", "/DCIM/simpleBarsOut.png");
-				testImageLoad("/DCIM/square.png", "/DCIM/squareOut.png");
+				testImageLoad("/DCIM/twoStaves.png", "/DCIM/twoStavesOut.png");
+				//testImageLoad("/DCIM/square.png", "/DCIM/squareOut.png");
+				//testImageLoad("/DCIM/secondTest.png", "/DCIM/secondTestOut.png");
 			}
 				break;
 			default: {
@@ -155,32 +157,24 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		if (houghMat == null) {
 			Log.i(TAG, "There was a problem loading the image");
 		}
-
-		for (int i = 0; i < houghMat.height(); i++) {
-			for (int j = 0; j < houghMat.width(); j++) {
-				for (int k = 0; k < houghMat.channels(); k++) {
-					double[] values = houghMat.get(i, j);
-					for (int d = 0; d < values.length; d++) {
-						values[d] = 255 - values[d];
-					}
-					houghMat.put(i, j, values);
-				}
-			}
-		}
-
-		Mat lines = new Mat();
-
-		Imgproc.HoughLinesP(houghMat, lines, 1, Math.PI / 180, 300);
-
-		double[] data;
+		Mat imageMat = Utils.staveRecognition(houghMat);
+		/*
 		Mat imageMat = new Mat();
-		Imgproc.cvtColor(houghMat, imageMat, Imgproc.COLOR_GRAY2BGR);
-
+		Imgproc.cvtColor(houghMat, imageMat, Imgproc.COLOR_GRAY2BGR);		
+		Utils.invertColors(houghMat);
+		Highgui.imwrite(sdPath + "/DCIM/simpleBarsBW.png", houghMat);
+		
+		Mat lines = new Mat();
+		Imgproc.HoughLinesP(houghMat, lines, 1, 0.01, 100);
+		
+		double[] data;
+		
 		Scalar c1 = new Scalar(255, 0, 0);
 		Scalar c2 = new Scalar(0, 255, 0);
 		Scalar c3 = new Scalar(0, 0, 255);
-		Scalar[] cs = new Scalar[] { c1, c2, c3};
-		int j = 0;
+		Scalar c4 = new Scalar(128, 128, 128);
+		Scalar c5 = new Scalar(255,255, 0);
+		Scalar[] cs = new Scalar[] { c1, c2, c3, c4, c5};
 
 		for (int i = 0; i < lines.cols(); i++) {
 			data = lines.get(0, i);
@@ -189,12 +183,11 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 			/*
 			 * Need to check that the given line is not an almost-parallel line
 			 * to an already existing line
-			 */
-			if (Utils.areTwoLinesDifferent(pt1, pt2, lines, i)) {
-				Core.line(imageMat, pt1, pt2, cs[j % 3], 1);
-				j++;
-			}
-		}
+			 *
+			//if (Utils.areTwoLinesDifferent(pt1, pt2, lines, i)) {
+				Core.line(imageMat, pt1, pt2, cs[i % 3], 1);
+			//}
+		}*/
 
 		Highgui.imwrite(sdPath + dst, imageMat);
 		finish();

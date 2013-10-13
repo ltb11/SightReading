@@ -1,16 +1,28 @@
 package utils;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
+import org.sightreading.Line;
+import org.sightreading.Stave;
 
 public class Utils {
 
+	private static final double angleDiff = 2;
 	private static final int minLineDirectionVectorDiff = 10;
-	private static final int minLineGap = 5;
+	private static final int minLineGap = 3;
+	private static final double horizontalError = 5;
+	private static final double staveLengthTolerance = 0.1;
+	private static final double staveGapTolerance = 0.2;
 
 	public static Scalar createHsvColor(float hue, float saturation, float value) {
-		int h = (int) (hue % 6);
+		int h = (int) (hue * 6);
 		float f = hue * 6 - h;
 		float p = value * (1 - saturation);
 		float q = value * (1 - f * saturation);
@@ -32,6 +44,24 @@ public class Utils {
 			throw new RuntimeException(
 					"Something went wrong when converting from HSV to RGB. Input was "
 							+ hue + ", " + saturation + ", " + value);
+		}
+	}
+
+	public boolean isHorizontal(Line l) {
+		return (Math.abs(l.directingVector().second) < horizontalError);
+	}
+
+	public static void invertColors(Mat mat) {
+		for (int i = 0; i < mat.height(); i++) {
+			for (int j = 0; j < mat.width(); j++) {
+				for (int k = 0; k < mat.channels(); k++) {
+					double[] values = mat.get(i, j);
+					for (int d = 0; d < values.length; d++) {
+						values[d] = 255 - values[d];
+					}
+					mat.put(i, j, values);
+				}
+			}
 		}
 	}
 
@@ -63,6 +93,132 @@ public class Utils {
 			}
 		}
 		return true;
+	}
+
+	public static Mat staveRecognition(Mat sheet) {
+		Mat tmpSheet = new Mat();
+		Imgproc.cvtColor(sheet, tmpSheet, Imgproc.COLOR_GRAY2BGR);
+		Utils.invertColors(sheet);
+		Mat linesMat = new Mat();
+		Imgproc.HoughLinesP(sheet, linesMat, 1, Math.PI / 180, 100);
+		/*double[] data;
+		
+		Scalar c1 = new Scalar(255, 0, 0);
+		Scalar c2 = new Scalar(0, 255, 0);
+		Scalar c3 = new Scalar(0, 0, 255);
+		Scalar c4 = new Scalar(128, 128, 128);
+		Scalar c5 = new Scalar(255,255, 0);
+		Scalar[] cs = new Scalar[] { c1, c2, c3, c4, c5};
+		Mat copy = new Mat(tmpSheet, Range.all());
+		for (int i = 0; i < linesMat.cols(); i++) {
+			data = linesMat.get(0, i);
+			Point pt1 = new Point(data[0], data[1]);
+			Point pt2 = new Point(data[2], data[3]);
+			/*
+			 * Need to check that the given line is not an almost-parallel line
+			 * to an already existing line
+			 *
+			//if (Utils.areTwoLinesDifferent(pt1, pt2, lines, i)) {
+			
+				Core.line(copy, pt1, pt2, cs[i % 5], 1);
+			//}
+		}
+		Highgui.imwrite(Environment.getExternalStorageDirectory().getAbsolutePath() + "/DCIM/tmp.png", copy);*/
+		List<Line> lines = new LinkedList<Line>();
+		double dataa[];
+		for (int i = 0; i < linesMat.cols(); i++) {
+			dataa = linesMat.get(0, i);
+			Point pt1 = new Point(dataa[0], dataa[1]);
+			Point pt2 = new Point(dataa[2], dataa[3]);
+			Line line = new Line(pt1, pt2);
+			lines.add(line);
+		}
+		Collections.sort(lines, new Comparator<Line>() {
+			@Override
+			public int compare(Line line0, Line line1) {
+				return (int) (Math.signum(line1.length() - line0.length()));
+			}
+		});
+		// Line l = lines.get(0);
+		// List<Line>
+
+		/*
+		 * Iterator<Line> outside = lines.iterator(); while(outside.hasNext()) {
+		 * Line first = outside.next(); Iterator<Line> inside = outside. }
+		 */
+		List<Stave> staves = new LinkedList<Stave>();
+		int outside, inside;
+		for (outside = 0; outside < lines.size(); outside++) {
+			Line start = lines.get(outside);
+			List<Line> subset = new LinkedList<Line>();
+
+			for (inside = outside; inside < lines.size(); inside++) {
+				Line line = lines.get(inside);
+				if (Math.abs(start.length() - line.length()) < start.length() * staveLengthTolerance ) {
+					subset.add(line);
+				} else
+					break;
+			}
+			// MID: subset contains all lines within tolerance of the start line
+			if (subset.size() < 5)
+				continue;
+
+			// getStaveLines must return (in y-axis order) all lines that belong
+			// to a stave
+			// so they can be pulled out, 5 at a time, to create the staves
+			List<Line> staveLines = getSpacedLines(subset);
+			if (staveLines.size() != 5)
+				continue;
+
+			staves.add(new Stave(staveLines));
+			lines.removeAll(staveLines);
+			// Need to start all over again since lines has been changed
+			outside = -1;
+
+			// Stave stave = calculateStave(subset);
+			// if stave.isValid() return stave;
+
+		}
+		for (Stave s : staves)
+			s.print(tmpSheet);
+		return tmpSheet;
+	}
+
+	/*
+	 * PRE: Given a list of horizontal lines of similar length Checks that the
+	 * lines are equally spaced
+	 */
+	private static List<Line> getSpacedLines(List<Line> lines) {
+		Collections.sort(lines, new Comparator<Line>() {
+			@Override
+			public int compare(Line line0, Line line1) {
+				return (int) (Math.signum((line0.start().y - line1.start().y)));
+			}
+		});
+		// MID: lines is sorted highest to lowest
+
+		Line first = lines.get(0);
+		for (int i = 1; i < lines.size(); i++) {
+			Line second = lines.get(i);
+			double space = second.start().y - first.start().y;
+			double pos = second.start().y + space;
+			List<Line> result = new LinkedList<Line>();
+			result.add(first);
+			result.add(second);
+			for (int j = i + 1; j < lines.size(); j++) {
+				if (Math.abs(lines.get(j).start().y - pos) < space*staveGapTolerance) {
+					pos += space;
+					result.add(lines.get(j));
+					if (result.size() == 5)
+						return result;
+				}
+			}
+		}
+
+		/*
+		 * POST: Return only the lines that do belong to a stave
+		 */
+		return new LinkedList<Line>();
 	}
 
 }
