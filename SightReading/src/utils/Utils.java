@@ -87,11 +87,7 @@ public class Utils {
 	}
 
 	public static Mat detectMusic(Mat sheet) {
-		
-		// load image
-		Mat tmpSheet = new Mat();
-		Imgproc.cvtColor(sheet, tmpSheet, Imgproc.COLOR_GRAY2BGR);
-		
+			
 		// invert and get houghlines
 		Utils.invertColors(sheet);
 		Mat linesMat = new Mat();
@@ -112,17 +108,20 @@ public class Utils {
 		// erase the staves, dilate to fill gaps
 		for (Stave s : staves)
 			s.eraseFromMat(sheet);
-		Imgproc.dilate(sheet, sheet, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3,3)));        
-		
+		Imgproc.dilate(sheet, sheet, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3,3)));       
+
 		// get new houghlines
-		Imgproc.HoughLinesP(sheet, linesMat, 1, Math.PI / 180, 50);
+		Imgproc.HoughLinesP(sheet, linesMat, 1, Math.PI / 180, 100);
 
 		lines = getHoughLinesFromMat(linesMat);
 		
 		// print lines and return
 		Utils.invertColors(sheet);
-		printLines(sheet,lines);	
-		return sheet;
+		
+		Mat output = new Mat();
+		Imgproc.cvtColor(sheet, output, Imgproc.COLOR_GRAY2BGR);
+		//printLines(output,lines);	
+		return output;
 		
 		// TODO: no lines are printed on the returned mat, must fix
 	}
