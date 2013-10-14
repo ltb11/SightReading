@@ -51,10 +51,10 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		public void onManagerConnected(int status) {
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
-				testImage("oneStave.png", "oneStaveOut.png");
-				testImage("twoStaves.png", "twoStavesOut.png");
+				//testImage("oneStave.png", "oneStaveOut.png");
+				//testImage("twoStaves.png", "twoStavesOut.png");
 				testImage("threeStaves.png", "threeStavesOut.png");
-				testImage("complexStaves.png", "complexStavesOut.png");
+				//testImage("complexStaves.png", "complexStavesOut.png");
 			}
 				break;
 			default: {
