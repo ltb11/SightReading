@@ -8,13 +8,10 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.highgui.Highgui;
-import org.opencv.imgproc.Imgproc;
 
 import utils.Utils;
 import android.app.Activity;
@@ -29,7 +26,7 @@ import android.view.WindowManager;
 
 public class SightReadingActivity extends Activity implements OnTouchListener,
 		CvCameraViewListener2 {
-	private static final String TAG = "SightReadingActivity";
+	public static final String TAG = "SightReadingActivity";
 
 	private boolean mIsColorSelected = false;
 	private Mat mRgba;
@@ -54,8 +51,10 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		public void onManagerConnected(int status) {
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
-				testImageLoad("/DCIM/simpleBars.png", "/DCIM/simpleBarsOut.png");
-				testImageLoad("/DCIM/square.png", "/DCIM/squareOut.png");
+				testImage("oneStave.png", "oneStaveOut.png");
+				testImage("twoStaves.png", "twoStavesOut.png");
+				testImage("threeStaves.png", "threeStavesOut.png");
+				testImage("complexStaves.png", "complexStavesOut.png");
 			}
 				break;
 			default: {
@@ -127,7 +126,7 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 	}
 
 	public boolean onTouch(View v, MotionEvent event) {
-		testImageLoad("/DCIM/simpleBars.png", "/DCIM/simpleBarsOut.png");
+		//testImage("/DCIM/simpleBars.png", "/DCIM/simpleBarsOut.png");
 
 		return false; // don't need subsequent touch events
 	}
@@ -147,56 +146,16 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		return mRgba;
 	}
 
-	public void testImageLoad(String src, String dst) {
+	public void testImage(String src, String dst) {
 		File sdDir = Environment.getExternalStorageDirectory();
-		String sdPath = sdDir.getAbsolutePath();
-		Mat houghMat = Highgui.imread(sdPath + src, 0);
+		String sdPath = sdDir.getAbsolutePath() + "/DCIM/";
+		Mat houghMat = Highgui.imread(sdPath + "input/" + src, 0);
 
-		if (houghMat == null) {
+		if (houghMat == null)
 			Log.i(TAG, "There was a problem loading the image");
-		}
-
-		for (int i = 0; i < houghMat.height(); i++) {
-			for (int j = 0; j < houghMat.width(); j++) {
-				for (int k = 0; k < houghMat.channels(); k++) {
-					double[] values = houghMat.get(i, j);
-					for (int d = 0; d < values.length; d++) {
-						values[d] = 255 - values[d];
-					}
-					houghMat.put(i, j, values);
-				}
-			}
-		}
-
-		Mat lines = new Mat();
-
-		Imgproc.HoughLinesP(houghMat, lines, 1, Math.PI / 180, 300);
-
-		double[] data;
-		Mat imageMat = new Mat();
-		Imgproc.cvtColor(houghMat, imageMat, Imgproc.COLOR_GRAY2BGR);
-
-		Scalar c1 = new Scalar(255, 0, 0);
-		Scalar c2 = new Scalar(0, 255, 0);
-		Scalar c3 = new Scalar(0, 0, 255);
-		Scalar[] cs = new Scalar[] { c1, c2, c3};
-		int j = 0;
-
-		for (int i = 0; i < lines.cols(); i++) {
-			data = lines.get(0, i);
-			Point pt1 = new Point(data[0], data[1]);
-			Point pt2 = new Point(data[2], data[3]);
-			/*
-			 * Need to check that the given line is not an almost-parallel line
-			 * to an already existing line
-			 */
-			if (Utils.areTwoLinesDifferent(pt1, pt2, lines, i)) {
-				Core.line(imageMat, pt1, pt2, cs[j % 3], 1);
-				j++;
-			}
-		}
-
-		Highgui.imwrite(sdPath + dst, imageMat);
+		
+		Mat imageMat = Utils.staveRecognition(houghMat);
+		Highgui.imwrite(sdPath + "output/" + dst, imageMat);
 		finish();
 	}
 }
