@@ -16,3 +16,5 @@ SightReading/gradlew
 SightReading/gradlew.bat
 SightReading/local.properties
 SightReading/SightReading.iml
+SightReading/libs/armeabi/libSightReading.so
+SightReading/obj/local/*
