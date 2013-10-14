@@ -154,7 +154,7 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		if (houghMat == null)
 			Log.i(TAG, "There was a problem loading the image");
 		
-		Mat imageMat = Utils.staveRecognition(houghMat);
+		Mat imageMat = Utils.detectMusic(houghMat);
 		Highgui.imwrite(sdPath + "output/" + dst, imageMat);
 		finish();
 	}

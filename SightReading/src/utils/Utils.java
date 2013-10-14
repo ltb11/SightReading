@@ -9,6 +9,7 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.sightreading.Line;
 import org.sightreading.Stave;
@@ -95,7 +96,7 @@ public class Utils {
 		Utils.invertColors(sheet);
 		Mat linesMat = new Mat();
 		Imgproc.HoughLinesP(sheet, linesMat, 1, Math.PI / 180, 100);
-		List<Line> lines = GetHoughLinesFromMat(linesMat);
+		List<Line> lines = getHoughLinesFromMat(linesMat);
 		
 		// sort them by length (longest first)
 		Collections.sort(lines, new Comparator<Line>() {
@@ -108,13 +109,15 @@ public class Utils {
 		// detect staves
 		List<Stave> staves = detectStaves(lines);
 		
-		// erase the staves
+		// erase the staves, dilate to fill gaps
 		for (Stave s : staves)
 			s.eraseFromMat(sheet);
+		Imgproc.dilate(sheet, sheet, Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(3,3)));        
 		
 		// get new houghlines
-		Imgproc.HoughLinesP(sheet, linesMat, 1, Math.PI / 180, 100);
-		lines = GetHoughLinesFromMat(linesMat);
+		Imgproc.HoughLinesP(sheet, linesMat, 1, Math.PI / 180, 50);
+
+		lines = getHoughLinesFromMat(linesMat);
 		
 		// print lines and return
 		Utils.invertColors(sheet);
@@ -165,7 +168,7 @@ public class Utils {
 		return staves;
 	}
 	
-	private static List<Line> GetHoughLinesFromMat(Mat linesMat) {
+	private static List<Line> getHoughLinesFromMat(Mat linesMat) {
 		List<Line> lines = new LinkedList<Line>();
 		double dataa[];
 		for (int i = 0; i < linesMat.cols(); i++) {
