@@ -8,19 +8,13 @@ import java.util.List;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
-import org.opencv.core.Range;
 import org.opencv.core.Scalar;
-import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 import org.sightreading.Line;
 import org.sightreading.Stave;
 
-import android.os.Environment;
-import android.util.Log;
-
 public class Utils {
 
-	private static final double angleDiff = 2;
 	private static final int minLineDirectionVectorDiff = 10;
 	private static final int minLineGap = 3;
 	private static final double horizontalError = 5;
@@ -58,17 +52,7 @@ public class Utils {
 	}
 
 	public static void invertColors(Mat mat) {
-		for (int i = 0; i < mat.height(); i++) {
-			for (int j = 0; j < mat.width(); j++) {
-				for (int k = 0; k < mat.channels(); k++) {
-					double[] values = mat.get(i, j);
-					for (int d = 0; d < values.length; d++) {
-						values[d] = 255 - values[d];
-					}
-					mat.put(i, j, values);
-				}
-			}
-		}
+		Core.bitwise_not(mat, mat);
 	}
 
 	/*
@@ -115,7 +99,8 @@ public class Utils {
 			Point pt1 = new Point(dataa[0], dataa[1]);
 			Point pt2 = new Point(dataa[2], dataa[3]);
 			Line line = new Line(pt1, pt2);
-			lines.add(line);
+			if (line.length() > 200)
+				lines.add(line);
 		}
 		Collections.sort(lines, new Comparator<Line>() {
 			@Override

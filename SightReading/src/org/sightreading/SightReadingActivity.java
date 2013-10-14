@@ -8,13 +8,10 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.highgui.Highgui;
-import org.opencv.imgproc.Imgproc;
 
 import utils.Utils;
 import android.app.Activity;
@@ -54,10 +51,10 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		public void onManagerConnected(int status) {
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
-				//testImageLoad("/DCIM/simpleBars.png", "/DCIM/simpleBarsOut.png");
-				testImage("/DCIM/twoStaves.png", "/DCIM/twoStavesOut.png");
-				//testImageLoad("/DCIM/square.png", "/DCIM/squareOut.png");
-				//testImageLoad("/DCIM/secondTest.png", "/DCIM/secondTestOut.png");
+				testImage("oneStave.png", "oneStaveOut.png");
+				testImage("twoStaves.png", "twoStavesOut.png");
+				testImage("threeStaves.png", "threeStavesOut.png");
+				testImage("complexStaves.png", "complexStavesOut.png");
 			}
 				break;
 			default: {
@@ -129,7 +126,7 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 	}
 
 	public boolean onTouch(View v, MotionEvent event) {
-		testImage("/DCIM/simpleBars.png", "/DCIM/simpleBarsOut.png");
+		//testImage("/DCIM/simpleBars.png", "/DCIM/simpleBarsOut.png");
 
 		return false; // don't need subsequent touch events
 	}
@@ -151,16 +148,14 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 
 	public void testImage(String src, String dst) {
 		File sdDir = Environment.getExternalStorageDirectory();
-		String sdPath = sdDir.getAbsolutePath();
-		Mat houghMat = Highgui.imread(sdPath + src, 0);
+		String sdPath = sdDir.getAbsolutePath() + "/DCIM/";
+		Mat houghMat = Highgui.imread(sdPath + "input/" + src, 0);
 
-		if (houghMat == null) {
+		if (houghMat == null)
 			Log.i(TAG, "There was a problem loading the image");
-		}
 		
 		Mat imageMat = Utils.staveRecognition(houghMat);
-
-		Highgui.imwrite(sdPath + dst, imageMat);
+		Highgui.imwrite(sdPath + "output/" + dst, imageMat);
 		finish();
 	}
 }
