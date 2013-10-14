@@ -85,23 +85,19 @@ public class Utils {
 		return true;
 	}
 
-	public static Mat staveRecognition(Mat sheet) {
+	public static Mat detectMusic(Mat sheet) {
+		
+		// load image
 		Mat tmpSheet = new Mat();
 		Imgproc.cvtColor(sheet, tmpSheet, Imgproc.COLOR_GRAY2BGR);
+		
+		// invert and get houghlines
 		Utils.invertColors(sheet);
 		Mat linesMat = new Mat();
 		Imgproc.HoughLinesP(sheet, linesMat, 1, Math.PI / 180, 100);
-
-		List<Line> lines = new LinkedList<Line>();
-		double dataa[];
-		for (int i = 0; i < linesMat.cols(); i++) {
-			dataa = linesMat.get(0, i);
-			Point pt1 = new Point(dataa[0], dataa[1]);
-			Point pt2 = new Point(dataa[2], dataa[3]);
-			Line line = new Line(pt1, pt2);
-			if (line.length() > 200)
-				lines.add(line);
-		}
+		List<Line> lines = GetHoughLinesFromMat(linesMat);
+		
+		// sort them by length (longest first)
 		Collections.sort(lines, new Comparator<Line>() {
 			@Override
 			public int compare(Line line0, Line line1) {
@@ -109,6 +105,26 @@ public class Utils {
 			}
 		});
 
+		// detect staves
+		List<Stave> staves = detectStaves(lines);
+		
+		// erase the staves
+		for (Stave s : staves)
+			s.eraseFromMat(sheet);
+		
+		// get new houghlines
+		Imgproc.HoughLinesP(sheet, linesMat, 1, Math.PI / 180, 100);
+		lines = GetHoughLinesFromMat(linesMat);
+		
+		// print lines and return
+		Utils.invertColors(sheet);
+		printLines(sheet,lines);	
+		return sheet;
+		
+		// TODO: no lines are printed on the returned mat, must fix
+	}
+
+	public static List<Stave> detectStaves(List<Line> lines) {
 		List<Stave> staves = new LinkedList<Stave>();
 		int outside, inside;
 		for (outside = 0; outside < lines.size(); outside++) {
@@ -146,9 +162,21 @@ public class Utils {
 			// if stave.isValid() return stave;
 
 		}
-		for (Stave s : staves)
-			s.print(tmpSheet);
-		return tmpSheet;
+		return staves;
+	}
+	
+	private static List<Line> GetHoughLinesFromMat(Mat linesMat) {
+		List<Line> lines = new LinkedList<Line>();
+		double dataa[];
+		for (int i = 0; i < linesMat.cols(); i++) {
+			dataa = linesMat.get(0, i);
+			Point pt1 = new Point(dataa[0], dataa[1]);
+			Point pt2 = new Point(dataa[2], dataa[3]);
+			Line line = new Line(pt1, pt2);
+			if (line.length() > 200)
+				lines.add(line);
+		}
+		return lines;
 	}
 
 	/*
@@ -191,4 +219,12 @@ public class Utils {
 		return new LinkedList<Line>();
 	}
 
+	public static void printLines(Mat mat, List<Line> lines) {
+		for (int i = 0; i < lines.size(); i++) {
+			//Scalar col = createHsvColor((i*10)/255,1,1);
+			Scalar col = new Scalar(255,0,0);
+			Core.line(mat, lines.get(i).start(), lines.get(i).end(), col, 1);
+		}
+	}
+	
 }
