@@ -5,12 +5,18 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Range;
 import org.opencv.core.Scalar;
+import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 import org.sightreading.Line;
 import org.sightreading.Stave;
+
+import android.os.Environment;
+import android.util.Log;
 
 public class Utils {
 
@@ -101,29 +107,7 @@ public class Utils {
 		Utils.invertColors(sheet);
 		Mat linesMat = new Mat();
 		Imgproc.HoughLinesP(sheet, linesMat, 1, Math.PI / 180, 100);
-		/*double[] data;
-		
-		Scalar c1 = new Scalar(255, 0, 0);
-		Scalar c2 = new Scalar(0, 255, 0);
-		Scalar c3 = new Scalar(0, 0, 255);
-		Scalar c4 = new Scalar(128, 128, 128);
-		Scalar c5 = new Scalar(255,255, 0);
-		Scalar[] cs = new Scalar[] { c1, c2, c3, c4, c5};
-		Mat copy = new Mat(tmpSheet, Range.all());
-		for (int i = 0; i < linesMat.cols(); i++) {
-			data = linesMat.get(0, i);
-			Point pt1 = new Point(data[0], data[1]);
-			Point pt2 = new Point(data[2], data[3]);
-			/*
-			 * Need to check that the given line is not an almost-parallel line
-			 * to an already existing line
-			 *
-			//if (Utils.areTwoLinesDifferent(pt1, pt2, lines, i)) {
-			
-				Core.line(copy, pt1, pt2, cs[i % 5], 1);
-			//}
-		}
-		Highgui.imwrite(Environment.getExternalStorageDirectory().getAbsolutePath() + "/DCIM/tmp.png", copy);*/
+
 		List<Line> lines = new LinkedList<Line>();
 		double dataa[];
 		for (int i = 0; i < linesMat.cols(); i++) {
@@ -139,13 +123,7 @@ public class Utils {
 				return (int) (Math.signum(line1.length() - line0.length()));
 			}
 		});
-		// Line l = lines.get(0);
-		// List<Line>
 
-		/*
-		 * Iterator<Line> outside = lines.iterator(); while(outside.hasNext()) {
-		 * Line first = outside.next(); Iterator<Line> inside = outside. }
-		 */
 		List<Stave> staves = new LinkedList<Stave>();
 		int outside, inside;
 		for (outside = 0; outside < lines.size(); outside++) {
@@ -154,11 +132,13 @@ public class Utils {
 
 			for (inside = outside; inside < lines.size(); inside++) {
 				Line line = lines.get(inside);
-				if (Math.abs(start.length() - line.length()) < start.length() * staveLengthTolerance ) {
+				if (Math.abs(start.length() - line.length()) < start.length()
+						* staveLengthTolerance) {
 					subset.add(line);
 				} else
 					break;
 			}
+			
 			// MID: subset contains all lines within tolerance of the start line
 			if (subset.size() < 5)
 				continue;
@@ -166,9 +146,11 @@ public class Utils {
 			// getStaveLines must return (in y-axis order) all lines that belong
 			// to a stave
 			// so they can be pulled out, 5 at a time, to create the staves
-			List<Line> staveLines = getSpacedLines(subset);
-			if (staveLines.size() != 5)
+			List<Line> staveLines = getSpacedLines(subset, lines);
+			if (staveLines.size() != 5) {
+				outside--;
 				continue;
+			}
 
 			staves.add(new Stave(staveLines));
 			lines.removeAll(staveLines);
@@ -188,7 +170,7 @@ public class Utils {
 	 * PRE: Given a list of horizontal lines of similar length Checks that the
 	 * lines are equally spaced
 	 */
-	private static List<Line> getSpacedLines(List<Line> lines) {
+	private static List<Line> getSpacedLines(List<Line> lines, List<Line> actualLines) {
 		Collections.sort(lines, new Comparator<Line>() {
 			@Override
 			public int compare(Line line0, Line line1) {
@@ -206,7 +188,8 @@ public class Utils {
 			result.add(first);
 			result.add(second);
 			for (int j = i + 1; j < lines.size(); j++) {
-				if (Math.abs(lines.get(j).start().y - pos) < space*staveGapTolerance) {
+				if (Math.abs(lines.get(j).start().y - pos) < space
+						* staveGapTolerance) {
 					pos += space;
 					result.add(lines.get(j));
 					if (result.size() == 5)
@@ -214,6 +197,8 @@ public class Utils {
 				}
 			}
 		}
+		
+		actualLines.remove(first);
 
 		/*
 		 * POST: Return only the lines that do belong to a stave

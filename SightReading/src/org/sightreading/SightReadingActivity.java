@@ -54,8 +54,8 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		public void onManagerConnected(int status) {
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
-				testImageLoad("/DCIM/simpleBars.png", "/DCIM/simpleBarsOut.png");
-				testImageLoad("/DCIM/twoStaves.png", "/DCIM/twoStavesOut.png");
+				//testImageLoad("/DCIM/simpleBars.png", "/DCIM/simpleBarsOut.png");
+				testImage("/DCIM/twoStaves.png", "/DCIM/twoStavesOut.png");
 				//testImageLoad("/DCIM/square.png", "/DCIM/squareOut.png");
 				//testImageLoad("/DCIM/secondTest.png", "/DCIM/secondTestOut.png");
 			}
@@ -129,7 +129,7 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 	}
 
 	public boolean onTouch(View v, MotionEvent event) {
-		testImageLoad("/DCIM/simpleBars.png", "/DCIM/simpleBarsOut.png");
+		testImage("/DCIM/simpleBars.png", "/DCIM/simpleBarsOut.png");
 
 		return false; // don't need subsequent touch events
 	}
@@ -149,7 +149,7 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		return mRgba;
 	}
 
-	public void testImageLoad(String src, String dst) {
+	public void testImage(String src, String dst) {
 		File sdDir = Environment.getExternalStorageDirectory();
 		String sdPath = sdDir.getAbsolutePath();
 		Mat houghMat = Highgui.imread(sdPath + src, 0);
@@ -157,37 +157,8 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		if (houghMat == null) {
 			Log.i(TAG, "There was a problem loading the image");
 		}
+		
 		Mat imageMat = Utils.staveRecognition(houghMat);
-		/*
-		Mat imageMat = new Mat();
-		Imgproc.cvtColor(houghMat, imageMat, Imgproc.COLOR_GRAY2BGR);		
-		Utils.invertColors(houghMat);
-		Highgui.imwrite(sdPath + "/DCIM/simpleBarsBW.png", houghMat);
-		
-		Mat lines = new Mat();
-		Imgproc.HoughLinesP(houghMat, lines, 1, 0.01, 100);
-		
-		double[] data;
-		
-		Scalar c1 = new Scalar(255, 0, 0);
-		Scalar c2 = new Scalar(0, 255, 0);
-		Scalar c3 = new Scalar(0, 0, 255);
-		Scalar c4 = new Scalar(128, 128, 128);
-		Scalar c5 = new Scalar(255,255, 0);
-		Scalar[] cs = new Scalar[] { c1, c2, c3, c4, c5};
-
-		for (int i = 0; i < lines.cols(); i++) {
-			data = lines.get(0, i);
-			Point pt1 = new Point(data[0], data[1]);
-			Point pt2 = new Point(data[2], data[3]);
-			/*
-			 * Need to check that the given line is not an almost-parallel line
-			 * to an already existing line
-			 *
-			//if (Utils.areTwoLinesDifferent(pt1, pt2, lines, i)) {
-				Core.line(imageMat, pt1, pt2, cs[i % 3], 1);
-			//}
-		}*/
 
 		Highgui.imwrite(sdPath + dst, imageMat);
 		finish();
