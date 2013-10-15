@@ -1,6 +1,5 @@
 package musicdetection;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -9,16 +8,13 @@ import java.util.List;
 import org.opencv.core.Core;
 import org.opencv.core.Core.MinMaxLocResult;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Range;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
 import utils.Utils;
-import android.os.Environment;
 import android.util.Log;
 
 public class DetectMusic {
@@ -153,8 +149,8 @@ public class DetectMusic {
 			if (maxVal >= threshold) {
 				Log.v("SHIT", "CHECK");
 				notes.add(new Note(new Point(maxLoc.x + noteWidth / 2, maxLoc.y + staveGap / 2)));
-				Imgproc.floodFill(result, new Mat(), maxLoc, new Scalar(0));
-			} else
+				Imgproc.floodFill(result, new Mat(), maxLoc, new Scalar(255,255,255));
+			} else 
 				break;
 			breaker++;
 		}
