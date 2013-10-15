@@ -145,5 +145,9 @@ public class Utils {
 			Core.line(mat, lines.get(i).start(), lines.get(i).end(), col, 1);
 		}
 	}
+	
+	public static void verticalProjection(Mat mat, int threshold){
+		Imgproc.
+	}
 
 }
