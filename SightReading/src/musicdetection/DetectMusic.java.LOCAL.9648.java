@@ -8,10 +8,8 @@ import java.util.List;
 import org.opencv.core.Core;
 import org.opencv.core.Core.MinMaxLocResult;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Range;
-import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -131,31 +129,30 @@ public class DetectMusic {
 
 	public static List<Note> detectNotes(Mat sheet) {
 		List<Note> notes = new LinkedList<Note>();
+		// Imgproc.erode(sheet, sheet, Imgproc.getStructuringElement(
+		// Imgproc.MORPH_RECT, new Size(10, 10)));
+		// Imgproc.erode(sheet, sheet, Imgproc.getStructuringElement(
+		// Imgproc.MORPH_RECT, new Size(7, 7)));
+		// Highgui.imwrite(Environment.getExternalStorageDirectory()
+		// .getAbsolutePath() + "/DCIM/eroded.png", sheet);
 		Mat result = new Mat();
-		Mat mask = new Mat(new Size(noteWidth, staveGap), sheet.type());
-		for (int i = 0; i < mask.cols();i++) {
-			for (int j = 0 ; j < mask.rows(); j++) {
-				mask.put(j, i, new double[] {255, 255, 255});
-			}
-		}
 		Imgproc.matchTemplate(sheet, noteHead, result, Imgproc.TM_SQDIFF);
-		Imgproc.threshold(result, result, 0.9, 1., Imgproc.THRESH_TOZERO);
-		double lastMax = 0;
-		while (true) {
+		Imgproc.threshold(result, result, 0.8, 1., Imgproc.THRESH_TOZERO);
+		int breaker = 0;
+		while (breaker < 100) {
+			double threshold = 0.8;
 			MinMaxLocResult minMaxRes = Core.minMaxLoc(result);
+			double minVal = minMaxRes.minVal;
 			double maxVal = minMaxRes.maxVal;
+			Point minLoc = minMaxRes.minLoc;
 			Point maxLoc = minMaxRes.maxLoc;
-			if (lastMax == 0 || maxVal >= lastMax * 0.99) {
-				notes.add(new Note(new Point(maxLoc.x + noteWidth / 2, maxLoc.y
-						+ staveGap / 2)));
-				Rect area = new Rect(maxLoc, mask.size());
-				Mat selectedArea = result.submat(area);
-				mask.copyTo(selectedArea);
-				Log.v("SHIT", "CHECK " + (int) maxLoc.x + "," + (int) maxLoc.y);
-				lastMax = maxVal;
-				Rect area = new Rect(maxLoc, mask.size());
+			if (maxVal >= threshold) {
+				Log.v("SHIT", "CHECK");
+				notes.add(new Note(new Point(maxLoc.x + noteWidth / 2, maxLoc.y + staveGap / 2)));
+				Imgproc.floodFill(result, new Mat(), maxLoc, new Scalar(255,255,255));
 			} else 
 				break;
+			breaker++;
 		}
 		Log.v("SHIT", "CHECK2");
 		return notes;

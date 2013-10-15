@@ -8,7 +8,11 @@ import java.util.List;
 import org.opencv.core.Core;
 import org.opencv.core.Core.MinMaxLocResult;
 import org.opencv.core.Mat;
+<<<<<<< HEAD
+=======
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfRect;
+>>>>>>> 2b4751ad79b3a3690c71bac86cad535de1e5b9d3
 import org.opencv.core.Point;
 import org.opencv.core.Range;
 import org.opencv.core.Rect;
@@ -145,6 +149,13 @@ public class DetectMusic {
 			MinMaxLocResult minMaxRes = Core.minMaxLoc(result);
 			double maxVal = minMaxRes.maxVal;
 			Point maxLoc = minMaxRes.maxLoc;
+<<<<<<< HEAD
+			if (maxVal >= threshold) {
+				Log.v("SHIT", "CHECK");
+				notes.add(new Note(new Point(maxLoc.x + noteWidth / 2, maxLoc.y + staveGap / 2)));
+				Imgproc.floodFill(result, new Mat(), maxLoc, new Scalar(255,255,255));
+			} else 
+=======
 			if (lastMax == 0 || maxVal >= lastMax * 0.99) {
 				notes.add(new Note(new Point(maxLoc.x + noteWidth / 2, maxLoc.y
 						+ staveGap / 2)));
@@ -153,8 +164,8 @@ public class DetectMusic {
 				mask.copyTo(selectedArea);
 				Log.v("SHIT", "CHECK " + (int) maxLoc.x + "," + (int) maxLoc.y);
 				lastMax = maxVal;
-				Rect area = new Rect(maxLoc, mask.size());
-			} else 
+			} else
+>>>>>>> 2b4751ad79b3a3690c71bac86cad535de1e5b9d3
 				break;
 		}
 		Log.v("SHIT", "CHECK2");

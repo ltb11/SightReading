@@ -11,7 +11,6 @@ import org.opencv.core.Mat;
 import org.opencv.highgui.Highgui;
 
 import android.app.Activity;
-import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;

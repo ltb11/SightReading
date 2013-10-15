@@ -153,5 +153,13 @@ public class Utils {
 			Core.line(mat, lines.get(i).start(), lines.get(i).end(), col, 1);
 		}
 	}
+	
+	public static void verticalProjection(Mat mat){
+		Core.reduce(mat, mat, 0, Core.REDUCE_SUM);
+	}
+	
+	public static void horizontalProjection(Mat mat){
+		Core.reduce(mat, mat, 1, Core.REDUCE_SUM);
+	}
 
 }

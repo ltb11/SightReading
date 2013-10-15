@@ -1,5 +1,6 @@
 package musicdetection;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -8,15 +9,18 @@ import java.util.List;
 import org.opencv.core.Core;
 import org.opencv.core.Core.MinMaxLocResult;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Range;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
 import utils.Utils;
+import android.os.Environment;
 import android.util.Log;
 
 public class DetectMusic {
@@ -153,8 +157,7 @@ public class DetectMusic {
 				mask.copyTo(selectedArea);
 				Log.v("SHIT", "CHECK " + (int) maxLoc.x + "," + (int) maxLoc.y);
 				lastMax = maxVal;
-				Rect area = new Rect(maxLoc, mask.size());
-			} else 
+			} else
 				break;
 		}
 		Log.v("SHIT", "CHECK2");
