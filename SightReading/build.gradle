@@ -1,0 +1,42 @@
+buildscript{
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.6.1'
+    }
+
+}
+
+apply plugin: 'android'
+
+android {
+    compileSdkVersion 17
+    buildToolsVersion "18.1.1"
+
+    sourceSets{
+        main{
+            manifest{
+                srcFile 'AndroidManifest.xml'
+            }
+            java {
+                srcDir 'src'
+            }
+            assets {
+                srcDir 'assets'
+            }
+            res {
+                srcDir 'res'
+            }
+        }
+        
+        instrumentTest.setRoot('tests')
+    }
+    
+}
+
+dependencies {
+}
+
