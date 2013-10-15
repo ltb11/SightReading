@@ -1,0 +1,1 @@
+Sight Reading for Cyborgs=========================## Team Members    ltb11    renzyq19    mml10    conradg    dracoflamme[Project Log and Timetable](https://drive.google.com/?usp=folder&authuser=0#folders/0BwRvR4WbWKIkcDF6UlhENFllYk0)
