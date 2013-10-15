@@ -1,6 +1,5 @@
 package musicdetection;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -8,17 +7,17 @@ import java.util.List;
 
 import org.opencv.core.Core;
 import org.opencv.core.Core.MinMaxLocResult;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Range;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
 import utils.Utils;
-import android.os.Environment;
 import android.util.Log;
 
 public class DetectMusic {
@@ -33,22 +32,36 @@ public class DetectMusic {
 		Mat output = new Mat(sheet, Range.all());
 		Imgproc.cvtColor(sheet, output, Imgproc.COLOR_GRAY2BGR);
 
+		int width = sheet.cols();
+		int height = sheet.rows();
+		int sep = 250;
+		for (int j = 0; j < width; j += sep) {
+			for (int i = 0; i < height; i += sep) {
+				int xMax = Math.min(j + sep, width);
+				int yMax = Math.min(i + sep, height);
+				Mat section = new Mat(sheet, new Range(i, yMax), new Range(j,
+						xMax));
+				// Mat section = new Mat(sheet, new Range(j,xMax), new
+				// Range(i,yMax));
+
+				// Mat section = new Mat(sheet, new Range(0,3000), new
+				// Range(0,2000));
+
+				double mean = Core.mean(section).val[0];
+				mean = Math.max(Math.min(mean - 20, 255), 0);
+				Imgproc.threshold(section, section, mean, 256,
+						Imgproc.THRESH_BINARY);
+
+				Rect area = new Rect(new Point(j, i), section.size());
+				Mat selectedArea = sheet.submat(area);
+				section.copyTo(selectedArea);
+
+			}
+		}
+
 		// invert and get houghlines
 		Utils.invertColors(sheet);
-		Mat linesMat = new Mat();
-		Imgproc.HoughLinesP(sheet, linesMat, 1, Math.PI / 180, 100);
-		List<Line> lines = Utils.getHoughLinesFromMat(linesMat);
-
-		// sort them by length (longest first)
-		Collections.sort(lines, new Comparator<Line>() {
-			@Override
-			public int compare(Line line0, Line line1) {
-				return (int) (Math.signum(line1.length() - line0.length()));
-			}
-		});
-
-		// detect staves
-		List<Stave> staves = detectStaves(lines);
+		Mat newSheet = correctImage(sheet);
 
 		// copy mat
 		// dil
@@ -102,33 +115,45 @@ public class DetectMusic {
 		 */
 
 		// erase the staves, dilate to fill gaps
-		for (Stave s : staves)
-			s.eraseFromMat(sheet);
-		staveGap = staves.get(0).staveGap();
-		Utils.resizeImage(noteHead, staveGap);
-		noteWidth = noteHead.cols();
-		Imgproc.dilate(sheet, sheet, Imgproc.getStructuringElement(
-				Imgproc.MORPH_RECT, new Size(3, 3)));
-
-		Mat tmpSheet = new Mat(sheet, Range.all());
-		List<Note> notes = detectNotes(tmpSheet);
-
-		for (Note n : notes) {
-			Core.circle(output, n.center(), 10, new Scalar(0, 0, 255));
-		}
-
-		// Core.circle(output, new Point(258, 209), 10, new Scalar(0,0,255));
-		// get new houghlines
-		// Imgproc.HoughLinesP(sheet, linesMat, 1, Math.PI / 180, 100);
-		// lines = Utils.getHoughLinesFromMat(linesMat);
+		/*
+		 * for (Stave s : staves) s.eraseFromMat(sheet); staveGap =
+		 * staves.get(0).staveGap(); Utils.resizeImage(noteHead, staveGap);
+		 * noteWidth = noteHead.cols(); Imgproc.dilate(sheet, sheet,
+		 * Imgproc.getStructuringElement( Imgproc.MORPH_RECT, new Size(3, 3)));
+		 * 
+		 * Mat tmpSheet = new Mat(sheet, Range.all()); List<Note> notes =
+		 * detectNotes(tmpSheet);
+		 * 
+		 * for (Note n : notes) { Core.circle(output, n.center(), 10, new
+		 * Scalar(0, 0, 255)); }
+		 * 
+		 * // Core.circle(output, new Point(258, 209), 10, new Scalar(0,0,255));
+		 * // get new houghlines // Imgproc.HoughLinesP(sheet, linesMat, 1,
+		 * Math.PI / 180, 100); // lines = Utils.getHoughLinesFromMat(linesMat);
+		 */
 
 		// print lines and return
-		Utils.invertColors(sheet);
+		Utils.invertColors(newSheet);
 
 		// printLines(output,lines);
-		return output;
+		return newSheet;
 
 		// TODO: no lines are printed on the returned mat, must fix
+	}
+
+	private static List<Line> GetLines(Mat sheet) {
+		Mat linesMat = new Mat();
+		Imgproc.HoughLinesP(sheet, linesMat, 1, Math.PI / 180, 100);
+		List<Line> lines = Utils.getHoughLinesFromMat(linesMat);
+
+		// sort them by length (longest first)
+		Collections.sort(lines, new Comparator<Line>() {
+			@Override
+			public int compare(Line line0, Line line1) {
+				return (int) (Math.signum(line1.length() - line0.length()));
+			}
+		});
+		return lines;
 	}
 
 	public static List<Note> detectNotes(Mat sheet) {
@@ -152,7 +177,8 @@ public class DetectMusic {
 			Point maxLoc = minMaxRes.maxLoc;
 			if (maxVal >= threshold) {
 				Log.v("SHIT", "CHECK");
-				notes.add(new Note(new Point(maxLoc.x + noteWidth / 2, maxLoc.y + staveGap / 2)));
+				notes.add(new Note(new Point(maxLoc.x + noteWidth / 2, maxLoc.y
+						+ staveGap / 2)));
 				Imgproc.floodFill(result, new Mat(), maxLoc, new Scalar(0));
 			} else
 				break;
@@ -203,4 +229,45 @@ public class DetectMusic {
 		return staves;
 	}
 
+	public static Mat correctImage(Mat sheet) {
+
+		// detect staves
+		List<Line> lines = GetLines(sheet);
+		List<Stave> staves = detectStaves(lines);
+
+		//
+		Line top = staves.get(0).TopLine();
+		Line bottom = staves.get(staves.size() - 1).BottomLine();
+
+		Point topLeft = top.start();
+		Point topRight = top.end();
+		Point bottomLeft = bottom.start();
+		Point bottomRight = bottom.end();
+
+		float width = sheet.cols();
+		float height = sheet.rows();
+
+		float ratio = width / height;
+
+		int newWidth = 2000;
+		int newHeight = (int) (newWidth / ratio);
+
+		Size newSize = new Size(newWidth, newHeight);
+		Mat scaledSheet = new Mat(newSize, CvType.CV_8UC1);
+
+		Point newTopLeft = new Point(0, 0);
+		Point newTopRight = new Point(newWidth, 0);
+		Point newBottomRight = new Point(newWidth, newHeight);
+		Point newBottomLeft = new Point(0, newHeight);
+
+		MatOfPoint2f src = new MatOfPoint2f(topLeft, topRight, bottomRight,
+				bottomLeft);
+		MatOfPoint2f dst = new MatOfPoint2f(newTopLeft, newTopRight,
+				newBottomRight, newBottomLeft);
+		Mat transform = Imgproc.getPerspectiveTransform(src, dst);
+
+		Imgproc.warpPerspective(sheet, scaledSheet, transform, newSize);
+
+		return scaledSheet;
+	}
 }

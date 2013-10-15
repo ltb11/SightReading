@@ -35,5 +35,12 @@ public class Stave {
 	public double staveGap() {
 		return staveGap;
 	}
-	
+
+	public Line TopLine() {
+		return lines.get(0);
+	}
+
+	public Line BottomLine() {
+		return lines.get(4);
+	}	
 }

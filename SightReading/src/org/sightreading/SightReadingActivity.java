@@ -11,7 +11,6 @@ import org.opencv.core.Mat;
 import org.opencv.highgui.Highgui;
 
 import android.app.Activity;
-import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -29,7 +28,9 @@ public class SightReadingActivity extends Activity {
 				//testImage("oneStave.png", "oneStaveOut.png");
 				//testImage("twoStaves.png", "twoStavesOut.png");
 				//testImage("threeStaves.png", "threeStavesOut.png");
-				testImage("complexStaves.png", "complexStavesOut.png");
+				//testImage("complexStaves.png", "complexStavesOut.png");
+				testImage("baaBaaDistorted.jpg", "baaBaaOut.png");
+				
 			}
 				break;
 			default: {
