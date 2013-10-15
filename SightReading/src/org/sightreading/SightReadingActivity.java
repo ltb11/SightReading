@@ -2,6 +2,8 @@ package org.sightreading;
 
 import java.io.File;
 
+import musicdetection.DetectMusic;
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
@@ -13,7 +15,6 @@ import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.highgui.Highgui;
 
-import utils.Utils;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Environment;
@@ -154,7 +155,7 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		if (houghMat == null)
 			Log.i(TAG, "There was a problem loading the image");
 		
-		Mat imageMat = Utils.detectMusic(houghMat);
+		Mat imageMat = DetectMusic.detectMusic(houghMat);
 		Highgui.imwrite(sdPath + "output/" + dst, imageMat);
 		finish();
 	}

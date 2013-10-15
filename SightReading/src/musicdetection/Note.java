@@ -1,4 +1,4 @@
-package org.sightreading;
+package musicdetection;
 
 import org.opencv.core.Point;
 
