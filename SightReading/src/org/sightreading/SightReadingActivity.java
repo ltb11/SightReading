@@ -11,6 +11,7 @@ import org.opencv.core.Mat;
 import org.opencv.highgui.Highgui;
 
 import android.app.Activity;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -25,10 +26,10 @@ public class SightReadingActivity extends Activity {
 		public void onManagerConnected(int status) {
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
-				// testImage("oneStave.png", "oneStaveOut.png");
-				// testImage("twoStaves.png", "twoStavesOut.png");
-				testImage("threeStaves.png", "threeStavesOut.png");
-				// testImage("complexStaves.png", "complexStavesOut.png");
+				//testImage("oneStave.png", "oneStaveOut.png");
+				//testImage("twoStaves.png", "twoStavesOut.png");
+				//testImage("threeStaves.png", "threeStavesOut.png");
+				testImage("complexStaves.png", "complexStavesOut.png");
 			}
 				break;
 			default: {
@@ -62,6 +63,7 @@ public class SightReadingActivity extends Activity {
 		File sdDir = Environment.getExternalStorageDirectory();
 		String sdPath = sdDir.getAbsolutePath() + "/DCIM/";
 		Mat houghMat = Highgui.imread(sdPath + "input/" + src, 0);
+		DetectMusic.noteHead = Highgui.imread(sdPath + "assets/notehead.png", 0);
 
 		if (houghMat == null)
 			Log.i(TAG, "There was a problem loading the image");

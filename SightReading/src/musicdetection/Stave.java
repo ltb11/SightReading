@@ -8,12 +8,14 @@ import org.opencv.core.Scalar;
 
 public class Stave {
 
-	List<Line> lines;
+	private List<Line> lines;
+	private double staveGap;
 	
 	public Stave(List<Line> lines) {
 		this.lines = lines;
 		if (lines.size() != 5)
 			throw new RuntimeException("Stave must have 5 lines!");
+		staveGap = (lines.get(4).start().y - lines.get(0).start().y) / 4; 
 	}
 	
 	public void eraseFromMat(Mat image) {
@@ -28,6 +30,10 @@ public class Stave {
 		for (int i = 0; i < 5; i++) {
 			Core.line(image, lines.get(i).start(), lines.get(i).end(), col, 1);
 		}
+	}
+	
+	public double staveGap() {
+		return staveGap;
 	}
 	
 }
