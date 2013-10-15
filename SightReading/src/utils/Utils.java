@@ -11,6 +11,8 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
 
 public class Utils {
 
@@ -138,6 +140,12 @@ public class Utils {
 		return new LinkedList<Line>();
 	}
 
+	public static void resizeImage(Mat image, double newHeight) {
+		double newWidth = newHeight * image.cols() / image.rows();
+		Size newSize = new Size(newWidth, newHeight);
+		Imgproc.resize(image, image, newSize);
+	}
+	
 	public static void printLines(Mat mat, List<Line> lines) {
 		for (int i = 0; i < lines.size(); i++) {
 			// Scalar col = createHsvColor((i*10)/255,1,1);
