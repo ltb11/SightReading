@@ -38,5 +38,6 @@ android {
 }
 
 dependencies {
+    compile files('libs/android-opencv.jar')
 }
 
