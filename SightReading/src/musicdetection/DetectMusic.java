@@ -15,6 +15,7 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.sightreading.SightReadingActivity;
 
 import utils.Utils;
 import android.util.Log;
@@ -25,6 +26,7 @@ public class DetectMusic {
 	public static Mat noteHead;
 	private static double staveGap;
 	private static double noteWidth;
+	private static List<Line> ourStaves = new LinkedList<Line>();
 
 	public static Mat detectMusic(Mat sheet) {
 
@@ -133,31 +135,59 @@ public class DetectMusic {
 		List<Note> notes = new LinkedList<Note>();
 		Mat result = new Mat();
 		Mat mask = new Mat(new Size(noteWidth, staveGap), sheet.type());
-		for (int i = 0; i < mask.cols();i++) {
-			for (int j = 0 ; j < mask.rows(); j++) {
-				mask.put(j, i, new double[] {255, 255, 255});
+		for (int i = 0; i < mask.cols(); i++) {
+			for (int j = 0; j < mask.rows(); j++) {
+				mask.put(j, i, new double[] { 0 });
 			}
 		}
 		Imgproc.matchTemplate(sheet, noteHead, result, Imgproc.TM_SQDIFF);
-		Imgproc.threshold(result, result, 0.9, 1., Imgproc.THRESH_TOZERO);
-		double lastMax = 0;
-		while (true) {
-			MinMaxLocResult minMaxRes = Core.minMaxLoc(result);
-			double maxVal = minMaxRes.maxVal;
-			Point maxLoc = minMaxRes.maxLoc;
-			if (lastMax == 0 || maxVal >= lastMax * 0.99) {
+		// Imgproc.threshold(result, result, 0.9, 1., Imgproc.THRESH_TOZERO);
+		int breaker = 0;
+		MinMaxLocResult minMaxRes = Core.minMaxLoc(result);
+		double maxVal = minMaxRes.maxVal;
+		Point maxLoc = minMaxRes.maxLoc;
+		double maxAllowedVal = maxVal * 0.966;
+		while (breaker < 60) {
+			minMaxRes = Core.minMaxLoc(result);
+			maxVal = minMaxRes.maxVal;
+			maxLoc = minMaxRes.maxLoc;
+			if (maxVal > maxAllowedVal && isExpected((int) maxLoc.y)) {
 				notes.add(new Note(new Point(maxLoc.x + noteWidth / 2, maxLoc.y
 						+ staveGap / 2)));
 				Rect area = new Rect(maxLoc, mask.size());
 				Mat selectedArea = result.submat(area);
 				mask.copyTo(selectedArea);
-				Log.v("SHIT", "CHECK " + (int) maxLoc.x + "," + (int) maxLoc.y);
-				lastMax = maxVal;
-			} else 
+				Log.v("conrad",
+						String.valueOf(result.get((int) maxLoc.y,
+								(int) maxLoc.x)[0])
+								+ " "
+								+ String.valueOf(maxLoc.y)
+								+ ", "
+								+ String.valueOf(maxLoc.x));
+				int noteWidthInt = (int) noteWidth / 2;
+				int noteHeightInt = (int) staveGap / 2;
+				Utils.zeroInMatrix(result, new Point(maxLoc.x - noteWidthInt,
+						maxLoc.y - noteHeightInt), (int) noteWidth,
+						(int) staveGap);
+			} else
 				break;
+			breaker++;
 		}
 		Log.v("SHIT", "CHECK2");
 		return notes;
+	}
+	
+	private static boolean isExpected(int y) {
+		int staveGapInt = (int) staveGap;
+		int maxGap = 100;
+		Line l = ourStaves.get(0);
+		int i = 0,j = (int) l.start().y;
+		while (j < y) {
+			i = j;
+			j += staveGapInt/2;
+		}
+		maxGap = (int) Math.min(Math.abs(y - i), Math.abs(y - j));
+		return (maxGap <= 1);
 	}
 
 	public static List<Stave> detectStaves(List<Line> lines) {
@@ -190,6 +220,7 @@ public class DetectMusic {
 			}
 
 			staves.add(new Stave(staveLines));
+			ourStaves.addAll(staveLines);
 			lines.removeAll(staveLines);
 			// Need to start all over again since lines has been changed
 			outside = -1;

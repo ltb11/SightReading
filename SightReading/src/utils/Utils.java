@@ -13,6 +13,7 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.sightreading.SightReadingActivity;
 
 import android.os.Environment;
 
@@ -147,6 +148,7 @@ public class Utils {
 		double newWidth = newHeight * image.cols() / image.rows();
 		Size newSize = new Size(newWidth, newHeight);
 		Imgproc.resize(image, image, newSize);
+		SightReadingActivity.writeImage(image, SightReadingActivity.getPath("output/checkNote.png"));
 	}
 	
 	public static void printLines(Mat mat, List<Line> lines) {
@@ -154,6 +156,18 @@ public class Utils {
 			// Scalar col = createHsvColor((i*10)/255,1,1);
 			Scalar col = new Scalar(255, 0, 0);
 			Core.line(mat, lines.get(i).start(), lines.get(i).end(), col, 1);
+		}
+	}
+	
+	public static void zeroInMatrix(Mat mat, Point start, int width, int height) {
+		int startX = (int) start.x;
+		int startY = (int) start.y;
+		for (int i = 0; i < width; i++) {
+			for (int j = 0; j < height; j++) {
+				int x = Math.max(startX + i, 0);
+				int y = Math.max(startY + j, 0);
+				mat.put(y , x, new double[] {0});
+			}
 		}
 	}
 	
