@@ -162,8 +162,8 @@ public class Utils {
 	public static void zeroInMatrix(Mat mat, Point start, int width, int height) {
 		int startX = (int) start.x;
 		int startY = (int) start.y;
-		for (int i = 0; i < width; i++) {
-			for (int j = 0; j < height; j++) {
+		for (int i = - width + 1; i < width; i++) {
+			for (int j = - height + 1; j < height; j++) {
 				int x = Math.max(startX + i, 0);
 				int y = Math.max(startY + j, 0);
 				mat.put(y , x, new double[] {0});

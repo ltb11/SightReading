@@ -8,14 +8,12 @@ import java.util.List;
 import org.opencv.core.Core;
 import org.opencv.core.Core.MinMaxLocResult;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
 import org.opencv.core.Range;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
-import org.sightreading.SightReadingActivity;
 
 import utils.Utils;
 import android.util.Log;
@@ -151,7 +149,7 @@ public class DetectMusic {
 			minMaxRes = Core.minMaxLoc(result);
 			maxVal = minMaxRes.maxVal;
 			maxLoc = minMaxRes.maxLoc;
-			if (maxVal > maxAllowedVal && isExpected((int) maxLoc.y)) {
+			if (maxVal > maxAllowedVal) {
 				notes.add(new Note(new Point(maxLoc.x + noteWidth / 2, maxLoc.y
 						+ staveGap / 2)));
 				Rect area = new Rect(maxLoc, mask.size());
@@ -164,10 +162,8 @@ public class DetectMusic {
 								+ String.valueOf(maxLoc.y)
 								+ ", "
 								+ String.valueOf(maxLoc.x));
-				int noteWidthInt = (int) noteWidth / 2;
-				int noteHeightInt = (int) staveGap / 2;
-				Utils.zeroInMatrix(result, new Point(maxLoc.x - noteWidthInt,
-						maxLoc.y - noteHeightInt), (int) noteWidth,
+				Utils.zeroInMatrix(result, new Point(maxLoc.x,
+						maxLoc.y), (int) noteWidth,
 						(int) staveGap);
 			} else
 				break;
@@ -175,19 +171,6 @@ public class DetectMusic {
 		}
 		Log.v("SHIT", "CHECK2");
 		return notes;
-	}
-	
-	private static boolean isExpected(int y) {
-		int staveGapInt = (int) staveGap;
-		int maxGap = 100;
-		Line l = ourStaves.get(0);
-		int i = 0,j = (int) l.start().y;
-		while (j < y) {
-			i = j;
-			j += staveGapInt/2;
-		}
-		maxGap = (int) Math.min(Math.abs(y - i), Math.abs(y - j));
-		return (maxGap <= 1);
 	}
 
 	public static List<Stave> detectStaves(List<Line> lines) {
