@@ -153,7 +153,6 @@ public class DetectMusic {
 				mask.copyTo(selectedArea);
 				Log.v("SHIT", "CHECK " + (int) maxLoc.x + "," + (int) maxLoc.y);
 				lastMax = maxVal;
-				Rect area = new Rect(maxLoc, mask.size());
 			} else 
 				break;
 		}

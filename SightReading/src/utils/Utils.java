@@ -14,12 +14,15 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import android.os.Environment;
+
 public class Utils {
 
 	private static final int minLineDirectionVectorDiff = 10;
 	private static final int minLineGap = 3;
 	private static final double horizontalError = 5;
 	private static final double staveGapTolerance = 0.2;
+	public static final String sdPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DCIM/";
 
 	public static Scalar createHsvColor(float hue, float saturation, float value) {
 		int h = (int) (hue * 6);
