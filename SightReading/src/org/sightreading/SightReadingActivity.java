@@ -1,7 +1,5 @@
 package org.sightreading;
 
-import java.io.File;
-
 import musicdetection.DetectMusic;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -10,9 +8,9 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
 import org.opencv.highgui.Highgui;
 
+import utils.Utils;
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
@@ -61,16 +59,31 @@ public class SightReadingActivity extends Activity {
 	}
 
 	public void testImage(String src, String dst) {
-		File sdDir = Environment.getExternalStorageDirectory();
-		String sdPath = sdDir.getAbsolutePath() + "/DCIM/";
-		Mat houghMat = Highgui.imread(sdPath + "input/" + src, 0);
-		DetectMusic.noteHead = Highgui.imread(sdPath + "assets/notehead.png", 0);
-
-		if (houghMat == null)
-			Log.i(TAG, "There was a problem loading the image");
+		String srcPath = getPath("input/" + src);
+		
+		Mat houghMat = readImage(srcPath);
+		String notePath = getPath("assets/notehead.png");
+		DetectMusic.noteHead = readImage(notePath);
 
 		Mat imageMat = DetectMusic.detectMusic(houghMat);
-		Highgui.imwrite(sdPath + "output/" + dst, imageMat);
+		writeImage(imageMat, getPath("output/" + dst));
 		finish();
+	}
+	
+	public Mat readImage(String src){
+		
+		Mat img =  Highgui.imread(src, 0);
+		if (img == null)
+			Log.i(TAG, "There was a problem loading the image " + src);
+		return img;
+	}
+	
+	public static void writeImage(Mat src, String dst){
+		Highgui.imwrite(dst, src);
+	}
+	
+	//returns the path of a given src image, assuming root directory of DCIM
+	public static String getPath(String src){
+		return Utils.sdPath + src;
 	}
 }

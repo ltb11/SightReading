@@ -13,6 +13,9 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.sightreading.SightReadingActivity;
+
+import android.os.Environment;
 
 public class Utils {
 
@@ -20,6 +23,7 @@ public class Utils {
 	private static final int minLineGap = 3;
 	private static final double horizontalError = 5;
 	private static final double staveGapTolerance = 0.2;
+	public static final String sdPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DCIM/";
 
 	public static Scalar createHsvColor(float hue, float saturation, float value) {
 		return new Scalar(0,255,0);
@@ -145,6 +149,7 @@ public class Utils {
 		double newWidth = newHeight * image.cols() / image.rows();
 		Size newSize = new Size(newWidth, newHeight);
 		Imgproc.resize(image, image, newSize);
+		SightReadingActivity.writeImage(image, SightReadingActivity.getPath("output/checkNote.png"));
 	}
 	
 	public static void printLines(Mat mat, List<Line> lines) {
@@ -153,6 +158,26 @@ public class Utils {
 			//Scalar col = new Scalar(255, 0, 0);
 			Core.line(mat, lines.get(i).start(), lines.get(i).end(), col, 5);
 		}
+	}
+	
+	public static void zeroInMatrix(Mat mat, Point start, int width, int height) {
+		int startX = (int) start.x;
+		int startY = (int) start.y;
+		for (int i = - width + 1; i < width; i++) {
+			for (int j = - height + 1; j < height; j++) {
+				int x = Math.max(startX + i, 0);
+				int y = Math.max(startY + j, 0);
+				mat.put(y , x, new double[] {0});
+			}
+		}
+	}
+	
+	public static void verticalProjection(Mat mat){
+		Core.reduce(mat, mat, 0, Core.REDUCE_SUM);
+	}
+	
+	public static void horizontalProjection(Mat mat){
+		Core.reduce(mat, mat, 1, Core.REDUCE_SUM);
 	}
 
 }

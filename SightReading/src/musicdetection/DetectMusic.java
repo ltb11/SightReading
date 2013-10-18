@@ -2,13 +2,11 @@ package musicdetection;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.opencv.core.Core;
 import org.opencv.core.Core.MinMaxLocResult;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
@@ -27,6 +25,7 @@ public class DetectMusic {
 	public static Mat noteHead;
 	private static double staveGap;
 	private static double noteWidth;
+	private static List<Line> ourStaves = new LinkedList<Line>();
 
 	public static Mat detectMusic(Mat sheet) {
 
@@ -182,16 +181,17 @@ public class DetectMusic {
 
 	public static List<Note> detectNotes(Mat sheet) {
 		List<Note> notes = new LinkedList<Note>();
-		// Imgproc.erode(sheet, sheet, Imgproc.getStructuringElement(
-		// Imgproc.MORPH_RECT, new Size(10, 10)));
-		// Imgproc.erode(sheet, sheet, Imgproc.getStructuringElement(
-		// Imgproc.MORPH_RECT, new Size(7, 7)));
-		// Highgui.imwrite(Environment.getExternalStorageDirectory()
-		// .getAbsolutePath() + "/DCIM/eroded.png", sheet);
 		Mat result = new Mat();
+		Mat mask = new Mat(new Size(noteWidth, staveGap), sheet.type());
+		for (int i = 0; i < mask.cols(); i++) {
+			for (int j = 0; j < mask.rows(); j++) {
+				mask.put(j, i, new double[] { 0 });
+			}
+		}
 		Imgproc.matchTemplate(sheet, noteHead, result, Imgproc.TM_SQDIFF);
-		Imgproc.threshold(result, result, 0.8, 1., Imgproc.THRESH_TOZERO);
+		// Imgproc.threshold(result, result, 0.9, 1., Imgproc.THRESH_TOZERO);
 		int breaker = 0;
+
 		while (breaker < 100) {
 			double threshold = 0.8;
 			MinMaxLocResult minMaxRes = Core.minMaxLoc(result);
@@ -204,6 +204,21 @@ public class DetectMusic {
 				notes.add(new Note(new Point(maxLoc.x + noteWidth / 2, maxLoc.y
 						+ staveGap / 2)));
 				Imgproc.floodFill(result, new Mat(), maxLoc, new Scalar(0));
+				/*
+				 * MinMaxLocResult minMaxRes = Core.minMaxLoc(result); double
+				 * maxVal = minMaxRes.maxVal; Point maxLoc = minMaxRes.maxLoc;
+				 * double maxAllowedVal = maxVal * 0.966; while (breaker < 60) {
+				 * minMaxRes = Core.minMaxLoc(result); maxVal =
+				 * minMaxRes.maxVal; maxLoc = minMaxRes.maxLoc; if (maxVal >
+				 * maxAllowedVal) { notes.add(new Note(new Point(maxLoc.x +
+				 * noteWidth / 2, maxLoc.y + staveGap / 2))); Rect area = new
+				 * Rect(maxLoc, mask.size()); Mat selectedArea =
+				 * result.submat(area); mask.copyTo(selectedArea);
+				 * Log.v("conrad", String.valueOf(result.get((int) maxLoc.y,
+				 * (int) maxLoc.x)[0]) + " " + String.valueOf(maxLoc.y) + ", " +
+				 * String.valueOf(maxLoc.x)); Utils.zeroInMatrix(result, new
+				 * Point(maxLoc.x, maxLoc.y), (int) noteWidth, (int) staveGap);
+				 */
 			} else
 				break;
 			breaker++;
@@ -250,6 +265,7 @@ public class DetectMusic {
 			}
 
 			staves.add(new Stave(staveLines));
+			ourStaves.addAll(staveLines);
 			lines.removeAll(staveLines);
 			// Need to start all over again since lines has been changed
 			outside = -1;
