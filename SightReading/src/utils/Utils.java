@@ -22,7 +22,8 @@ public class Utils {
 	private static final double staveGapTolerance = 0.2;
 
 	public static Scalar createHsvColor(float hue, float saturation, float value) {
-		int h = (int) (hue * 6);
+		return new Scalar(0,255,0);
+		/*int h = (int) ((hue % 1f) * 6);
 		float f = hue * 6 - h;
 		float p = value * (1 - saturation);
 		float q = value * (1 - f * saturation);
@@ -44,7 +45,7 @@ public class Utils {
 			throw new RuntimeException(
 					"Something went wrong when converting from HSV to RGB. Input was "
 							+ hue + ", " + saturation + ", " + value);
-		}
+		}*/
 	}
 
 	public boolean isHorizontal(Line l) {
@@ -148,9 +149,9 @@ public class Utils {
 	
 	public static void printLines(Mat mat, List<Line> lines) {
 		for (int i = 0; i < lines.size(); i++) {
-			// Scalar col = createHsvColor((i*10)/255,1,1);
-			Scalar col = new Scalar(255, 0, 0);
-			Core.line(mat, lines.get(i).start(), lines.get(i).end(), col, 1);
+			Scalar col = createHsvColor((i*10)/255,1,1);
+			//Scalar col = new Scalar(255, 0, 0);
+			Core.line(mat, lines.get(i).start(), lines.get(i).end(), col, 5);
 		}
 	}
 

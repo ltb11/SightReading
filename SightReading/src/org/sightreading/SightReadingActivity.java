@@ -29,7 +29,7 @@ public class SightReadingActivity extends Activity {
 				//testImage("twoStaves.png", "twoStavesOut.png");
 				//testImage("threeStaves.png", "threeStavesOut.png");
 				//testImage("complexStaves.png", "complexStavesOut.png");
-				testImage("baaBaaDistorted.jpg", "baaBaaOut.png");
+				testImage("baaBaa.jpg", "baaBaaOut.png");
 				
 			}
 				break;
