@@ -23,11 +23,12 @@ public class Utils {
 	private static final int minLineGap = 3;
 	private static final double horizontalError = 5;
 	private static final double staveGapTolerance = 0.2;
-	public static final String sdPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/DCIM/";
+	public static final String sdPath = Environment
+			.getExternalStorageDirectory().getAbsolutePath() + "/DCIM/";
 
 	public static Scalar createHsvColor(float hue, float saturation, float value) {
-		return new Scalar(0,255,0);
-		/*int h = (int) ((hue % 1f) * 6);
+
+		int h = (int) ((hue % 1f) * 6);
 		float f = hue * 6 - h;
 		float p = value * (1 - saturation);
 		float q = value * (1 - f * saturation);
@@ -49,7 +50,8 @@ public class Utils {
 			throw new RuntimeException(
 					"Something went wrong when converting from HSV to RGB. Input was "
 							+ hue + ", " + saturation + ", " + value);
-		}*/
+		}
+
 	}
 
 	public boolean isHorizontal(Line l) {
@@ -149,34 +151,48 @@ public class Utils {
 		double newWidth = newHeight * image.cols() / image.rows();
 		Size newSize = new Size(newWidth, newHeight);
 		Imgproc.resize(image, image, newSize);
-		SightReadingActivity.writeImage(image, SightReadingActivity.getPath("output/checkNote.png"));
+		SightReadingActivity.writeImage(image,
+				SightReadingActivity.getPath("output/checkNote.png"));
 	}
-	
-	public static void printLines(Mat mat, List<Line> lines) {
+
+	public static void printLines(Mat mat, List<Line> lines, Scalar colour) {
 		for (int i = 0; i < lines.size(); i++) {
-			Scalar col = createHsvColor((i*10)/255,1,1);
-			//Scalar col = new Scalar(255, 0, 0);
-			Core.line(mat, lines.get(i).start(), lines.get(i).end(), col, 5);
+			Core.line(mat, lines.get(i).start(), lines.get(i).end(), colour, 5);
 		}
 	}
-	
+
+	public static void printMulticolouredLines(Mat mat, List<Line> lines) {
+		for (int i = 0; i < lines.size(); i++) {
+			Scalar colour = new Scalar(Mod((100 + i) * i, 255), Mod((200 + i)
+					* i, 255), Mod((300 + i) * i, 255));
+			Core.line(mat, lines.get(i).start(), lines.get(i).end(), colour, 5);
+		}
+	}
+
+	public static int Mod(int numberBeingDivided, int divisor) {
+		while (numberBeingDivided > divisor) {
+			numberBeingDivided -= divisor;
+		}
+		return numberBeingDivided;
+	}
+
 	public static void zeroInMatrix(Mat mat, Point start, int width, int height) {
 		int startX = (int) start.x;
 		int startY = (int) start.y;
-		for (int i = - width + 1; i < width; i++) {
-			for (int j = - height + 1; j < height; j++) {
+		for (int i = -width + 1; i < width; i++) {
+			for (int j = -height + 1; j < height; j++) {
 				int x = Math.max(startX + i, 0);
 				int y = Math.max(startY + j, 0);
-				mat.put(y , x, new double[] {0});
+				mat.put(y, x, new double[] { 0 });
 			}
 		}
 	}
-	
-	public static void verticalProjection(Mat mat){
+
+	public static void verticalProjection(Mat mat) {
 		Core.reduce(mat, mat, 0, Core.REDUCE_SUM);
 	}
-	
-	public static void horizontalProjection(Mat mat){
+
+	public static void horizontalProjection(Mat mat) {
 		Core.reduce(mat, mat, 1, Core.REDUCE_SUM);
 	}
 

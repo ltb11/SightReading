@@ -54,6 +54,7 @@ public class DetectMusic {
 			}
 		}
 
+		// scale the image
 		Mat scaledSheet = ScaleMat(sheet, 1000);
 
 		// invert and get houghlines
@@ -67,32 +68,29 @@ public class DetectMusic {
 
 		double[] histogram = new double[sheet.height()];
 		double averageAngle = 0;
-		for (Line line : lines) {
-			averageAngle += line.angle(); // TODO i need to know more about what
-			// this angle is
+		for (Line line : linesSection) {
+			averageAngle += line.angle();
 		}
-		averageAngle = averageAngle / lines.size();
-
-		for (Line line : lines) {
+		averageAngle = averageAngle / linesSection.size();
+		double tanOfAverageAngle = Math.tan(averageAngle);
+		boolean anglePositive;
+		if (averageAngle > 0) {
+			anglePositive = true;
+		} else {
+			anglePositive = false;
+		}
+		// make a histogram of the lines
+		for (Line line : linesSection) {
 			Point start = line.start();
 			Point end = line.end();
-
-			int startPosition = (int) (start.y + start.x
-					* Math.tan(averageAngle));
-			int endPosition = (int) (end.y + end.x * Math.tan(averageAngle));
+			int startPosition = getHistogramPosition(sheet.width(),
+					sheet.height(), tanOfAverageAngle, anglePositive, start);
+			int endPosition = getHistogramPosition(sheet.width(),
+					sheet.height(), tanOfAverageAngle, anglePositive, end);
 
 			double weight = line.length();
-			int centrePosition = (startPosition + endPosition) / 2;
 
-			histogram[centrePosition] = weight;
-
-			int range = Math.abs(endPosition - startPosition);
-			double reducedWeight;
-			for (int i = 1; i < range; i++) {
-				reducedWeight = weight / range * (range - i);
-				histogram[centrePosition + i] = reducedWeight;
-				histogram[centrePosition - i] = reducedWeight;
-			}
+			addToHistogram(histogram, startPosition, endPosition, weight);
 		}
 
 		// threshold histogram
@@ -102,39 +100,101 @@ public class DetectMusic {
 		}
 		double mean = total / histogram.length;
 		for (double n : histogram) {
-			n -= mean;
+			n = Math.max(n - mean, 0);
 		}
 
 		List<Integer> stavePositions = new LinkedList<Integer>();
 
-		// look for 5 blips representing staves
+		// look for blips representing staves
 		for (int position = 0; position < histogram.length; position++) {
 			if (histogram[position] != 0) {
 				stavePositions.add(position);
 				do {
 					position++;
-				} while (histogram[position] != 0);
+				} while (position < histogram.length
+						&& histogram[position] != 0);
 				stavePositions.add(position);
 			}
-		}
+		}// TODO it looks like the individual stave have been lost, either
+			// figure this out or generate them for the outer ones
 
-		// check if this is a stave
+		// check if this is a stave, i.e. 5 blips
 		if (stavePositions.size() == 10) {
 			// TODO retain it if it is, discard it if it isn't
 		}
 
+		List<Line> histagramDetectiveStaves = new LinkedList<Line>();
+		for (Integer p : stavePositions) {
+			double offset = sheet.width() / 2 * tanOfAverageAngle;
+			Point start = new Point(0, p + offset);
+			Point end = new Point(sheet.width(), p - offset);
+			Line line = new Line(start, end);
+			histagramDetectiveStaves.add(line);
+		}
+		/*
+		 * List<Point> startPoints = new LinkedList<Point>(); List<Point>
+		 * endPoints = new LinkedList<Point>();
+		 * 
+		 * for (Line line : histagramDetectiveStaves) { Point a = line.start();
+		 * Point b = line.end();
+		 * 
+		 * }
+		 */
 		Mat lineMat = new Mat(scaledSheet.size(), scaledSheet.type());
 		// Utils.invertColors(scaledSheet);
 		Imgproc.cvtColor(lineMat, lineMat, Imgproc.COLOR_GRAY2BGR);
-		Utils.printLines(lineMat, lines);
+		// Scalar green = new Scalar(0, 255, 0);
+		Scalar white = new Scalar(255, 255, 255);
+		// Utils.printLines(lineMat, lines, green);
+		Utils.printMulticolouredLines(lineMat, lines);
+		Utils.printLines(lineMat, histagramDetectiveStaves, white);
 
 		// print lines and return
 		// Utils.invertColors(sheet);
 
 		// printLines(output,lines);
 		return lineMat;
+	}
 
-		// TODO: no lines are printed on the returned mat, must fix
+	private static void addToHistogram(double[] histogram, int startPosition,
+			int endPosition, double weight) {
+		int centrePosition = (startPosition + endPosition) / 2;
+		int range = Math.abs(endPosition - startPosition);
+
+		if (centrePosition > 0 - range
+				&& centrePosition < histogram.length + range) {
+			if (centrePosition > 0 && centrePosition < histogram.length) {
+				histogram[centrePosition] = weight;
+			}
+
+			double reducedWeight;
+			int upperOffset;
+			int lowerOffset;
+
+			for (int i = 1; i < range; i++) {
+				reducedWeight = weight / range * (range - i);
+				upperOffset = centrePosition + i;
+				if (upperOffset > 0 && upperOffset < histogram.length) {
+					histogram[upperOffset] = reducedWeight;
+				}
+				lowerOffset = centrePosition - i;
+				if (lowerOffset > 0 && lowerOffset < histogram.length) {
+					histogram[lowerOffset] = reducedWeight;
+				}
+			}
+
+		}
+	}
+
+	private static int getHistogramPosition(int width, int height,
+			double tanOfAverageAngle, boolean anglePositive, Point point) {
+		double x = point.x;
+		double y = point.y;
+		double adjacent = x - width / 2;
+		if (anglePositive) {
+			adjacent = (-1) * adjacent;
+		}
+		return (int) (y + adjacent * tanOfAverageAngle);
 	}
 
 	private static Mat ScaleMat(Mat input, int i) {
@@ -195,9 +255,9 @@ public class DetectMusic {
 		while (breaker < 100) {
 			double threshold = 0.8;
 			MinMaxLocResult minMaxRes = Core.minMaxLoc(result);
-			double minVal = minMaxRes.minVal;
+			// double minVal = minMaxRes.minVal;
 			double maxVal = minMaxRes.maxVal;
-			Point minLoc = minMaxRes.minLoc;
+			// Point minLoc = minMaxRes.minLoc;
 			Point maxLoc = minMaxRes.maxLoc;
 			if (maxVal >= threshold) {
 				Log.v("SHIT", "CHECK");
@@ -413,26 +473,4 @@ public class DetectMusic {
  * startLine; Line lineToMatch; while (startLines.hasNext()) { startLine =
  * startLines.next(); double startLineEnd = startLine.end().x; if (){ //sew the
  * lines } }
- */
-
-/*
- * // find staves double[] histogram = new double[sheet.height()];
- * 
- * for (Line line : lines) { Point start = line.start(); double angle =
- * line.angle(); // TODO i need to know more about what // this // angle is int
- * position = (int) (start.y + start.x * Math.tan(angle)); double weight =
- * line.length(); histogram[position] = weight; }
- * 
- * double total = 0; for (double n : histogram) { total += n; } double mean =
- * total / histogram.length; for (double n : histogram) { n -= mean; }
- * 
- * // so then here i need to work out where the staves are - either a point //
- * or a range?
- * 
- * 
- * // then given that I have them sorted so that the right ones are next to //
- * each other - no because if I know all those lines are in the stave // then I
- * can go ahead and sew all of them
- * 
- * // find corners
  */

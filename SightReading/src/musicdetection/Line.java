@@ -20,11 +20,13 @@ public class Line {
 		if (directionX == 0) {
 			double zero = Integer.valueOf(0);
 			directingVector = new Pair<Double, Double>(zero, one);
-			angle = 90;
+			angle = Math.PI / 2;
 		} else {
 			directingVector = new Pair<Double, Double>(one, directionY
 					/ directionX);
-			angle = Math.cos(directingVector.second) / Math.sin(directingVector.first);
+			// angle = Math.cos(directingVector.second) /
+			// Math.sin(directingVector.first);
+			angle = Math.atan(directingVector.second);
 		}
 		length = Math.sqrt(Math.pow(end.x - start.x, 2)
 				+ Math.pow(end.y - start.y, 2));
@@ -41,11 +43,11 @@ public class Line {
 	public Point end() {
 		return end;
 	}
-	
+
 	public double length() {
 		return length;
 	}
-	
+
 	public double angle() {
 		return angle;
 	}

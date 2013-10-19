@@ -23,12 +23,13 @@ public class SightReadingActivity extends Activity {
 		public void onManagerConnected(int status) {
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
-				//testImage("oneStave.png", "oneStaveOut.png");
-				//testImage("twoStaves.png", "twoStavesOut.png");
-				//testImage("threeStaves.png", "threeStavesOut.png");
-				//testImage("complexStaves.png", "complexStavesOut.png");
-				testImage("baaBaa.jpg", "baaBaaOut.png");
-				
+				// testImage("oneStave.png", "oneStaveOut.png");
+				// testImage("twoStaves.png", "twoStavesOut.png");
+				// testImage("threeStaves.png", "threeStavesOut.png");
+				// testImage("complexStaves.png", "complexStavesOut.png");
+				// testImage("baaBaa.jpg", "baaBaaOut.png");
+				testImage("baaBaaSection.jpg", "baaBaaSectionOut.png");
+
 			}
 				break;
 			default: {
@@ -60,7 +61,7 @@ public class SightReadingActivity extends Activity {
 
 	public void testImage(String src, String dst) {
 		String srcPath = getPath("input/" + src);
-		
+
 		Mat houghMat = readImage(srcPath);
 		String notePath = getPath("assets/notehead.png");
 		DetectMusic.noteHead = readImage(notePath);
@@ -69,21 +70,21 @@ public class SightReadingActivity extends Activity {
 		writeImage(imageMat, getPath("output/" + dst));
 		finish();
 	}
-	
-	public Mat readImage(String src){
-		
-		Mat img =  Highgui.imread(src, 0);
+
+	public Mat readImage(String src) {
+
+		Mat img = Highgui.imread(src, 0);
 		if (img == null)
 			Log.i(TAG, "There was a problem loading the image " + src);
 		return img;
 	}
-	
-	public static void writeImage(Mat src, String dst){
+
+	public static void writeImage(Mat src, String dst) {
 		Highgui.imwrite(dst, src);
 	}
-	
-	//returns the path of a given src image, assuming root directory of DCIM
-	public static String getPath(String src){
+
+	// returns the path of a given src image, assuming root directory of DCIM
+	public static String getPath(String src) {
 		return Utils.sdPath + src;
 	}
 }
