@@ -29,6 +29,7 @@ public class DetectMusic {
 
 	public static Mat detectMusic(Mat sheet) {
 
+        
 		Mat output = new Mat(sheet, Range.all());
 		Imgproc.cvtColor(sheet, output, Imgproc.COLOR_GRAY2BGR);
 		

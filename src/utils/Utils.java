@@ -149,7 +149,9 @@ public class Utils {
 	public static void resizeImage(Mat image, double newHeight) {
 		double newWidth = newHeight * image.cols() / image.rows();
 		Size newSize = new Size(newWidth, newHeight);
+
 		Imgproc.resize(image, image, newSize);
+
 		Utils.writeImage(image, Utils.getPath("output/checkNote.png"));
 	}
 	
