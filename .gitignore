@@ -6,13 +6,9 @@ gen/*
 project.properties
 settings/org.eclipse.cdt.core.prefs
 settings/org.eclipse.jdt.core.prefs
-gradle/
 .gradle/
 idea/
-build/
-gradle/
-gradlew
-gradlew.bat
+build/*
 local.properties
 SightReading.iml
 obj/local/*
