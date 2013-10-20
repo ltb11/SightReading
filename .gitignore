@@ -14,7 +14,6 @@ gradlew
 gradlew.bat
 local.properties
 SightReading.iml
-libs/armeabi/libSightReading.so
 obj/local/*
 # built application files
 *.apk
