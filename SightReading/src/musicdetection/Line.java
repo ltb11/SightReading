@@ -24,8 +24,6 @@ public class Line {
 		} else {
 			directingVector = new Pair<Double, Double>(one, directionY
 					/ directionX);
-			// angle = Math.cos(directingVector.second) /
-			// Math.sin(directingVector.first);
 			angle = Math.atan(directingVector.second);
 		}
 		length = Math.sqrt(Math.pow(end.x - start.x, 2)

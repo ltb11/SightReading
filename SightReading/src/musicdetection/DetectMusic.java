@@ -94,6 +94,12 @@ public class DetectMusic {
 		}
 
 		// threshold histogram
+		/*
+		 * double total = 0; int numberOfValues = 0; for (double n : histogram)
+		 * { if (n != 0) { total += n; numberOfValues++; } } double mean = total
+		 * / numberOfValues; for (double n : histogram) { n = Math.max(n - mean,
+		 * 0); }
+		 */
 		double total = 0;
 		for (double n : histogram) {
 			total += n;
@@ -106,17 +112,18 @@ public class DetectMusic {
 		List<Integer> stavePositions = new LinkedList<Integer>();
 
 		// look for blips representing staves
-		for (int position = 0; position < histogram.length; position++) {
+		int position = 0;
+		while (position < histogram.length) {
 			if (histogram[position] != 0) {
-				stavePositions.add(position);
-				do {
+				int upperBound = position;
+				while (position < histogram.length && histogram[position] != 0) {
 					position++;
-				} while (position < histogram.length
-						&& histogram[position] != 0);
-				stavePositions.add(position);
+				}
+				int lowerBound = position - 1;
+				stavePositions.add((upperBound + lowerBound) / 2);
 			}
-		}// TODO it looks like the individual stave have been lost, either
-			// figure this out or generate them for the outer ones
+			position++;
+		}
 
 		// check if this is a stave, i.e. 5 blips
 		if (stavePositions.size() == 10) {
@@ -126,28 +133,24 @@ public class DetectMusic {
 		List<Line> histagramDetectiveStaves = new LinkedList<Line>();
 		for (Integer p : stavePositions) {
 			double offset = sheet.width() / 2 * tanOfAverageAngle;
+			if (anglePositive) {
+				offset = (-1) * offset;
+			}
 			Point start = new Point(0, p + offset);
 			Point end = new Point(sheet.width(), p - offset);
 			Line line = new Line(start, end);
 			histagramDetectiveStaves.add(line);
 		}
-		/*
-		 * List<Point> startPoints = new LinkedList<Point>(); List<Point>
-		 * endPoints = new LinkedList<Point>();
-		 * 
-		 * for (Line line : histagramDetectiveStaves) { Point a = line.start();
-		 * Point b = line.end();
-		 * 
-		 * }
-		 */
+
 		Mat lineMat = new Mat(scaledSheet.size(), scaledSheet.type());
 		// Utils.invertColors(scaledSheet);
 		Imgproc.cvtColor(lineMat, lineMat, Imgproc.COLOR_GRAY2BGR);
-		// Scalar green = new Scalar(0, 255, 0);
+		Scalar green = new Scalar(0, 255, 0);
 		Scalar white = new Scalar(255, 255, 255);
-		// Utils.printLines(lineMat, lines, green);
-		Utils.printMulticolouredLines(lineMat, lines);
-		Utils.printLines(lineMat, histagramDetectiveStaves, white);
+		// Utils.printMulticolouredLines(lineMat, lines);
+		// Utils.printLines(lineMat, histagramDetectiveStaves, white);
+		Utils.printLines(lineMat, lines, white);
+		Utils.printMulticolouredLines(lineMat, histagramDetectiveStaves);
 
 		// print lines and return
 		// Utils.invertColors(sheet);
@@ -191,7 +194,7 @@ public class DetectMusic {
 		double x = point.x;
 		double y = point.y;
 		double adjacent = x - width / 2;
-		if (anglePositive) {
+		if (!anglePositive) {
 			adjacent = (-1) * adjacent;
 		}
 		return (int) (y + adjacent * tanOfAverageAngle);

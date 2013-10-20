@@ -157,16 +157,34 @@ public class Utils {
 
 	public static void printLines(Mat mat, List<Line> lines, Scalar colour) {
 		for (int i = 0; i < lines.size(); i++) {
-			Core.line(mat, lines.get(i).start(), lines.get(i).end(), colour, 5);
+			Core.line(mat, lines.get(i).start(), lines.get(i).end(), colour, 1);
 		}
 	}
 
 	public static void printMulticolouredLines(Mat mat, List<Line> lines) {
 		for (int i = 0; i < lines.size(); i++) {
-			Scalar colour = new Scalar(Mod((100 + i) * i, 255), Mod((200 + i)
-					* i, 255), Mod((300 + i) * i, 255));
-			Core.line(mat, lines.get(i).start(), lines.get(i).end(), colour, 5);
+			Scalar colour = getColour(i);
+			Core.line(mat, lines.get(i).start(), lines.get(i).end(), colour, 1);
 		}
+	}
+
+	public static Scalar getColour(int i) {
+		final int adjustBrighter = 50;
+		int b = Mod((100 + i) * i, 255);
+		int g = Mod((200 + i) * i, 255);
+		int r = Mod((300 + i) * i, 255);
+
+		if (b < 10 && g < 10 && r < 10) {
+			if (b < g && b < r) {
+				b += adjustBrighter;
+			} else if (g < r) {
+				g += adjustBrighter;
+			} else {
+				r += adjustBrighter;
+			}
+		}
+
+		return new Scalar(b, g, r);
 	}
 
 	public static int Mod(int numberBeingDivided, int divisor) {
