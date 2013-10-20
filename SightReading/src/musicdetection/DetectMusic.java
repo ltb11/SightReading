@@ -14,6 +14,7 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.sightreading.SightReadingActivity;
 
 import utils.Utils;
 import android.util.Log;
@@ -30,7 +31,7 @@ public class DetectMusic {
 
 		Mat output = new Mat(sheet, Range.all());
 		Imgproc.cvtColor(sheet, output, Imgproc.COLOR_GRAY2BGR);
-
+		
 		// invert and get houghlines
 		Utils.invertColors(sheet);
 		Mat linesMat = new Mat();
@@ -100,19 +101,25 @@ public class DetectMusic {
 		 */
 
 		// erase the staves, dilate to fill gaps
+		
 		for (Stave s : staves)
 			s.eraseFromMat(sheet);
 		staveGap = staves.get(0).staveGap();
 		Utils.resizeImage(noteHead, staveGap);
 		noteWidth = noteHead.cols();
 		Imgproc.dilate(sheet, sheet, Imgproc.getStructuringElement(
-				Imgproc.MORPH_RECT, new Size(3, 3)));
-
-		Mat tmpSheet = new Mat(sheet, Range.all());
-		List<Note> notes = detectNotes(tmpSheet);
+				Imgproc.MORPH_RECT, new Size(3,3)));
+		//Utils.writeImage(sheet, Utils.getPath("output/dilated.png"));
+		Mat noteDetectedSheet = sheet.clone();
+		Mat erodedSheet = sheet.clone();
+		Imgproc.erode(erodedSheet, erodedSheet, Imgproc
+				.getStructuringElement(Imgproc.MORPH_RECT, new Size(12, 12)));
+		Utils.writeImage(noteDetectedSheet, Utils.getPath("output/test.png"));
+		List<Note> notes = detectNotes(noteDetectedSheet, erodedSheet);
 
 		for (Note n : notes) {
-			Core.circle(output, n.center(), 10, new Scalar(0, 0, 255));
+			Core.circle(output, n.center(), (int) staveGap / 2, new Scalar(0,
+					0, 255));
 		}
 
 		// Core.circle(output, new Point(258, 209), 10, new Scalar(0,0,255));
@@ -129,7 +136,7 @@ public class DetectMusic {
 		// TODO: no lines are printed on the returned mat, must fix
 	}
 
-	public static List<Note> detectNotes(Mat sheet) {
+	public static List<Note> detectNotes(Mat sheet, Mat ref) {
 		List<Note> notes = new LinkedList<Note>();
 		Mat result = new Mat();
 		Mat mask = new Mat(new Size(noteWidth, staveGap), sheet.type());
@@ -144,32 +151,27 @@ public class DetectMusic {
 		MinMaxLocResult minMaxRes = Core.minMaxLoc(result);
 		double maxVal = minMaxRes.maxVal;
 		Point maxLoc = minMaxRes.maxLoc;
-		double maxAllowedVal = maxVal * 0.966;
+		double maxAllowedVal = maxVal * 0.90;
 		while (breaker < 60) {
 			minMaxRes = Core.minMaxLoc(result);
 			maxVal = minMaxRes.maxVal;
 			maxLoc = minMaxRes.maxLoc;
 			if (maxVal > maxAllowedVal) {
-				notes.add(new Note(new Point(maxLoc.x + noteWidth / 2, maxLoc.y
-						+ staveGap / 2)));
-				Rect area = new Rect(maxLoc, mask.size());
-				Mat selectedArea = result.submat(area);
-				mask.copyTo(selectedArea);
-				Log.v("conrad",
-						String.valueOf(result.get((int) maxLoc.y,
-								(int) maxLoc.x)[0])
-								+ " "
-								+ String.valueOf(maxLoc.y)
-								+ ", "
-								+ String.valueOf(maxLoc.x));
-				Utils.zeroInMatrix(result, new Point(maxLoc.x,
-						maxLoc.y), (int) noteWidth,
-						(int) staveGap);
+				Point centre = new Point(maxLoc.x + noteWidth / 2, maxLoc.y + staveGap / 2);
+				if (Utils.isInCircle(centre, staveGap, ref)) {
+					notes.add(new Note(new Point(maxLoc.x + noteWidth / 2,
+							maxLoc.y + staveGap / 2)));
+					Rect area = new Rect(maxLoc, mask.size());
+					Mat selectedArea = result.submat(area);
+					mask.copyTo(selectedArea);
+					Utils.zeroInMatrix(result, new Point(maxLoc.x, maxLoc.y),
+							(int) noteWidth, (int) staveGap);
+				}
 			} else
 				break;
 			breaker++;
 		}
-		Log.v("SHIT", "CHECK2");
+
 		return notes;
 	}
 

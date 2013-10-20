@@ -12,10 +12,12 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 import org.sightreading.SightReadingActivity;
 
 import android.os.Environment;
+import android.util.Log;
 
 public class Utils {
 
@@ -148,7 +150,7 @@ public class Utils {
 		double newWidth = newHeight * image.cols() / image.rows();
 		Size newSize = new Size(newWidth, newHeight);
 		Imgproc.resize(image, image, newSize);
-		SightReadingActivity.writeImage(image, SightReadingActivity.getPath("output/checkNote.png"));
+		Utils.writeImage(image, Utils.getPath("output/checkNote.png"));
 	}
 	
 	public static void printLines(Mat mat, List<Line> lines) {
@@ -178,5 +180,49 @@ public class Utils {
 	public static void horizontalProjection(Mat mat){
 		Core.reduce(mat, mat, 1, Core.REDUCE_SUM);
 	}
-
+	
+	public static Mat readImage(String src){
+		
+		Mat img =  Highgui.imread(src, 0);
+		if (img == null)
+			Log.i("SightReadingActivity", "There was a problem loading the image " + src);
+		return img;
+	}
+	
+	public static void writeImage(Mat src, String dst){
+		Highgui.imwrite(dst, src);
+	}
+	
+	//returns the path of a given src image, assuming root directory of DCIM
+	public static String getPath(String src){
+		return Utils.sdPath + src;
+	}
+	
+	//checks the pixels within a square of side length=radius 
+	//of the point where a note is suspected to be. If the area is only black,
+	//a note can't exist there, as a note would leave behind a trace in the
+	//eroded image
+	
+	public static boolean isInCircle(Point centre, double radius, Mat ref){
+		Point tmp = centre.clone();
+		boolean allBlack = true;
+		ref.height();
+		outerloop:
+		for (int i=(int) -radius; i<=radius; i++){
+			for (int j=(int) -radius; j<=radius; j++){
+				tmp.x = centre.x + i;
+				tmp.y = centre.y + j;
+				if (tmp.x <0 || tmp.x>ref.width() || tmp.y <0 || tmp.y>ref.width()){
+					continue;
+				}
+				if (ref.get((int) tmp.y, (int) tmp.x)[0] != 0){
+					allBlack = false;
+					break outerloop;
+				}
+			}
+		}
+		Log.v("conrad", String.valueOf(!allBlack));
+		return !allBlack;
+	}
+	
 }
