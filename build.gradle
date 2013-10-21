@@ -14,7 +14,7 @@ apply plugin: 'android'
 
 android {
     compileSdkVersion 17
-    buildToolsVersion "18.1.1"
+    buildToolsVersion "18.0.1"
 
     sourceSets{
         main{
@@ -30,6 +30,13 @@ android {
             res {
                 srcDir 'res'
             }
+            resources {
+                srcDir 'src'
+            }
+            aidl {
+                srcDir 'src'
+            }
+
         }
         
         instrumentTest.setRoot('tests')
