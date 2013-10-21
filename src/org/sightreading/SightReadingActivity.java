@@ -23,7 +23,6 @@ public class SightReadingActivity extends Activity {
 		public void onManagerConnected(int status) {
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
-				//testImage("oneStaveBis.png", "oneStaveOut.png");
 				//testImage("twoStaves.png", "twoStavesOut.png");
 				//testImage("threeStaves.png", "threeStavesOut.png");
 				testImage("complexStaves.png", "complexStavesOut.png");
