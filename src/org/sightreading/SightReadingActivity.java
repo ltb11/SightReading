@@ -61,7 +61,6 @@ public class SightReadingActivity extends Activity {
 		Mat houghMat = Utils.readImage(srcPath);
 		String notePath = Utils.getPath("assets/notehead.png");
 		DetectMusic.noteHead = Utils.readImage(notePath);
-
 		Mat imageMat = DetectMusic.detectMusic(houghMat);
 		Utils.writeImage(imageMat, Utils.getPath("output/" + dst));
 		finish();
