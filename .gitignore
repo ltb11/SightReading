@@ -1,9 +1,7 @@
 bin/*
 classpath
-cproject
 project
 gen/*
-project.properties
 settings/org.eclipse.cdt.core.prefs
 settings/org.eclipse.jdt.core.prefs
 .gradle/
