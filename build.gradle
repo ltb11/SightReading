@@ -44,8 +44,6 @@ android {
     defaultConfig{
         targetSdkVersion 17
     }
-
-    
 }
 
 dependencies {
