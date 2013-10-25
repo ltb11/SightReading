@@ -36,7 +36,7 @@ public class SightReadingActivity extends Activity {
 			case LoaderCallbackInterface.SUCCESS: {
 				// testImage("twoStaves.png", "twoStavesOut.png");
 				// testImage("threeStaves.png", "threeStavesOut.png");
-				// testImage("complexStaves.png", "complexStavesOut.png");
+				testImage("complexStaves.png", "complexStavesOut.png");
 				testImage("baaBaa.jpg", "baaBaaOut.png");
 				// testImage("baaBaaSection.jpg", "baaBaaSectionOut.png");
 				// testImage("Distorted.jpg", "distortedOut.jpg");
@@ -83,7 +83,9 @@ public class SightReadingActivity extends Activity {
 
 	}
 
-	private Mat testProcessing(Mat sheet) {
+	private Mat testProcessing(Mat input) {
+		Mat sheet = Utils.resizeImage(input, Utils.STANDARD_IMAGE_WIDTH);
+		
 		Mat output = sheet.clone();
 		Imgproc.cvtColor(output, output, Imgproc.COLOR_GRAY2BGR);
 
@@ -94,9 +96,13 @@ public class SightReadingActivity extends Activity {
 		LinkedList<Integer> divisions = Utils.detectDivisions(proj, 190);
 		List<SheetStrip> strips = Utils.SliceSheet(sheet, divisions);
 
+		List<Line> lines = new LinkedList<Line>();
 		for (SheetStrip strip : strips) {
-			List<Line> lines = strip.FindStave();
-			Utils.printMulticolouredLines(output, lines);
+			lines.addAll(strip.FindLines());
+		}
+		List<Stave> staves = DetectMusic.detectStaves(lines);
+		for(Stave s : staves) {
+			s.draw(output);
 		}
 
 		return output;

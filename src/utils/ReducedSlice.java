@@ -21,8 +21,9 @@ public class ReducedSlice {
 		this.topLeft = topLeftCorner;
 		this.bottomRight = bottomRightCorner;
 		
-		if (mat.height()<=0 || mat.width()!=1) 
-			throw new RuntimeException("ReducedSlice must take in mat of width 1, height>1");
+		//if (mat.height()<=0 || mat.width()!=1) 
+		if (mat.width()!=1) 
+			throw new RuntimeException("ReducedSlice must take in mat of width 1, height>0. Has dimensions: "+mat.width()+"x"+mat.height());
 		
 		CalculateSections();
 	}

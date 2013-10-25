@@ -30,6 +30,7 @@ public class Utils {
 	public static final String sdPath = Environment
 			.getExternalStorageDirectory().getAbsolutePath() + "/DCIM/";
 	public static final int totalVerticalSlices = 20;
+	public static final double STANDARD_IMAGE_WIDTH = 2500;
 
 	public static Scalar createHsvColor(float hue, float saturation, float value) {
 
@@ -152,13 +153,16 @@ public class Utils {
 		return new LinkedList<Line>();
 	}
 
-	public static void resizeImage(Mat image, double newHeight) {
+	public static Mat resizeImage(Mat image, double newHeight) {
 		double newWidth = newHeight * image.cols() / image.rows();
 		Size newSize = new Size(newWidth, newHeight);
 
-		Imgproc.resize(image, image, newSize);
+		Mat newImage = new Mat(newSize,image.type());
+		Imgproc.resize(image, newImage, newSize);
 
-		Utils.writeImage(image, Utils.getPath("output/checkNote.png"));
+		//Utils.writeImage(image, Utils.getPath("output/checkNote.png"));
+		
+		return newImage;
 
 	}
 

@@ -15,7 +15,7 @@ public class SheetStrip {
 		this.slices = slices;
 	}
 
-	public List<Line> FindStave() {
+	public List<Line> FindLines() {
 		int totalSlices = slices.length;
 		this.reducedSlices = new ReducedSlice[totalSlices];
 
