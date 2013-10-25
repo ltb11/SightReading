@@ -15,6 +15,7 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.sightreading.SightReadingActivity;
 
 import utils.Utils;
 import android.util.Log;
@@ -32,27 +33,27 @@ public class DetectMusic {
 		Mat output = new Mat(sheet, Range.all());
 		Imgproc.cvtColor(sheet, output, Imgproc.COLOR_GRAY2BGR);
 
-		int width = sheet.cols();
-		int height = sheet.rows();
-		int sep = 200;
-		for (int j = 0; j < width; j += sep) {
-			for (int i = 0; i < height; i += sep) {
-				int xMax = Math.min(j + sep, width);
-				int yMax = Math.min(i + sep, height);
-				Mat section = new Mat(sheet, new Range(i, yMax), new Range(j,
-						xMax));
+		// TODO Is this block still necessary?
+		/*
+		 * int width = sheet.cols(); int height = sheet.rows(); int sep = 200;
+		 * for (int j = 0; j < width; j += sep) { for (int i = 0; i < height; i
+		 * += sep) { int xMax = Math.min(j + sep, width); int yMax = Math.min(i
+		 * + sep, height); Mat section = new Mat(sheet, new Range(i, yMax), new
+		 * Range(j, xMax));
+		 * 
+		 * double mean = Core.mean(section).val[0]; mean =
+		 * Math.max(Math.min(mean - 15, 200), 70); Imgproc.threshold(section,
+		 * section, mean, 256, Imgproc.THRESH_BINARY);
+		 * 
+		 * Rect area = new Rect(new Point(j, i), section.size()); Mat
+		 * selectedArea = sheet.submat(area); section.copyTo(selectedArea); } }
+		 */
 
-				double mean = Core.mean(section).val[0];
-				mean = Math.max(Math.min(mean - 15, 200), 70);
-				Imgproc.threshold(section, section, mean, 256,
-						Imgproc.THRESH_BINARY);
-
-				Rect area = new Rect(new Point(j, i), section.size());
-				Mat selectedArea = sheet.submat(area);
-				section.copyTo(selectedArea);
-
-			}
-		}
+		// invert and get houghlines
+		Utils.invertColors(sheet);
+		Mat linesMat = new Mat();
+		Imgproc.HoughLinesP(sheet, linesMat, 1, Math.PI / 180, 100);
+		List<Line> lines = Utils.getHoughLinesFromMat(linesMat);
 
 		// scale the image
 		Mat scaledSheet = ScaleMat(sheet, 1000);
@@ -61,7 +62,7 @@ public class DetectMusic {
 		Utils.invertColors(scaledSheet);
 		// Mat newSheet = correctImage(sheet);
 
-		List<Line> lines = GetLines(scaledSheet);
+		// List<Line> lines = GetLines(scaledSheet);
 
 		// Pre - lines sorted into clumps
 		List<Line> linesSection = lines;
@@ -109,37 +110,47 @@ public class DetectMusic {
 			n = Math.max(n - mean, 0);
 		}
 
-		List<Integer> stavePositions = new LinkedList<Integer>();
+		// TODO this code may no longer be relevant
+		/*
+		 * List<Integer> stavePositions = new LinkedList<Integer>();
+		 * 
+		 * 
+		 * // look for blips representing staves int position = 0; while
+		 * (position < histogram.length) { if (histogram[position] != 0) { int
+		 * upperBound = position; while (position < histogram.length &&
+		 * histogram[position] != 0) { position++; } int lowerBound = position -
+		 * 1; stavePositions.add((upperBound + lowerBound) / 2); } position++; }
+		 * 
+		 * // check if this is a stave, i.e. 5 blips if (stavePositions.size()
+		 * == 10) { // TODO retain it if it is, discard it if it isn't }
+		 * 
+		 * List<Line> histagramDetectiveStaves = new LinkedList<Line>(); for
+		 * (Integer p : stavePositions) { double offset = sheet.width() / 2 *
+		 * tanOfAverageAngle; if (anglePositive) { offset = (-1) * offset; }
+		 * Point start = new Point(0, p + offset); Point end = new
+		 * Point(sheet.width(), p - offset); Line line = new Line(start, end);
+		 * histagramDetectiveStaves.add(line);
+		 */
 
-		// look for blips representing staves
-		int position = 0;
-		while (position < histogram.length) {
-			if (histogram[position] != 0) {
-				int upperBound = position;
-				while (position < histogram.length && histogram[position] != 0) {
-					position++;
-				}
-				int lowerBound = position - 1;
-				stavePositions.add((upperBound + lowerBound) / 2);
-			}
-			position++;
-		}
+		// TODO following code may now be redundant
+		/*
+		 * // erase the staves, dilate to fill gaps for (Stave s : staves)
+		 * s.eraseFromMat(sheet); staveGap = staves.get(0).staveGap();
+		 * Utils.resizeImage(noteHead, staveGap); noteWidth = noteHead.cols();
+		 * Imgproc.dilate(sheet, sheet, Imgproc.getStructuringElement(
+		 * Imgproc.MORPH_RECT, new Size(3,3)));
+		 */
+		// Utils.writeImage(sheet, Utils.getPath("output/dilated.png"));
+		Mat noteDetectedSheet = sheet.clone();
+		Mat erodedSheet = sheet.clone();
+		Imgproc.erode(erodedSheet, erodedSheet, Imgproc.getStructuringElement(
+				Imgproc.MORPH_RECT, new Size(12, 12)));
+		Utils.writeImage(noteDetectedSheet, Utils.getPath("output/test.png"));
+		List<Note> notes = detectNotes(noteDetectedSheet, erodedSheet);
 
-		// check if this is a stave, i.e. 5 blips
-		if (stavePositions.size() == 10) {
-			// TODO retain it if it is, discard it if it isn't
-		}
-
-		List<Line> histagramDetectiveStaves = new LinkedList<Line>();
-		for (Integer p : stavePositions) {
-			double offset = sheet.width() / 2 * tanOfAverageAngle;
-			if (anglePositive) {
-				offset = (-1) * offset;
-			}
-			Point start = new Point(0, p + offset);
-			Point end = new Point(sheet.width(), p - offset);
-			Line line = new Line(start, end);
-			histagramDetectiveStaves.add(line);
+		for (Note n : notes) {
+			Core.circle(output, n.center(), (int) staveGap / 2, new Scalar(0,
+					0, 255));
 		}
 
 		Mat lineMat = new Mat(scaledSheet.size(), scaledSheet.type());
@@ -150,7 +161,7 @@ public class DetectMusic {
 		// Utils.printMulticolouredLines(lineMat, lines);
 		// Utils.printLines(lineMat, histagramDetectiveStaves, white);
 		Utils.printLines(lineMat, lines, white);
-		Utils.printMulticolouredLines(lineMat, histagramDetectiveStaves);
+		// Utils.printMulticolouredLines(lineMat, histagramDetectiveStaves);
 
 		// print lines and return
 		// Utils.invertColors(sheet);
@@ -242,7 +253,7 @@ public class DetectMusic {
 		return lines;
 	}
 
-	public static List<Note> detectNotes(Mat sheet) {
+	public static List<Note> detectNotes(Mat sheet, Mat ref) {
 		List<Note> notes = new LinkedList<Note>();
 		Mat result = new Mat();
 		Mat mask = new Mat(new Size(noteWidth, staveGap), sheet.type());
@@ -254,39 +265,31 @@ public class DetectMusic {
 		Imgproc.matchTemplate(sheet, noteHead, result, Imgproc.TM_SQDIFF);
 		// Imgproc.threshold(result, result, 0.9, 1., Imgproc.THRESH_TOZERO);
 		int breaker = 0;
-
-		while (breaker < 100) {
-			double threshold = 0.8;
-			MinMaxLocResult minMaxRes = Core.minMaxLoc(result);
-			// double minVal = minMaxRes.minVal;
-			double maxVal = minMaxRes.maxVal;
-			// Point minLoc = minMaxRes.minLoc;
-			Point maxLoc = minMaxRes.maxLoc;
-			if (maxVal >= threshold) {
-				Log.v("SHIT", "CHECK");
-				notes.add(new Note(new Point(maxLoc.x + noteWidth / 2, maxLoc.y
-						+ staveGap / 2)));
-				Imgproc.floodFill(result, new Mat(), maxLoc, new Scalar(0));
-				/*
-				 * MinMaxLocResult minMaxRes = Core.minMaxLoc(result); double
-				 * maxVal = minMaxRes.maxVal; Point maxLoc = minMaxRes.maxLoc;
-				 * double maxAllowedVal = maxVal * 0.966; while (breaker < 60) {
-				 * minMaxRes = Core.minMaxLoc(result); maxVal =
-				 * minMaxRes.maxVal; maxLoc = minMaxRes.maxLoc; if (maxVal >
-				 * maxAllowedVal) { notes.add(new Note(new Point(maxLoc.x +
-				 * noteWidth / 2, maxLoc.y + staveGap / 2))); Rect area = new
-				 * Rect(maxLoc, mask.size()); Mat selectedArea =
-				 * result.submat(area); mask.copyTo(selectedArea);
-				 * Log.v("conrad", String.valueOf(result.get((int) maxLoc.y,
-				 * (int) maxLoc.x)[0]) + " " + String.valueOf(maxLoc.y) + ", " +
-				 * String.valueOf(maxLoc.x)); Utils.zeroInMatrix(result, new
-				 * Point(maxLoc.x, maxLoc.y), (int) noteWidth, (int) staveGap);
-				 */
+		MinMaxLocResult minMaxRes = Core.minMaxLoc(result);
+		double maxVal = minMaxRes.maxVal;
+		Point maxLoc = minMaxRes.maxLoc;
+		double maxAllowedVal = maxVal * 0.90;
+		while (breaker < 60) {
+			minMaxRes = Core.minMaxLoc(result);
+			maxVal = minMaxRes.maxVal;
+			maxLoc = minMaxRes.maxLoc;
+			if (maxVal > maxAllowedVal) {
+				Point centre = new Point(maxLoc.x + noteWidth / 2, maxLoc.y
+						+ staveGap / 2);
+				if (Utils.isInCircle(centre, staveGap, ref)) {
+					notes.add(new Note(new Point(maxLoc.x + noteWidth / 2,
+							maxLoc.y + staveGap / 2)));
+					Rect area = new Rect(maxLoc, mask.size());
+					Mat selectedArea = result.submat(area);
+					mask.copyTo(selectedArea);
+					Utils.zeroInMatrix(result, new Point(maxLoc.x, maxLoc.y),
+							(int) noteWidth, (int) staveGap);
+				}
 			} else
 				break;
 			breaker++;
 		}
-		Log.v("SHIT", "CHECK2");
+
 		return notes;
 	}
 
@@ -391,89 +394,3 @@ public class DetectMusic {
 		return sheet;
 	}
 }
-
-// copy mat
-// dil
-// canny
-// h circles
-/*
- * Mat tmpSheet = new Mat(sheet, Range.all()); List<Note> notes =
- * detectNotes(tmpSheet);
- * 
- * Imgproc.cvtColor(tmpSheet, tmpSheet, Imgproc.COLOR_GRAY2BGR);
- * 
- * invertColors(tmpSheet);
- * 
- * //Original image for (Note n : notes) { Core.circle(tmpSheet, n.center(), 1,
- * new Scalar(0,0,255)); }
- */
-// invertColors(tmpSheet);
-/*
- * Imgproc.erode(tmpSheet, tmpSheet, Imgproc.getStructuringElement(
- * Imgproc.MORPH_RECT, new Size(3, 3))); // Imgproc.dilate(sheet, sheet,
- * Imgproc.getStructuringElement( // Imgproc.MORPH_RECT, new Size(3, 3))); //
- * Imgproc.Canny(tmpSheet, tmpSheet, 0, 100); // invertColors(tmpSheet);
- * 
- * Imgproc.threshold(tmpSheet, tmpSheet, 80, 150, Imgproc.THRESH_BINARY);
- * 
- * // because findContours modifies the image I back it up
- * 
- * List<MatOfPoint> contours = new ArrayList<MatOfPoint>(200);
- * Imgproc.findContours(tmpSheet, contours, new Mat(), Imgproc.RETR_TREE,
- * Imgproc.CHAIN_APPROX_NONE);
- * 
- * Imgproc.cvtColor(tmpSheet, tmpSheet, Imgproc.COLOR_GRAY2BGR);
- * 
- * List<Point> validContours = new LinkedList<Point>();
- * 
- * for (MatOfPoint points : contours) { List<Point> contour = points.toList();
- * double minX = contour.get(0).x; double maxX = contour.get(0).x; double minY =
- * contour.get(0).y; double maxY = contour.get(0).y; for (int i = 1; i <
- * contour.size(); i++) { if (contour.get(i).x < minX) minX = contour.get(i).x;
- * if (contour.get(i).x > maxX) maxX = contour.get(i).x; if (contour.get(i).y <
- * minY) minY = contour.get(i).y; if (contour.get(i).y > maxY) maxY =
- * contour.get(i).y; } double width = maxX - minX; double height = maxY - minY;
- * if (Math.abs(Imgproc.contourArea(points) - Math.PI * width * height) < 0.2 *
- * Imgproc .contourArea(points)) { Log.v("CHECK", "CHECK " + width + "," +
- * height); Core.circle(output, new Point(minX + width / 2, minY + height / 2),
- * 3, new Scalar(0, 0, 255)); } }
- */
-
-// Mat section = new Mat(sheet, new Range(j,xMax), new
-// Range(i,yMax));
-
-// Mat section = new Mat(sheet, new Range(0,3000), new
-// Range(0,2000));
-
-// Imgproc.GaussianBlur(sheet, sheet, new Size(9,9), 1);
-// Imgproc.erode(sheet, sheet, Imgproc.getStructuringElement(
-// Imgproc.MORPH_RECT, new Size(4, 4)));
-// Imgproc.dilate(sheet, sheet, Imgproc.getStructuringElement(
-// Imgproc.MORPH_RECT, new Size(3, 3)));
-
-// erase the staves, dilate to fill gaps
-/*
- * for (Stave s : staves) s.eraseFromMat(sheet); staveGap =
- * staves.get(0).staveGap(); Utils.resizeImage(noteHead, staveGap); noteWidth =
- * noteHead.cols(); Imgproc.dilate(sheet, sheet, Imgproc.getStructuringElement(
- * Imgproc.MORPH_RECT, new Size(3, 3)));
- * 
- * Mat tmpSheet = new Mat(sheet, Range.all()); List<Note> notes =
- * detectNotes(tmpSheet);
- * 
- * for (Note n : notes) { Core.circle(output, n.center(), 10, new Scalar(0, 0,
- * 255)); }
- * 
- * // Core.circle(output, new Point(258, 209), 10, new Scalar(0,0,255)); // get
- * new houghlines // Imgproc.HoughLinesP(sheet, linesMat, 1, Math.PI / 180,
- * 100); // lines = Utils.getHoughLinesFromMat(linesMat);
- */
-
-/*
- * List<Line> sortedLines = lines; Iterator<Line> startLines =
- * sortedLines.iterator(); Iterator<Line> linesToMatch = sortedLines.iterator();
- * // what happens to // the iterator // when the list // changes Line
- * startLine; Line lineToMatch; while (startLines.hasNext()) { startLine =
- * startLines.next(); double startLineEnd = startLine.end().x; if (){ //sew the
- * lines } }
- */
