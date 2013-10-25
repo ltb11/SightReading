@@ -37,8 +37,8 @@ public class SightReadingActivity extends Activity {
 				// testImage("twoStaves.png", "twoStavesOut.png");
 				// testImage("threeStaves.png", "threeStavesOut.png");
 				// testImage("complexStaves.png", "complexStavesOut.png");
-				// testImage("baaBaa.jpg", "baaBaaOut.png");
-				//testImage("baaBaaSection.jpg", "baaBaaSectionOut.png");
+				testImage("baaBaa.jpg", "baaBaaOut.png");
+				// testImage("baaBaaSection.jpg", "baaBaaSectionOut.png");
 				// testImage("Distorted.jpg", "distortedOut.jpg");
 			}
 				break;
@@ -59,29 +59,26 @@ public class SightReadingActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		Log.i(TAG, "called onCreate");
 		super.onCreate(savedInstanceState);
-		
-		/*Button button = new Button(this);
-		button.setWidth(100);
-		button.setHeight(100);
-        button.setText("I'm a motherfucking button!");
-        RelativeLayout l = new RelativeLayout(this);
-        l.addView(button, 200, 200);
-        setContentView(l);*/
-        
-		//requestWindowFeature(Window.FEATURE_NO_TITLE);
+
+		/*
+		 * Button button = new Button(this); button.setWidth(100);
+		 * button.setHeight(100); button.setText("I'm a motherfucking button!");
+		 * RelativeLayout l = new RelativeLayout(this); l.addView(button, 200,
+		 * 200); setContentView(l);
+		 */
+
+		// requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		if (!OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_2, this,
 				mOpenCVCallBack)) {
 			Log.e("TEST", "Cannot connect to OpenCV Manager");
 		}
-		
-		new File(Utils.getPath("") + File.separator + "input").mkdirs();
-		new File(Utils.getPath("") + File.separator + "output").mkdirs();
-		new File(Utils.getPath("") + File.separator + "assets").mkdirs();
-		
-		testImage("baaBaa.jpg","baaBaaOut.png");
-		
+
+		(new File(Utils.getPath("") + File.separator + "input")).mkdirs();
+		(new File(Utils.getPath("") + File.separator + "output")).mkdirs();
+		(new File(Utils.getPath("") + File.separator + "assets")).mkdirs();
+
 		finish();
 
 	}
@@ -89,31 +86,30 @@ public class SightReadingActivity extends Activity {
 	private Mat testProcessing(Mat sheet) {
 		Mat output = sheet.clone();
 		Imgproc.cvtColor(output, output, Imgproc.COLOR_GRAY2BGR);
-		
+
 		Utils.preprocessImage(sheet);
 		Mat projection = sheet.clone();
 		Mat proj = Utils.horizontalProjection(projection);
+		// 190 threshold for white from 255 used to detect spaces between staves
 		LinkedList<Integer> divisions = Utils.detectDivisions(proj, 190);
 		List<SheetStrip> strips = Utils.SliceSheet(sheet, divisions);
-		
-		for(SheetStrip strip : strips) {
-			List<Line> lines = strip.FindStave(); 
-			Utils.printLines(output,lines, new Scalar(255,0,0));
+
+		for (SheetStrip strip : strips) {
+			List<Line> lines = strip.FindStave();
+			Utils.printMulticolouredLines(output, lines);
 		}
-		
-		return output;	
-		
-		/*List<Mat> actualResult = new LinkedList<Mat>();
-		Map<Mat, List<Line>> staveMap = new HashMap<Mat, List<Line>>();
-		for (Mat m : strips) {
-			Mat clone = m.clone();
-			Utils.invertColors(m);
-			Mat lines = new Mat();
-			Imgproc.HoughLinesP(m, lines, 1, Math.PI / 180, 100);
-			Imgproc.cvtColor(clone, clone, Imgproc.COLOR_GRAY2BGR);
-			staveMap.put(clone, Utils.getHoughLinesFromMat(lines));
-			actualResult.add(clone);
-		}*/
+
+		return output;
+
+		/*
+		 * List<Mat> actualResult = new LinkedList<Mat>(); Map<Mat, List<Line>>
+		 * staveMap = new HashMap<Mat, List<Line>>(); for (Mat m : strips) { Mat
+		 * clone = m.clone(); Utils.invertColors(m); Mat lines = new Mat();
+		 * Imgproc.HoughLinesP(m, lines, 1, Math.PI / 180, 100);
+		 * Imgproc.cvtColor(clone, clone, Imgproc.COLOR_GRAY2BGR);
+		 * staveMap.put(clone, Utils.getHoughLinesFromMat(lines));
+		 * actualResult.add(clone); }
+		 */
 
 	}
 

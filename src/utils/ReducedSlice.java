@@ -1,6 +1,5 @@
 package utils;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,7 +12,7 @@ public class ReducedSlice {
 	
 	private final Mat mat;
 	private List<Section> sections;
-	private static final int THRESHOLD = 190;
+	private static final int THRESHOLD = 90;
 	private final Point topLeft;
 	private final Point bottomRight;
 
@@ -39,13 +38,14 @@ public class ReducedSlice {
 			if (inSection) {
 				if (v > THRESHOLD) {
 					// end of gap detected
-					sections.add(new Section(gapStart,y));
+					sections.add(new Section((int)topLeft.x,(int)bottomRight.x,gapStart,y));
 					inSection = false;
 				}
 			} else {
 				if (v <= THRESHOLD) {
 					// start of gap detected
 					inSection = true;
+					gapStart=y;
 				}
 			}
 		}
@@ -64,30 +64,46 @@ public class ReducedSlice {
 		for (Section section : sections) {
 			if (section.IsStartOfLine()) {
 				Section end = section;
-				while (end.HasNext()) end=end.next;
+				while (end.HasNext()) end = end.getNext();
+				lines.add(new Line(
+						new Point(section.startX,topLeft.y+section.y()), 
+						new Point(end.endX,topLeft.y+end.y())));
+			}
+		}
+		return lines;
+	}
+
+	public List<Line> GetSectionLines() {
+		List<Line> lines = new LinkedList<Line>();
+		for (Section section : sections) {
+
 				lines.add(new Line(
 						new Point(topLeft.x,topLeft.y+section.y()), 
-						new Point(bottomRight.x,topLeft.y+end.y())));
-			}
+						new Point(bottomRight.x,topLeft.y+section.y())));
+			
 		}
 		return lines;
 	}
 
 	private class Section {
 
-		private final int start;
-		private final int end;
+		private final int startY;
+		private final int endY;
+		private final int startX;
+		private final int endX;
 		
 		private Section next = null;
 		private boolean hasPrevious = false;
 		
-		public Section(int start, int end) {
-			this.start=start;
-			this.end=end;
+		public Section(int startX, int endX, int startY, int endY) {
+			this.startX=startX;
+			this.endX=endX;
+			this.startY=startY;
+			this.endY=endY;
 		}
 
 		public double y() {
-			return(start+end)/2;
+			return(startY+endY)/2;
 		}
 
 		public boolean IsStartOfLine() {
@@ -98,7 +114,7 @@ public class ReducedSlice {
 			return next!=null;
 		}
 		
-		public Section Next() {
+		public Section getNext() {
 			return next;
 		}
 
@@ -110,13 +126,20 @@ public class ReducedSlice {
 		}
 
 		private boolean joinsTo(Section nextSection) {
-			int x1 = start, x2 = end, 
-				y1 = nextSection.start, y2 = nextSection.end;
+			int topA = startY, bottomA = endY, 
+				topB = nextSection.startY, bottomB = nextSection.endY;
 			
-			return (x1 >= y1 && x1 <= y2) ||
+			int tol = 3;
+			return (topA >= topB-tol && topA <= bottomB+tol) ||
+					(bottomA >= topB-tol && bottomA <= bottomB+tol) ||
+					(topB >= topA-tol && topB <= bottomA+tol) ||
+					(bottomB >= topA-tol && bottomB <= bottomA+tol);
+
+			
+			/*return (x1 >= y1 && x1 <= y2) ||
 					(x2 >= y1 && x2 <= y2) ||
 					(y1 >= x1 && y1 <= x2) ||
-					(y2 >= x1 && y2 <= x2);
+					(y2 >= x1 && y2 <= x2);*/
 		}
 	}
 }
