@@ -8,18 +8,20 @@ import java.util.Map;
 
 import musicdetection.DetectMusic;
 import musicdetection.Line;
+import musicdetection.Stave;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
+import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
+import utils.SheetStrip;
 import utils.Utils;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RelativeLayout;
@@ -57,13 +59,14 @@ public class SightReadingActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		Log.i(TAG, "called onCreate");
 		super.onCreate(savedInstanceState);
-		Button button = new Button(this);
+		
+		/*Button button = new Button(this);
 		button.setWidth(100);
 		button.setHeight(100);
         button.setText("I'm a motherfucking button!");
         RelativeLayout l = new RelativeLayout(this);
         l.addView(button, 200, 200);
-        setContentView(l);
+        setContentView(l);*/
         
 		//requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -72,23 +75,37 @@ public class SightReadingActivity extends Activity {
 				mOpenCVCallBack)) {
 			Log.e("TEST", "Cannot connect to OpenCV Manager");
 		}
-
+		
 		new File(Utils.getPath("") + File.separator + "input").mkdirs();
 		new File(Utils.getPath("") + File.separator + "output").mkdirs();
 		new File(Utils.getPath("") + File.separator + "assets").mkdirs();
+		
+		testImage("baaBaa.jpg","baaBaaOut.png");
+		
+		finish();
 
 	}
 
 	private Mat testProcessing(Mat sheet) {
-		Mat mat = sheet.clone();
+		Mat output = sheet.clone();
+		Imgproc.cvtColor(output, output, Imgproc.COLOR_GRAY2BGR);
+		
 		Utils.preprocessImage(sheet);
 		Mat projection = sheet.clone();
 		Mat proj = Utils.horizontalProjection(projection);
 		LinkedList<Integer> divisions = Utils.detectDivisions(proj, 190);
-		List<Mat> result = Utils.cut(sheet, divisions);
-		List<Mat> actualResult = new LinkedList<Mat>();
+		List<SheetStrip> strips = Utils.SliceSheet(sheet, divisions);
+		
+		for(SheetStrip strip : strips) {
+			List<Line> lines = strip.FindStave(); 
+			Utils.printLines(output,lines, new Scalar(255,0,0));
+		}
+		
+		return output;	
+		
+		/*List<Mat> actualResult = new LinkedList<Mat>();
 		Map<Mat, List<Line>> staveMap = new HashMap<Mat, List<Line>>();
-		for (Mat m : result) {
+		for (Mat m : strips) {
 			Mat clone = m.clone();
 			Utils.invertColors(m);
 			Mat lines = new Mat();
@@ -96,10 +113,8 @@ public class SightReadingActivity extends Activity {
 			Imgproc.cvtColor(clone, clone, Imgproc.COLOR_GRAY2BGR);
 			staveMap.put(clone, Utils.getHoughLinesFromMat(lines));
 			actualResult.add(clone);
-		}
-		Imgproc.cvtColor(mat, mat, Imgproc.COLOR_GRAY2BGR);
-		Utils.rebuildMatrix(actualResult, mat, divisions);
-		return mat;
+		}*/
+
 	}
 
 	public void testImage(String src, String dst) {

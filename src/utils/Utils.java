@@ -309,23 +309,31 @@ public class Utils {
 		return result;
 	}
 
-	public static List<Mat> cut(Mat sheet, List<Integer> divisions) {
-		List<Mat> result = new LinkedList<Mat>();
+	public static List<SheetStrip> SliceSheet(Mat sheet, List<Integer> divisions) {
+		int totalSlices = divisions.size()-1;
+		List<SheetStrip> staveMats = new LinkedList<SheetStrip>();
+		
 		int width = sheet.cols();
 		int sliceWidth = width / numberOfVerticalSlices;
+		
 		for (int i = 0; i < numberOfVerticalSlices; i++) {
 			// result will be ordered like that: top left, 2nd top left, 3rd top
 			// left... top 2nd left...
-			for (int j = 0; j < divisions.size() - 1; j++) {
+			
+			Slice[] slices = new Slice[totalSlices];
+			for (int slice = 0; slice < totalSlices; slice++) {
 				int x0 = i * sliceWidth;
-				int y0 = divisions.get(j);
-				int y1 = divisions.get(j + 1);
-				Mat mat = sheet.submat(new Rect(new Point(x0, y0), new Size(
+				int x1 = (i+1) *sliceWidth;
+				int y0 = divisions.get(slice);
+				int y1 = divisions.get(slice + 1);
+				
+				Mat sliceMat = sheet.submat(new Rect(new Point(x0, y0), new Size(
 						sliceWidth, y1 - y0)));
-				result.add(mat);
+				slices[slice]=new Slice(sliceMat, new Point(x0,y0), new Point(x1,y1));
 			}
+			staveMats.add(new SheetStrip(slices));
 		}
-		return result;
+		return staveMats;
 	}
 
 	public static List<Mat> verticalCut(Mat sheet, int numberOfSlices) {
