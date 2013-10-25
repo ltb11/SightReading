@@ -305,6 +305,10 @@ public class DetectMusic {
 		int outside, inside;
 		for (outside = 0; outside < lines.size(); outside++) {
 			Line start = lines.get(outside);
+			
+			// TODO: !!!! this line may be causing problems, not sure
+			if (start.length()<Utils.STANDARD_IMAGE_WIDTH*0.5) break;
+			
 			List<Line> subset = new LinkedList<Line>();
 
 			for (inside = outside; inside < lines.size(); inside++) {

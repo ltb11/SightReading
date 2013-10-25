@@ -5,14 +5,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import musicdetection.DetectMusic;
 import musicdetection.Line;
+import musicdetection.Stave;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
@@ -20,6 +19,7 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
+import utils.SheetStrip;
 import utils.Utils;
 import android.app.Activity;
 import android.content.Intent;
@@ -45,8 +45,8 @@ public class SightReadingActivity extends Activity {
 			case LoaderCallbackInterface.SUCCESS: {
 				// testImage("twoStaves.png", "twoStavesOut.png");
 				// testImage("threeStaves.png", "threeStavesOut.png");
-				// testImage("complexStaves.png", "complexStavesOut.png");
-				// testImage("baaBaa.jpg", "baaBaaOut.png");
+				testImage("complexStaves.png", "complexStavesOut.png");
+				testImage("baaBaa.jpg", "baaBaaOut.png");
 				// testImage("baaBaaSection.jpg", "baaBaaSectionOut.png");
 				// testImage("Distorted.jpg", "distortedOut.jpg");
 			}
@@ -72,6 +72,11 @@ public class SightReadingActivity extends Activity {
 
 		initialiseButtons();
 
+		 /* button.setHeight(100); button.setText("I'm a motherfucking button!");
+		 * RelativeLayout l = new RelativeLayout(this); l.addView(button, 200,
+		 * 200); setContentView(l);
+		 */
+
 		// requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -80,9 +85,11 @@ public class SightReadingActivity extends Activity {
 			Log.e("TEST", "Cannot connect to OpenCV Manager");
 		}
 
-		new File(Utils.getPath("") + File.separator + "input").mkdirs();
-		new File(Utils.getPath("") + File.separator + "output").mkdirs();
-		new File(Utils.getPath("") + File.separator + "assets").mkdirs();
+		(new File(Utils.getPath("") + File.separator + "input")).mkdirs();
+		(new File(Utils.getPath("") + File.separator + "output")).mkdirs();
+		(new File(Utils.getPath("") + File.separator + "assets")).mkdirs();
+
+		finish();
 
 	}
 
@@ -140,30 +147,43 @@ public class SightReadingActivity extends Activity {
 			super.onActivityResult(requestCode, resultCode, data);
 	}
 
-	private Mat testProcessing(Mat sheet) {
-		Mat mat = sheet.clone();
+	private Mat testProcessing(Mat input) {
+		Mat sheet = Utils.resizeImage(input, Utils.STANDARD_IMAGE_WIDTH);
+
+		Mat output = sheet.clone();
+		Imgproc.cvtColor(output, output, Imgproc.COLOR_GRAY2BGR);
+
 		Utils.preprocessImage(sheet);
 		Mat projection = sheet.clone();
 		Mat proj = Utils.horizontalProjection(projection);
+		// 190 threshold for white from 255 used to detect spaces between staves
 		LinkedList<Integer> divisions = Utils.detectDivisions(proj, 190);
-		List<Mat> result = Utils.cut(sheet, divisions);
-		List<Mat> actualResult = new LinkedList<Mat>();
-		Map<Mat, List<Line>> staveMap = new HashMap<Mat, List<Line>>();
-		for (Mat m : result) {
-			Mat clone = m.clone();
-			Utils.invertColors(m);
-			Mat lines = new Mat();
-			Imgproc.HoughLinesP(m, lines, 1, Math.PI / 180, 100);
-			Imgproc.cvtColor(clone, clone, Imgproc.COLOR_GRAY2BGR);
-			staveMap.put(clone, Utils.getHoughLinesFromMat(lines));
-			actualResult.add(clone);
-		}
-		Imgproc.cvtColor(mat, mat, Imgproc.COLOR_GRAY2BGR);
-		Utils.rebuildMatrix(actualResult, mat, divisions);
-		return mat;
-	}
+		List<SheetStrip> strips = Utils.SliceSheet(sheet, divisions);
 
-	public void scanImage() {
+		List<Line> lines = new LinkedList<Line>();
+		for (SheetStrip strip : strips) {
+			lines.addAll(strip.FindLines());
+		}
+		List<Stave> staves = DetectMusic.detectStaves(lines);
+		for (Stave s : staves) {
+			s.draw(output);
+		}
+
+		return output;
+
+		/*
+		 * List<Mat> actualResult = new LinkedList<Mat>(); Map<Mat, List<Line>>
+		 * staveMap = new HashMap<Mat, List<Line>>(); for (Mat m : strips) { Mat
+		 * clone = m.clone(); Utils.invertColors(m); Mat lines = new Mat();
+		 * Imgproc.HoughLinesP(m, lines, 1, Math.PI / 180, 100);
+		 * Imgproc.cvtColor(clone, clone, Imgproc.COLOR_GRAY2BGR);
+		 * staveMap.put(clone, Utils.getHoughLinesFromMat(lines));
+		 * actualResult.add(clone); }
+		 */
+
+	}
+	
+	private void scanImage() {
 		String src = ((EditText) findViewById(R.id.filePath)).getText().toString();
 		testImage(src, Utils.getDest(src));
 	}
