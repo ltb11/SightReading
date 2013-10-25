@@ -15,10 +15,8 @@ import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
-import org.sightreading.SightReadingActivity;
 
 import utils.Utils;
-import android.util.Log;
 
 public class DetectMusic {
 
@@ -30,6 +28,7 @@ public class DetectMusic {
 
 	public static Mat detectMusic(Mat sheet) {
 
+        
 		Mat output = new Mat(sheet, Range.all());
 		Imgproc.cvtColor(sheet, output, Imgproc.COLOR_GRAY2BGR);
 

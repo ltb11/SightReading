@@ -5,7 +5,7 @@ buildscript{
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.6.1'
+        classpath 'com.android.tools.build:gradle:0.6.+'
     }
 
 }
@@ -30,14 +30,23 @@ android {
             res {
                 srcDir 'res'
             }
+            resources {
+                srcDir 'src'
+            }
+            aidl {
+                srcDir 'src'
+            }
+
         }
         
         instrumentTest.setRoot('tests')
     }
-    
+    defaultConfig{
+        targetSdkVersion 17
+    }
 }
 
 dependencies {
-    compile files('libs/android-opencv.jar')
+    compile fileTree(dir: 'libs', include:'*.jar')
 }
 
