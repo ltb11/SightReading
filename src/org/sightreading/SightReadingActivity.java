@@ -19,6 +19,7 @@ import org.opencv.imgproc.Imgproc;
 import utils.Utils;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
@@ -35,8 +36,8 @@ public class SightReadingActivity extends Activity {
 				// testImage("threeStaves.png", "threeStavesOut.png");
 				// testImage("complexStaves.png", "complexStavesOut.png");
 				// testImage("baaBaa.jpg", "baaBaaOut.png");
-				// testImage("baaBaaSection.jpg", "baaBaaSectionOut.png");
-				testImage("Distorted.jpg", "distortedOut.jpg");
+				//testImage("baaBaaSection.jpg", "baaBaaSectionOut.png");
+				// testImage("Distorted.jpg", "distortedOut.jpg");
 			}
 				break;
 			default: {
@@ -63,6 +64,10 @@ public class SightReadingActivity extends Activity {
 				mOpenCVCallBack)) {
 			Log.e("TEST", "Cannot connect to OpenCV Manager");
 		}
+
+		new File(Utils.getPath("") + File.separator + "input").mkdirs();
+		new File(Utils.getPath("") + File.separator + "output").mkdirs();
+		new File(Utils.getPath("") + File.separator + "assets").mkdirs();
 
 	}
 
@@ -94,7 +99,7 @@ public class SightReadingActivity extends Activity {
 		Mat houghMat = Utils.readImage(srcPath);
 		String notePath = Utils.getPath("assets/notehead.png");
 		DetectMusic.noteHead = Utils.readImage(notePath);
-		// Mat imageMat = DetectMusic.detectMusic(houghMat);
+
 		Mat imageMat = testProcessing(houghMat);
 		Utils.writeImage(imageMat, Utils.getPath("output/" + dst));
 		finish();
