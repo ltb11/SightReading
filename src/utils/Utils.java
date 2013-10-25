@@ -29,7 +29,8 @@ public class Utils {
 	private static final double staveGapTolerance = 0.2;
 	public static final String sdPath = Environment
 			.getExternalStorageDirectory().getAbsolutePath() + "/DCIM/";
-	public static final int numberOfVerticalSlices = 6;
+	public static final int totalVerticalSlices = 20;
+	public static final double STANDARD_IMAGE_WIDTH = 2500;
 
 	public static Scalar createHsvColor(float hue, float saturation, float value) {
 
@@ -152,26 +153,29 @@ public class Utils {
 		return new LinkedList<Line>();
 	}
 
-	public static void resizeImage(Mat image, double newHeight) {
+	public static Mat resizeImage(Mat image, double newHeight) {
 		double newWidth = newHeight * image.cols() / image.rows();
 		Size newSize = new Size(newWidth, newHeight);
 
-		Imgproc.resize(image, image, newSize);
+		Mat newImage = new Mat(newSize,image.type());
+		Imgproc.resize(image, newImage, newSize);
 
-		Utils.writeImage(image, Utils.getPath("output/checkNote.png"));
+		//Utils.writeImage(image, Utils.getPath("output/checkNote.png"));
+		
+		return newImage;
 
 	}
 
 	public static void printLines(Mat mat, List<Line> lines, Scalar colour) {
 		for (int i = 0; i < lines.size(); i++) {
-			Core.line(mat, lines.get(i).start(), lines.get(i).end(), colour, 1);
+			Core.line(mat, lines.get(i).start(), lines.get(i).end(), colour, 3);
 		}
 	}
 
 	public static void printMulticolouredLines(Mat mat, List<Line> lines) {
 		for (int i = 0; i < lines.size(); i++) {
 			Scalar colour = getColour(i);
-			Core.line(mat, lines.get(i).start(), lines.get(i).end(), colour, 1);
+			Core.line(mat, lines.get(i).start(), lines.get(i).end(), colour, 3);
 		}
 	}
 
@@ -309,23 +313,33 @@ public class Utils {
 		return result;
 	}
 
-	public static List<Mat> cut(Mat sheet, List<Integer> divisions) {
-		List<Mat> result = new LinkedList<Mat>();
+	public static List<SheetStrip> SliceSheet(Mat sheet, List<Integer> divisions) {
+		int totalHorizontalSlices = divisions.size() - 1;
+		List<SheetStrip> staveMats = new LinkedList<SheetStrip>();
+
 		int width = sheet.cols();
-		int sliceWidth = width / numberOfVerticalSlices;
-		for (int i = 0; i < numberOfVerticalSlices; i++) {
-			// result will be ordered like that: top left, 2nd top left, 3rd top
-			// left... top 2nd left...
-			for (int j = 0; j < divisions.size() - 1; j++) {
-				int x0 = i * sliceWidth;
-				int y0 = divisions.get(j);
-				int y1 = divisions.get(j + 1);
-				Mat mat = sheet.submat(new Rect(new Point(x0, y0), new Size(
-						sliceWidth, y1 - y0)));
-				result.add(mat);
+		int verticalSliceWidth = width / totalVerticalSlices;
+
+		for (int hSlice = 0; hSlice < totalHorizontalSlices; hSlice++) {
+			Slice[] slices = new Slice[totalVerticalSlices];
+			for (int vSlice = 0; vSlice < totalVerticalSlices; vSlice++) {
+
+				int x0 = vSlice * verticalSliceWidth;
+				int x1 = (vSlice + 1) * verticalSliceWidth;
+				int y0 = divisions.get(hSlice);
+				int y1 = divisions.get(hSlice + 1);
+
+				Mat sliceMat = sheet.submat(new Rect(new Point(x0, y0),
+						new Size(verticalSliceWidth, y1 - y0)));
+				slices[vSlice] = new Slice(sliceMat, new Point(x0, y0),
+						new Point(x1, y1));
+
+				// Utils.writeImage(sliceMat, getPath("output/test" + hSlice +
+				// "_"+ vSlice + ".png"));
 			}
+			staveMats.add(new SheetStrip(slices));
 		}
-		return result;
+		return staveMats;
 	}
 
 	public static List<Mat> verticalCut(Mat sheet, int numberOfSlices) {
@@ -342,15 +356,16 @@ public class Utils {
 		return result;
 	}
 
-	public static void rebuildMatrix(List<Mat> matParts, Mat result, List<Integer> divisions) {
+	public static void rebuildMatrix(List<Mat> matParts, Mat result,
+			List<Integer> divisions) {
 		int horizontalSplits = divisions.size() - 1;
-		int sliceWidth = result.cols() / Utils.numberOfVerticalSlices;
-		for (int i = 0; i < Utils.numberOfVerticalSlices; i++) {
+		int sliceWidth = result.cols() / Utils.totalVerticalSlices;
+		for (int i = 0; i < Utils.totalVerticalSlices; i++) {
 			for (int j = 0; j < horizontalSplits; j++) {
 				matParts.get(i * horizontalSplits + j).copyTo(
-						result.submat(new Rect(new Point(i * sliceWidth, divisions
-								.get(j)), new Size(sliceWidth, divisions
-								.get(j + 1) - divisions.get(j)))));
+						result.submat(new Rect(new Point(i * sliceWidth,
+								divisions.get(j)), new Size(sliceWidth,
+								divisions.get(j + 1) - divisions.get(j)))));
 			}
 		}
 	}
