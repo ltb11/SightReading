@@ -158,7 +158,7 @@ public class DetectMusic {
 			maxLoc = minMaxRes.maxLoc;
 			if (maxVal > maxAllowedVal) {
 				Point centre = new Point(maxLoc.x + noteWidth / 2, maxLoc.y + staveGap / 2);
-				if (Utils.isInCircle(centre, staveGap, ref)) {
+				if (Utils.isInCircle(centre, staveGap/4, ref)) {
 					notes.add(new Note(new Point(maxLoc.x + noteWidth / 2,
 							maxLoc.y + staveGap / 2)));
 					Rect area = new Rect(maxLoc, mask.size());
@@ -166,7 +166,7 @@ public class DetectMusic {
 					mask.copyTo(selectedArea);
 					Utils.zeroInMatrix(result, new Point(maxLoc.x, maxLoc.y),
 							(int) noteWidth, (int) staveGap);
-				}
+				} else break;
 			} else
 				break;
 			breaker++;

@@ -221,7 +221,6 @@ public class Utils {
 				}
 			}
 		}
-		Log.v("conrad", String.valueOf(!allBlack));
 		return !allBlack;
 	}
 	

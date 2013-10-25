@@ -26,7 +26,8 @@ public class SightReadingActivity extends Activity {
 				//testImage("oneStaveBis.png", "oneStaveOut.png");
 				//testImage("twoStaves.png", "twoStavesOut.png");
 				//testImage("threeStaves.png", "threeStavesOut.png");
-				testImage("complexStaves.png", "complexStavesOut.png");
+				//testImage("complexStaves.png", "complexStavesOut.png");
+				//testImage("bbh.JPG", "bbhOut.JPG");
 			}
 				break;
 			default: {
