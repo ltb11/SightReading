@@ -11,12 +11,14 @@ public abstract class Note {
         this.rest = rest;
    }
 
-    public Duration getDuration(){
-        return this.duration;
+    public int actualDuration(){
+        int val = value(duration);
+        for(int i = dots; i != 0; --i){
+            val *= 1.5;
+        }
+        return val;
     }
-    public int getDots(){
-        return this.dots;
-    }
+
     public boolean getRest(){
         return this.rest;
     }
@@ -25,5 +27,14 @@ public abstract class Note {
     	//TODO: implement the method depending on the way it's gonna be called.
     	// Do that for every note so the playback in the end is just 
     	// For (Note n : allNotes) n.play();
+    }
+
+    private int value(Duration duration){
+        int value = 32 * 512; //smallest possible division of a note is 1/512, ain't nobody got time for fractions...
+        int ord = duration.ordinal();
+        while(ord){
+            value /= 2;
+            ord--;
+        }
     }
 }
