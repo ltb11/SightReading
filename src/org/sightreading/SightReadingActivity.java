@@ -114,7 +114,7 @@ public class SightReadingActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				
+			//TODO: implement this method and all similar ones (onkey and all that shit)	
 			}
 		});
 		
