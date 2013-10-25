@@ -40,3 +40,5 @@ proguard/
 Images/
 log
 .settings/org.eclipse.jdt.core.prefs
+SightReading/.settings/org.eclipse.jdt.core.prefs
+SightReading/hs_err_pid972.log

@@ -151,6 +151,22 @@ public class Utils {
 		 */
 		return new LinkedList<Line>();
 	}
+	
+	public static String getDest(String src) {
+		String result = "";
+		int i = 0;
+		while (src.charAt(i) != '.') {
+			result += src.charAt(i);
+			i++;
+		}
+		result += "Out.";
+		i++;
+		while (i < src.length()) {
+			result += src.charAt(i);
+			i++;
+		}
+		return result;
+	}
 
 	public static void resizeImage(Mat image, double newHeight) {
 		double newWidth = newHeight * image.cols() / image.rows();

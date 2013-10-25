@@ -32,9 +32,10 @@ public abstract class Note {
     private int value(Duration duration){
         int value = 32 * 512; //smallest possible division of a note is 1/512, ain't nobody got time for fractions...
         int ord = duration.ordinal();
-        while(ord){
+        /*while(ord){
             value /= 2;
             ord--;
-        }
+        }*/
+        return 0;
     }
 }

@@ -1,9 +1,14 @@
 package org.sightreading;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import musicdetection.DetectMusic;
@@ -17,15 +22,18 @@ import org.opencv.imgproc.Imgproc;
 
 import utils.Utils;
 import android.app.Activity;
-import android.graphics.Color;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.RelativeLayout;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 
 public class SightReadingActivity extends Activity {
 	public static final String TAG = "SightReadingActivity";
@@ -62,6 +70,8 @@ public class SightReadingActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.sight_reading_surface_view);
 
+		initialiseButtons();
+
 		// requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -76,10 +86,60 @@ public class SightReadingActivity extends Activity {
 
 	}
 
-	public void quit(View v) {
-		finish();
+	private void initialiseButtons() {
+		Button button = (Button) findViewById(R.id.scan);
+		button.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				scanImage();
+			}
+		});
+		
+		ImageButton imageButton = (ImageButton) findViewById(R.id.camera);
+		imageButton.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				takePicture();
+			}
+		});
+		
+		EditText currentFileName = (EditText) findViewById(R.id.filePath);
+		currentFileName.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+			}
+		});
+		
 	}
 	
+	private void takePicture() {	    
+		Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(cameraIntent, 2);
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == 2) {
+			Bitmap photo = (Bitmap) data.getExtras().get("data");
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyymmddhhmmss", Locale.UK);
+		    String date = dateFormat.format(new Date());
+		    String photoFile = Utils.getPath("pictures/IMG_" + date + ".jpg");
+			try {
+				FileOutputStream out = new FileOutputStream(photoFile);
+				photo.compress(Bitmap.CompressFormat.PNG, 0, out);
+				ImageView currentView = ((ImageView) findViewById(R.id.currentImage));
+				Bitmap bitmapPic = BitmapFactory.decodeFile(photoFile);
+				currentView.setImageBitmap(bitmapPic);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+		}
+		else
+			super.onActivityResult(requestCode, resultCode, data);
+	}
+
 	private Mat testProcessing(Mat sheet) {
 		Mat mat = sheet.clone();
 		Utils.preprocessImage(sheet);
@@ -101,6 +161,11 @@ public class SightReadingActivity extends Activity {
 		Imgproc.cvtColor(mat, mat, Imgproc.COLOR_GRAY2BGR);
 		Utils.rebuildMatrix(actualResult, mat, divisions);
 		return mat;
+	}
+
+	public void scanImage() {
+		String src = ((EditText) findViewById(R.id.filePath)).getText().toString();
+		testImage(src, Utils.getDest(src));
 	}
 
 	public void testImage(String src, String dst) {
