@@ -43,12 +43,10 @@ public class SightReadingActivity extends Activity {
 		public void onManagerConnected(int status) {
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
-				// testImage("twoStaves.png", "twoStavesOut.png");
-				// testImage("threeStaves.png", "threeStavesOut.png");
-				testImage("complexStaves.png", "complexStavesOut.png");
-				testImage("baaBaa.jpg", "baaBaaOut.png");
-				// testImage("baaBaaSection.jpg", "baaBaaSectionOut.png");
-				// testImage("Distorted.jpg", "distortedOut.jpg");
+				// Due to an unfinished implementation of the GUI, please use this method
+				// to test a file and press "SCAN" when the app is ready. The app will close
+				// when done
+				((EditText) findViewById(R.id.filePath)).setText("Distorted.jpg");
 			}
 				break;
 			default: {
@@ -78,6 +76,7 @@ public class SightReadingActivity extends Activity {
 		 */
 
 		// requestWindowFeature(Window.FEATURE_NO_TITLE);
+		
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		if (!OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_2, this,
@@ -89,7 +88,7 @@ public class SightReadingActivity extends Activity {
 		(new File(Utils.getPath("") + File.separator + "output")).mkdirs();
 		(new File(Utils.getPath("") + File.separator + "assets")).mkdirs();
 
-		finish();
+		//finish();
 
 	}
 
