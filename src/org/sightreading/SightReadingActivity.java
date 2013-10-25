@@ -17,8 +17,11 @@ import org.opencv.imgproc.Imgproc;
 
 import utils.Utils;
 import android.app.Activity;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -36,7 +39,7 @@ public class SightReadingActivity extends Activity {
 				// testImage("threeStaves.png", "threeStavesOut.png");
 				// testImage("complexStaves.png", "complexStavesOut.png");
 				// testImage("baaBaa.jpg", "baaBaaOut.png");
-				//testImage("baaBaaSection.jpg", "baaBaaSectionOut.png");
+				// testImage("baaBaaSection.jpg", "baaBaaSectionOut.png");
 				// testImage("Distorted.jpg", "distortedOut.jpg");
 			}
 				break;
@@ -57,15 +60,9 @@ public class SightReadingActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		Log.i(TAG, "called onCreate");
 		super.onCreate(savedInstanceState);
-		Button button = new Button(this);
-		button.setWidth(100);
-		button.setHeight(100);
-        button.setText("I'm a motherfucking button!");
-        RelativeLayout l = new RelativeLayout(this);
-        l.addView(button, 200, 200);
-        setContentView(l);
-        
-		//requestWindowFeature(Window.FEATURE_NO_TITLE);
+		setContentView(R.layout.sight_reading_surface_view);
+
+		// requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		if (!OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_2, this,
@@ -79,6 +76,10 @@ public class SightReadingActivity extends Activity {
 
 	}
 
+	public void quit(View v) {
+		finish();
+	}
+	
 	private Mat testProcessing(Mat sheet) {
 		Mat mat = sheet.clone();
 		Utils.preprocessImage(sheet);
