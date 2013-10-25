@@ -1,7 +1,9 @@
 package org.sightreading;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import musicdetection.DetectMusic;
 import musicdetection.Line;
@@ -11,12 +13,7 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Range;
-import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
-import org.opencv.core.Size;
-import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
 import utils.Utils;
@@ -37,8 +34,8 @@ public class SightReadingActivity extends Activity {
 				// testImage("twoStaves.png", "twoStavesOut.png");
 				// testImage("threeStaves.png", "threeStavesOut.png");
 				// testImage("complexStaves.png", "complexStavesOut.png");
-// testImage("baaBaa.jpg", "baaBaaOut.png");
-				//testImage("baaBaaSection.jpg", "baaBaaSectionOut.png");
+				// testImage("baaBaa.jpg", "baaBaaOut.png");
+				// testImage("baaBaaSection.jpg", "baaBaaSectionOut.png");
 				testImage("Distorted.jpg", "distortedOut.jpg");
 			}
 				break;
@@ -73,35 +70,22 @@ public class SightReadingActivity extends Activity {
 		Mat mat = sheet.clone();
 		Utils.preprocessImage(sheet);
 		Mat projection = sheet.clone();
-		Utils.writeImage(sheet, Utils.getPath("output/test02.png"));
 		Mat proj = Utils.horizontalProjection(projection);
-		Utils.writeImage(proj, Utils.getPath("output/test01.png"));
 		LinkedList<Integer> divisions = Utils.detectDivisions(proj, 190);
 		List<Mat> result = Utils.cut(sheet, divisions);
 		List<Mat> actualResult = new LinkedList<Mat>();
+		Map<Mat, List<Line>> map = new HashMap<Mat, List<Line>>();
 		for (Mat m : result) {
 			Mat clone = m.clone();
 			Utils.invertColors(m);
 			Mat lines = new Mat();
 			Imgproc.HoughLinesP(m, lines, 1, Math.PI / 180, 100);
-			List<Line> linesProcessed = Utils.getHoughLinesFromMat(lines);
 			Imgproc.cvtColor(clone, clone, Imgproc.COLOR_GRAY2BGR);
-			for (Line l : linesProcessed) {
-				Core.line(clone, l.start(), l.end(), new Scalar(0, 0, 255));
-			}
+			map.add
 			actualResult.add(clone);
 		}
 		Imgproc.cvtColor(mat, mat, Imgproc.COLOR_GRAY2BGR);
-		int numberOfHorizontalSlices = divisions.size() - 1;
-		int sliceWidth = sheet.cols() / Utils.numberOfVerticalSlices;
-		for (int i = 0; i < Utils.numberOfVerticalSlices; i++) {
-			for (int j = 0; j < numberOfHorizontalSlices; j++) {
-				actualResult.get(i * numberOfHorizontalSlices + j).copyTo(
-						mat.submat(new Rect(new Point(i * sliceWidth, divisions
-								.get(j)), new Size(sliceWidth, divisions
-								.get(j + 1) - divisions.get(j)))));
-			}
-		}
+		Utils.rebuildMatrix(actualResult, mat, divisions);
 		return mat;
 	}
 

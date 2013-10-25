@@ -5,7 +5,7 @@ public class PlayedNote extends Note {
    private final Shift shift;
    private final int octave;
 
-   public Note(NoteName name, int octave, Shift shift, Duration duration, int dots){
+   public PlayedNote(NoteName name, int octave, Shift shift, Duration duration, int dots){
         super(duration,dots,false);
         this.name   = name;
         this.octave = octave;

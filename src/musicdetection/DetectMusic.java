@@ -22,7 +22,7 @@ public class DetectMusic {
 
 	private static final double staveLengthTolerance = 0.1;
 	public static Mat noteHead;
-	private static double staveGap;
+	public static double staveGap;
 	private static double noteWidth;
 	private static List<Line> ourStaves = new LinkedList<Line>();
 
@@ -242,7 +242,7 @@ public class DetectMusic {
 		return scaled;
 	}
 
-	private static List<Line> GetLines(Mat sheet) {
+	private static List<Line> getLines(Mat sheet) {
 		Mat linesMat = new Mat();
 		Imgproc.HoughLinesP(sheet, linesMat, 1, Math.PI / 180, 100, 1, 15);
 		List<Line> lines = Utils.getHoughLinesFromMat(linesMat);
@@ -345,7 +345,7 @@ public class DetectMusic {
 	public static Mat correctImage(Mat sheet) {
 
 		// detect staves
-		List<Line> lines = GetLines(sheet);
+		List<Line> lines = getLines(sheet);
 
 		List<Stave> staves = detectStaves(lines);
 

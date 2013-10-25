@@ -20,4 +20,10 @@ public abstract class Note {
     public boolean getRest(){
         return this.rest;
     }
+    
+    public void play() {
+    	//TODO: implement the method depending on the way it's gonna be called.
+    	// Do that for every note so the playback in the end is just 
+    	// For (Note n : allNotes) n.play();
+    }
 }

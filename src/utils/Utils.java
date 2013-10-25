@@ -17,7 +17,6 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
-import org.sightreading.SightReadingActivity;
 
 import android.os.Environment;
 import android.util.Log;
@@ -202,7 +201,6 @@ public class Utils {
 		return numberBeingDivided;
 	}
 
-
 	public static void zeroInMatrix(Mat mat, Point start, int width, int height) {
 		int startX = (int) start.x;
 		int startY = (int) start.y;
@@ -342,6 +340,19 @@ public class Utils {
 			result.add(mat);
 		}
 		return result;
+	}
+
+	public static void rebuildMatrix(List<Mat> matParts, Mat result, List<Integer> divisions) {
+		int horizontalSplits = divisions.size() - 1;
+		int sliceWidth = result.cols() / Utils.numberOfVerticalSlices;
+		for (int i = 0; i < Utils.numberOfVerticalSlices; i++) {
+			for (int j = 0; j < horizontalSplits; j++) {
+				matParts.get(i * horizontalSplits + j).copyTo(
+						result.submat(new Rect(new Point(i * sliceWidth, divisions
+								.get(j)), new Size(sliceWidth, divisions
+								.get(j + 1) - divisions.get(j)))));
+			}
+		}
 	}
 
 	public static LinkedList<Integer> detectDivisions(Mat mat, int threshold) {
