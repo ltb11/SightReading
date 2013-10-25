@@ -32,8 +32,25 @@ public class Stave {
 		}
 	}
 	
+	public void draw(Mat image) {
+		Scalar col = new Scalar(128,0,0);
+		
+		for (int i = 0; i < 5; i++) {
+			Core.line(image, lines.get(i).start(), lines.get(i).end(), col, 5);
+		}
+	}
+	
 	public double staveGap() {
 		return staveGap;
 	}
-	
+
+	public Line TopLine() {
+		return lines.get(0);
+	}
+
+	public Line BottomLine() {
+		return lines.get(4);
+	}
+
+
 }
