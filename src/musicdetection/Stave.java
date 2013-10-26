@@ -36,7 +36,7 @@ public class Stave {
 		Scalar col = new Scalar(128,0,0);
 		
 		for (int i = 0; i < 5; i++) {
-			Core.line(image, lines.get(i).start(), lines.get(i).end(), col, 5);
+			Core.line(image, lines.get(i).start(), lines.get(i).end(), col, 3);
 		}
 	}
 	
@@ -44,11 +44,11 @@ public class Stave {
 		return staveGap;
 	}
 
-	public Line TopLine() {
+	public Line topLine() {
 		return lines.get(0);
 	}
 
-	public Line BottomLine() {
+	public Line bottomLine() {
 		return lines.get(4);
 	}
 

@@ -11,7 +11,6 @@ import java.util.Locale;
 
 import musicdetection.DetectMusic;
 import musicdetection.Line;
-import musicdetection.Stave;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
@@ -46,16 +45,19 @@ import android.widget.TextView;
 public class SightReadingActivity extends Activity {
 	public static final String TAG = "SightReadingActivity";
 	public static EditText currentFileName;
+	private Button scan;
 
 	private BaseLoaderCallback mOpenCVCallBack = new BaseLoaderCallback(this) {
 		@Override
 		public void onManagerConnected(int status) {
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
-				// Due to an unfinished implementation of the GUI, please use this method
-				// to test a file and press "SCAN" when the app is ready. The app will close
-				// when done
-				((EditText) findViewById(R.id.filePath)).setText("Distorted.jpg");
+				// Due to an unfinished implementation of the GUI, please use
+				// this method to change the file name. The app will run, displaying no
+				// GUI and exit when done scanning
+				((EditText) findViewById(R.id.filePath))
+						.setText("Distorted.jpg");
+				scan.performClick();
 			}
 				break;
 			default: {
@@ -79,13 +81,14 @@ public class SightReadingActivity extends Activity {
 
 		initialiseButtons();
 
-		 /* button.setHeight(100); button.setText("I'm a motherfucking button!");
+		/*
+		 * button.setHeight(100); button.setText("I'm a motherfucking button!");
 		 * RelativeLayout l = new RelativeLayout(this); l.addView(button, 200,
 		 * 200); setContentView(l);
 		 */
 
 		// requestWindowFeature(Window.FEATURE_NO_TITLE);
-		
+
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 		if (!OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_2, this,
@@ -97,18 +100,20 @@ public class SightReadingActivity extends Activity {
 		(new File(Utils.getPath("") + File.separator + "output")).mkdirs();
 		(new File(Utils.getPath("") + File.separator + "assets")).mkdirs();
 
-		//finish();
+		// finish();
 
 	}
 
 	private void initialiseButtons() {
-		Button button = (Button) findViewById(R.id.scan);
-		button.setOnClickListener(new View.OnClickListener() {
+		scan = (Button) findViewById(R.id.scan);
+		scan.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
+				((TextView) findViewById(R.id.scanning)).setVisibility(View.VISIBLE);
+				v.refreshDrawableState();
 				scanImage();
 			}
 		});
-		
+
 		ImageButton imageButton = (ImageButton) findViewById(R.id.camera);
 		imageButton.setOnClickListener(new View.OnClickListener() {
 
@@ -117,55 +122,62 @@ public class SightReadingActivity extends Activity {
 				takePicture();
 			}
 		});
-		
+
 		currentFileName = (EditText) findViewById(R.id.filePath);
-		currentFileName.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-	        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-	            if (actionId == KeyEvent.KEYCODE_ENTER) {
-	                // hide virtual keyboard
-	                InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-	                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-	                currentFileName.setCursorVisible(false);
-	                return true;
-	            }
-	            return false;
-	        }
-	    });
-		
+		currentFileName
+				.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+					public boolean onEditorAction(TextView v, int actionId,
+							KeyEvent event) {
+						if (actionId == KeyEvent.KEYCODE_ENTER) {
+							// hide virtual keyboard
+							InputMethodManager imm = (InputMethodManager) v
+									.getContext().getSystemService(
+											Context.INPUT_METHOD_SERVICE);
+							imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+							currentFileName.setCursorVisible(false);
+							return true;
+						}
+						return false;
+					}
+				});
+
 		LinearLayout l = (LinearLayout) findViewById(R.id.globalLayout);
 		l.setOnTouchListener(new OnTouchListener() {
-			
+
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-		            if (currentFileName.isFocused()) {
-		                Rect outRect = new Rect();
-		                currentFileName.getGlobalVisibleRect(outRect);
-		                if (!outRect.contains((int)event.getRawX(), (int)event.getRawY())) {
-		                    currentFileName.clearFocus();
-		                    InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE); 
-		                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-		                }
-		            }
-		        }
-		        return false;
+					if (currentFileName.isFocused()) {
+						Rect outRect = new Rect();
+						currentFileName.getGlobalVisibleRect(outRect);
+						if (!outRect.contains((int) event.getRawX(),
+								(int) event.getRawY())) {
+							currentFileName.clearFocus();
+							InputMethodManager imm = (InputMethodManager) v
+									.getContext().getSystemService(
+											Context.INPUT_METHOD_SERVICE);
+							imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+						}
+					}
+				}
+				return false;
 			}
 		});
-		
 	}
-	
-	private void takePicture() {	    
+
+	private void takePicture() {
 		Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(cameraIntent, 2);
+		startActivityForResult(cameraIntent, 2);
 	}
-	
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == 2) {
 			Bitmap photo = (Bitmap) data.getExtras().get("data");
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyymmddhhmmss", Locale.UK);
-		    String date = dateFormat.format(new Date());
-		    String photoFile = Utils.getPath("pictures/IMG_" + date + ".jpg");
+			SimpleDateFormat dateFormat = new SimpleDateFormat(
+					"yyyymmddhhmmss", Locale.UK);
+			String date = dateFormat.format(new Date());
+			String photoFile = Utils.getPath("pictures/IMG_" + date + ".jpg");
 			try {
 				FileOutputStream out = new FileOutputStream(photoFile);
 				photo.compress(Bitmap.CompressFormat.PNG, 0, out);
@@ -175,60 +187,59 @@ public class SightReadingActivity extends Activity {
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
-		}
-		else
+		} else
 			super.onActivityResult(requestCode, resultCode, data);
 	}
 
-	private Mat testProcessing(Mat input) {
-		Mat sheet = Utils.resizeImage(input, Utils.STANDARD_IMAGE_WIDTH);
+	private void testProcessing(Mat input) {
 
-		Mat output = sheet.clone();
-		Imgproc.cvtColor(output, output, Imgproc.COLOR_GRAY2BGR);
-
-		Utils.preprocessImage(sheet);
-		Mat projection = sheet.clone();
+		Utils.preprocessImage(input);
+		Mat projection = input.clone();
 		Mat proj = Utils.horizontalProjection(projection);
 		// 190 threshold for white from 255 used to detect spaces between staves
 		LinkedList<Integer> divisions = Utils.detectDivisions(proj, 190);
-		List<SheetStrip> strips = Utils.SliceSheet(sheet, divisions);
+		List<SheetStrip> strips = Utils.sliceSheet(input, divisions);
 
 		List<Line> lines = new LinkedList<Line>();
 		for (SheetStrip strip : strips) {
 			lines.addAll(strip.FindLines());
 		}
-		List<Stave> staves = DetectMusic.detectStaves(lines);
-		for (Stave s : staves) {
-			s.draw(output);
-		}
-
-		return output;
-
-		/*
-		 * List<Mat> actualResult = new LinkedList<Mat>(); Map<Mat, List<Line>>
-		 * staveMap = new HashMap<Mat, List<Line>>(); for (Mat m : strips) { Mat
-		 * clone = m.clone(); Utils.invertColors(m); Mat lines = new Mat();
-		 * Imgproc.HoughLinesP(m, lines, 1, Math.PI / 180, 100);
-		 * Imgproc.cvtColor(clone, clone, Imgproc.COLOR_GRAY2BGR);
-		 * staveMap.put(clone, Utils.getHoughLinesFromMat(lines));
-		 * actualResult.add(clone); }
-		 */
-
+		DetectMusic.detectStaves(lines);
 	}
-	
+
 	private void scanImage() {
-		String src = ((EditText) findViewById(R.id.filePath)).getText().toString();
+		String src = ((EditText) findViewById(R.id.filePath)).getText()
+				.toString();
 		testImage(src, Utils.getDest(src));
+	}
+
+	private void initialiseAssets() {
+		DetectMusic.noteHead = Utils.readImage(Utils
+				.getPath("assets/notehead.png"));
+		DetectMusic.trebleClef = Utils.readImage(Utils
+				.getPath("assets/GClef.png"));
+		DetectMusic.fourFour = Utils.readImage(Utils.getPath("assets/44.png"));
 	}
 
 	public void testImage(String src, String dst) {
 		String srcPath = Utils.getPath("input/" + src);
 		Mat houghMat = Utils.readImage(srcPath);
-		String notePath = Utils.getPath("assets/notehead.png");
-		DetectMusic.noteHead = Utils.readImage(notePath);
-
-		Mat imageMat = testProcessing(houghMat);
-		Utils.writeImage(imageMat, Utils.getPath("output/" + dst));
+		Mat sheet = Utils.resizeImage(houghMat, Utils.STANDARD_IMAGE_WIDTH);
+		Mat output = sheet.clone();
+		Imgproc.cvtColor(output, output, Imgproc.COLOR_GRAY2BGR);
+		testProcessing(sheet);
+		Mat revertSheet = sheet.clone();
+		Utils.invertColors(revertSheet);
+		
+		initialiseAssets();
+		
+		DetectMusic.detectTrebleClefs(revertSheet);
+		DetectMusic.detectTime(revertSheet);
+		DetectMusic.detectNotes(revertSheet);
+		
+		DetectMusic.printAll(output);
+		
+		Utils.writeImage(output, Utils.getPath("output/" + dst));
 		finish();
 	}
 }

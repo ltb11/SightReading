@@ -152,7 +152,7 @@ public class Utils {
 		 */
 		return new LinkedList<Line>();
 	}
-	
+
 	public static String getDest(String src) {
 		String result = "";
 		int i = 0;
@@ -173,11 +173,11 @@ public class Utils {
 		double newWidth = newHeight * image.cols() / image.rows();
 		Size newSize = new Size(newWidth, newHeight);
 
-		Mat newImage = new Mat(newSize,image.type());
+		Mat newImage = new Mat(newSize, image.type());
 		Imgproc.resize(image, newImage, newSize);
 
-		//Utils.writeImage(image, Utils.getPath("output/checkNote.png"));
-		
+		// Utils.writeImage(image, Utils.getPath("output/checkNote.png"));
+
 		return newImage;
 
 	}
@@ -197,9 +197,9 @@ public class Utils {
 
 	public static Scalar getColour(int i) {
 		final int adjustBrighter = 50;
-		int b = Mod((100 + i) * i, 255);
-		int g = Mod((200 + i) * i, 255);
-		int r = Mod((300 + i) * i, 255);
+		int b = mod((100 + i) * i, 255);
+		int g = mod((200 + i) * i, 255);
+		int r = mod((300 + i) * i, 255);
 
 		if (b < 10 && g < 10 && r < 10) {
 			if (b < g && b < r) {
@@ -214,7 +214,7 @@ public class Utils {
 		return new Scalar(b, g, r);
 	}
 
-	public static int Mod(int numberBeingDivided, int divisor) {
+	public static int mod(int numberBeingDivided, int divisor) {
 		while (numberBeingDivided > divisor) {
 			numberBeingDivided -= divisor;
 		}
@@ -268,24 +268,35 @@ public class Utils {
 
 	public static boolean isInCircle(Point centre, double radius, Mat ref) {
 		Point tmp = centre.clone();
-		boolean allBlack = true;
-		ref.height();
-		outerloop: for (int i = (int) -radius; i <= radius; i++) {
+		Interval width = new Interval(0, ref.width());
+		Interval height = new Interval(0, ref.height());
+		for (int i = (int) -radius; i <= radius; i++) {
 			for (int j = (int) -radius; j <= radius; j++) {
 				tmp.x = centre.x + i;
 				tmp.y = centre.y + j;
-				if (tmp.x < 0 || tmp.x > ref.width() || tmp.y < 0
-						|| tmp.y > ref.width()) {
+				if (!width.contains((int) tmp.x)
+						|| !height.contains((int) tmp.y))
 					continue;
-				}
-				if (ref.get((int) tmp.y, (int) tmp.x)[0] != 0) {
-					allBlack = false;
-					break outerloop;
-				}
+				if (ref.get((int) tmp.y, (int) tmp.x)[0] != 0)
+					return true;
 			}
 		}
-		Log.v("conrad", String.valueOf(!allBlack));
-		return !allBlack;
+		return false;
+	}
+
+	public static boolean isInRectangle(Point topLeft, int width, int height,
+			Point toCheck) {
+		return (toCheck.y >= topLeft.y && toCheck.y <= topLeft.y + height
+				&& toCheck.x >= topLeft.x && toCheck.x <= topLeft.x + width);
+	}
+
+	public static boolean isInAnyRectangle(List<Point> topLefts, int width,
+			int height, Point toCheck) {
+		for (Point p : topLefts) {
+			if (isInRectangle(p, width, height, toCheck))
+				return true;
+		}
+		return false;
 	}
 
 	public static void preprocessImage(Mat sheet) {
@@ -329,7 +340,15 @@ public class Utils {
 		return result;
 	}
 
-	public static List<SheetStrip> SliceSheet(Mat sheet, List<Integer> divisions) {
+	public static boolean isInIntervals(List<Interval> intervals, int number) {
+		for (Interval i : intervals) {
+			if (i.contains(number))
+				return true;
+		}
+		return false;
+	}
+
+	public static List<SheetStrip> sliceSheet(Mat sheet, List<Integer> divisions) {
 		int totalHorizontalSlices = divisions.size() - 1;
 		List<SheetStrip> staveMats = new LinkedList<SheetStrip>();
 
@@ -417,6 +436,18 @@ public class Utils {
 		}
 		divisions.add(mat.rows());
 		return divisions;
+	}
+
+	public static boolean isOnQuaverLine(Point centre, double noteWidth,
+			double staveGap, List<Line> quavers) {
+		for (Line l : quavers) {
+			if (!(centre.x - noteWidth / 2 > l.end().x
+					|| centre.x + noteWidth / 2 < l.start().x
+					|| centre.y - staveGap / 2 > l.end().y
+					|| centre.y + staveGap / 2 < l.start().y))
+				return true;
+		}
+		return false;
 	}
 
 }

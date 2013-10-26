@@ -13,4 +13,5 @@
     <string name="default_file_name">complexStaves.png</string>
     <string name="default_image_description">This is the default image to be scanned and played</string>
     <string name="camera_description">Image of a camera</string>
+    <string name="scanning">Scanning...</string>
 </resources>

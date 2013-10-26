@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import musicdetection.Line;
-import musicdetection.Stave;
 
 public class SheetStrip {
 
