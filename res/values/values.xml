@@ -10,4 +10,7 @@
     <color name="DarkGrey">#333333</color>
     <string name="scan">Scan</string>
     <string name="play">Play</string>
+    <string name="default_file_name">complexStaves.png</string>
+    <string name="default_image_description">This is the default image to be scanned and played</string>
+    <string name="camera_description">Image of a camera</string>
 </resources>
