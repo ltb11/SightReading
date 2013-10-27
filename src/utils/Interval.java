@@ -2,7 +2,7 @@ package utils;
 
 public class Interval {
 	
-	public int min, max;
+	private int min, max;
 	
 	public Interval(int min, int max) {
 		this.min = min;

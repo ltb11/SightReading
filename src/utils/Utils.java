@@ -233,13 +233,24 @@ public class Utils {
 		}
 	}
 
-	public static void verticalProjection(Mat mat) {
-		Core.reduce(mat, mat, 0, Core.REDUCE_SUM);
+	public static Mat verticalProjection(Mat mat) {
+		Mat result = mat.clone();
+		Core.reduce(mat, result, 0, Core.REDUCE_AVG, CvType.CV_32S);
+		return result;
 	}
 
 	public static Mat horizontalProjection(Mat mat) {
 		Mat result = mat.clone();
 		Core.reduce(mat, result, 1, Core.REDUCE_AVG, CvType.CV_32S);
+		return result;
+	}
+	
+	public static Mat rotateMatrix(Mat mat, double angle) {
+		Mat result = mat.clone();
+		int length = Math.max(mat.cols(), mat.rows());
+		Point p = new Point(length / 2, length / 2);
+		Mat rotationMatrix = Imgproc.getRotationMatrix2D(p, angle, 1.0);
+		Imgproc.warpAffine(mat, result, rotationMatrix, new Size(length, length));
 		return result;
 	}
 
@@ -338,14 +349,6 @@ public class Utils {
 			result.add(mat);
 		}
 		return result;
-	}
-
-	public static boolean isInIntervals(List<Interval> intervals, int number) {
-		for (Interval i : intervals) {
-			if (i.contains(number))
-				return true;
-		}
-		return false;
 	}
 
 	public static List<SheetStrip> sliceSheet(Mat sheet, List<Integer> divisions) {

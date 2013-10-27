@@ -10,10 +10,13 @@ import org.opencv.core.Core.MinMaxLocResult;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
+import org.opencv.core.Range;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import android.util.Log;
 import utils.Interval;
 import utils.Utils;
 
@@ -23,6 +26,7 @@ public class DetectMusic {
 	public static Mat noteHead;
 	public static Mat trebleClef;
 	public static Mat fourFour;
+	public static Mat bar;
 	private static double staveGap;
 	private static double noteWidth;
 	private static List<Stave> staves = new LinkedList<Stave>();
@@ -30,6 +34,7 @@ public class DetectMusic {
 	private static List<Point> fourFours = new LinkedList<Point>();
 	private static List<Note> notes = new LinkedList<Note>();
 	private static List<Line> quavers = new LinkedList<Line>();
+	private static List<Line> bars = new LinkedList<Line>();
 
 	private static void printStaves(Mat sheet) {
 		for (Stave s : staves)
@@ -54,11 +59,17 @@ public class DetectMusic {
 					0, 255), -1);
 	}
 
+	private static void printBars(Mat sheet) {
+		for (Line l : bars)
+			Core.line(sheet, l.start(), l.end(), new Scalar(0, 255, 255), 3);
+	}
+
 	public static void printAll(Mat sheet) {
 		printStaves(sheet);
 		printFourFour(sheet);
 		printTreble(sheet);
 		printNotes(sheet);
+		printBars(sheet);
 	}
 
 	/*
@@ -251,14 +262,14 @@ public class DetectMusic {
 					(int) fourFour.rows());
 		}
 	}
-	
+
 	public static void detectQuavers(Mat sheet) {
 		Mat lines = new Mat();
-		Imgproc.HoughLinesP(sheet, lines, 1, Math.PI/180, 100);
-		for (int i = 0 ; i < lines.cols(); i++) {
+		Imgproc.HoughLinesP(sheet, lines, 1, Math.PI / 180, 100);
+		for (int i = 0; i < lines.cols(); i++) {
 			double[] data = lines.get(0, i);
 			Point start = new Point(data[0], data[1]);
-			Point end = new Point(data[2],data[3]);
+			Point end = new Point(data[2], data[3]);
 			if (end.x - start.x > sheet.cols() / 30)
 				quavers.add(new Line(start, end));
 		}
@@ -271,22 +282,18 @@ public class DetectMusic {
 		detectQuavers(sheet);
 		noteHead = Utils.resizeImage(noteHead, staveGap * 0.9);
 		noteWidth = noteHead.cols();
-		List<Interval> intervals = new LinkedList<Interval>();
-		for (Stave s : staves) {
-			Interval i = new Interval(
-					(int) (s.topLine().start().y - 4 * staveGap), (int) (s
-							.bottomLine().start().y + 4 * staveGap));
-			intervals.add(i);
-		}
+		for (Stave s : staves)
+			detectNoteOnPart(detectNotesSheet, sheet, (int) (s.topLine()
+					.start().y - 4 * staveGap),
+					(int) (s.bottomLine().start().y + 4 * staveGap));
+	}
+
+	private static void detectNoteOnPart(Mat detectNotesSheet, Mat ref,
+			int startY, int endY) {
 		Mat result = new Mat();
-		Mat mask = new Mat(new Size(noteWidth, staveGap),
-				detectNotesSheet.type());
-		for (int i = 0; i < mask.cols(); i++) {
-			for (int j = 0; j < mask.rows(); j++) {
-				mask.put(j, i, new double[] { 0 });
-			}
-		}
-		Imgproc.matchTemplate(detectNotesSheet, noteHead, result,
+		Imgproc.matchTemplate(
+				detectNotesSheet.submat(startY, endY, 0,
+						detectNotesSheet.cols()), noteHead, result,
 				Imgproc.TM_SQDIFF);
 		MinMaxLocResult minMaxRes = Core.minMaxLoc(result);
 		double maxVal = minMaxRes.maxVal;
@@ -298,14 +305,14 @@ public class DetectMusic {
 			maxLoc = minMaxRes.maxLoc;
 			if (maxVal > maxAllowedVal) {
 				Point centre = new Point(maxLoc.x + noteWidth / 2, maxLoc.y
-						+ staveGap / 2);
-				if (Utils.isInCircle(centre, (int) noteWidth / 2, sheet)
-					&& Utils.isInIntervals(intervals, (int) maxLoc.y)
-					&& !Utils.isInAnyRectangle(trebleClefs,	trebleClef.cols(),
-							trebleClef.rows(), centre)
-					&& !Utils.isInAnyRectangle(fourFours, fourFour.cols(),
-							fourFour.rows(), centre)
-					&& !Utils.isOnQuaverLine(centre, noteWidth, staveGap, quavers))
+						+ startY + staveGap / 2);
+				if (Utils.isInCircle(centre, (int) noteWidth / 2, ref)
+						&& !Utils.isInAnyRectangle(trebleClefs,
+								trebleClef.cols(), trebleClef.rows(), centre)
+						&& !Utils.isInAnyRectangle(fourFours, fourFour.cols(),
+								fourFour.rows(), centre)
+						&& !Utils.isOnQuaverLine(centre, noteWidth, staveGap,
+								quavers))
 					notes.add(new Note(centre));
 				Utils.zeroInMatrix(result, maxLoc, (int) noteWidth,
 						(int) staveGap);
@@ -415,5 +422,43 @@ public class DetectMusic {
 		Imgproc.warpPerspective(sheet, scaledSheet, transform, newSize);
 
 		return sheet;
+	}
+
+	private static void detectBarsOnPart(Mat sheet, Stave s) {
+		Line l = s.topLine();
+		int i = 0;
+		Point clef = trebleClefs.get(i);
+		while (!(new Interval((int) (s.topLine().start().y - 4 * staveGap), (int) (s.bottomLine().start().y)).contains((int) clef.y))) {
+			i++;
+			clef = trebleClefs.get(i);
+		}
+		double angleToRotate = (l.end().y - l.start().y)
+				/ (l.end().x - l.start().x);
+		Mat rotated = Utils.rotateMatrix(sheet, angleToRotate);
+		Mat projection = Utils.verticalProjection(rotated.submat((int) (l
+				.start().y - 4 * staveGap),
+				(int) (s.bottomLine().start().y + 4 * staveGap),(int) clef.x, sheet
+						.cols()));
+		Utils.invertColors(rotated);
+		Mat result = new Mat();
+		Imgproc.matchTemplate(rotated, bar, result, Imgproc.TM_SQDIFF);
+		MinMaxLocResult minMaxRes = Core.minMaxLoc(result);
+		double maxVal = minMaxRes.maxVal;
+		Point maxLoc = minMaxRes.maxLoc;
+		while (Core.minMaxLoc(result).maxVal > maxVal * 0.9999) {
+			Log.v("Guillaume", Double.toString(maxLoc.x) + "," + Double.toString(maxLoc.y));
+			minMaxRes = Core.minMaxLoc(result);
+			maxLoc = minMaxRes.maxLoc;
+			Point p = new Point(maxLoc.x + clef.x, maxLoc.y + s.topLine().start().y);
+			bars.add(new Line(p, new Point(p.x, p.y + staveGap * 3)));
+			Utils.zeroInMatrix(result, maxLoc, 10,
+					(int) (staveGap * 3));
+		}
+	}
+
+	public static void detectBars(Mat sheet) {
+		bar = bar.submat(0,(int) (staveGap * 3), 0, 1);
+		for (int i = 2; i <= staves.size(); i++)
+			detectBarsOnPart(sheet, staves.get(i));
 	}
 }
