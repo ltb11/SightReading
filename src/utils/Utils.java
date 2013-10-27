@@ -6,6 +6,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import musicdetection.Line;
+import musicdetection.Note;
+import musicdetection.Stave;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -244,13 +246,14 @@ public class Utils {
 		Core.reduce(mat, result, 1, Core.REDUCE_AVG, CvType.CV_32S);
 		return result;
 	}
-	
+
 	public static Mat rotateMatrix(Mat mat, double angle) {
 		Mat result = mat.clone();
 		int length = Math.max(mat.cols(), mat.rows());
 		Point p = new Point(length / 2, length / 2);
 		Mat rotationMatrix = Imgproc.getRotationMatrix2D(p, angle, 1.0);
-		Imgproc.warpAffine(mat, result, rotationMatrix, new Size(length, length));
+		Imgproc.warpAffine(mat, result, rotationMatrix,
+				new Size(length, length));
 		return result;
 	}
 
@@ -293,6 +296,29 @@ public class Utils {
 			}
 		}
 		return false;
+	}
+
+	public static Point getClefPoint(Stave s, List<Point> trebleClefs,
+			double staveGap) {
+		int i = 0;
+		Point clef = trebleClefs.get(i);
+		while (!(new Interval((int) (s.topLine().start().y - 4 * staveGap),
+				(int) (s.bottomLine().start().y)).contains((int) clef.y))) {
+			i++;
+			clef = trebleClefs.get(i);
+		}
+		return clef;
+	}
+
+	public static Stave whichStaveDoesAPointBelongTo(Point p,
+			List<Stave> staves, double staveGap) {
+		for (Stave s : staves) {
+			if ((new Interval((int) (s.topLine().start().y - 4 * staveGap),
+					(int) (s.bottomLine().start().y + 4 * staveGap))
+					.contains((int) p.y)))
+				return s;
+		}
+		return null;
 	}
 
 	public static boolean isInRectangle(Point topLeft, int width, int height,
@@ -441,13 +467,94 @@ public class Utils {
 		return divisions;
 	}
 
-	public static boolean isOnQuaverLine(Point centre, double noteWidth,
+	public static boolean isOnBeamLine(Point centre, double noteWidth,
 			double staveGap, List<Line> quavers) {
 		for (Line l : quavers) {
 			if (!(centre.x - noteWidth / 2 > l.end().x
 					|| centre.x + noteWidth / 2 < l.start().x
-					|| centre.y - staveGap / 2 > l.end().y
-					|| centre.y + staveGap / 2 < l.start().y))
+					|| centre.y - staveGap / 2 > l.end().y || centre.y
+					+ staveGap / 2 < l.start().y))
+				return true;
+		}
+		return false;
+	}
+
+	public static boolean isThereASimilarLine(List<Line> quavers, Line l) {
+		for (Line line : quavers) {
+			if (Math.abs(line.start().y - l.start().y) < 10) {
+				if ((l.start().x >= line.start().x && l.start().x <= line.end().x)
+						|| (l.start().x <= line.start().x && l.end().x >= line
+								.start().x))
+					return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean isABeam(Line line, List<Note> notes, double staveGap) {
+		boolean beginning = false;
+		boolean end = false;
+		for (Note n : notes) {
+			if (Math.abs(n.center().x - line.start().x) < 20
+					&& Math.abs(n.center().y - line.start().y) > 2 * staveGap
+					&& Math.abs(n.center().y - line.start().y) < 4 * staveGap)
+				beginning = true;
+			else if (Math.abs(n.center().x - line.end().x) < 20
+					&& Math.abs(n.center().y - line.end().y) > 2 * staveGap
+					&& Math.abs(n.center().y - line.end().y) < 4 * staveGap)
+				end = true;
+			if (beginning && end)
+				return true;
+		}
+		return false;
+	}
+
+	public static Point findNearestNeighbour(Point centre, Mat ref) {
+		int x = (int) centre.x;
+		int y = (int) centre.y;
+		int minX = x;
+		int maxX = x;
+		int minY = y;
+		int maxY = y;
+		boolean changed = true;
+		while (changed) {
+			changed = false;
+			for (int j = minY; j <= maxY; j++) {
+				if (ref.get(j, maxX + 1)[0] != 0) {
+					maxX++;
+					changed = true;
+				}
+			}
+			for (int j = minY; j <= maxY; j++) {
+				if (ref.get(j, minX - 1)[0] != 0) {
+					minX--;
+					changed = true;
+				}
+			}
+			for (int i = minX; i <= maxX; i++) {
+				if (ref.get(minY - 1, i)[0] != 0) {
+					minY--;
+					changed = true;
+				}
+			}
+			for (int i = minX; i <= maxX; i++) {
+				if (ref.get(maxY + 1, i)[0] != 0) {
+					maxY++;
+					changed = true;
+				}
+			}
+		}
+		Point p = new Point((minX + maxX) / 2, (minY + maxY) / 2);
+		return p;
+	}
+
+	public static boolean isThereANoteAtThisPosition(Point toCheck,
+			List<Note> notes, List<Stave> staves, double staveGap) {
+		for (Note n : notes) {
+			if (Math.abs(n.center().x - toCheck.x) < 30
+					&& whichStaveDoesAPointBelongTo(n.center(), staves,
+							staveGap).equals(
+							whichStaveDoesAPointBelongTo(toCheck, staves, staveGap)))
 				return true;
 		}
 		return false;

@@ -15,11 +15,7 @@ import musicdetection.Line;
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Size;
-import org.opencv.core.Core.MinMaxLocResult;
 import org.opencv.imgproc.Imgproc;
 
 import utils.SheetStrip;
@@ -226,6 +222,9 @@ public class SightReadingActivity extends Activity {
 				.getPath("assets/GClef.png"));
 		DetectMusic.fourFour = Utils.readImage(Utils.getPath("assets/44.png"));
 		DetectMusic.bar = Utils.readImage(Utils.getPath("assets/bar.png"));
+		DetectMusic.flat_inter = Utils.readImage(Utils.getPath("assets/flat_inter.png"));
+		DetectMusic.flat_on = Utils.readImage(Utils.getPath("assets/flat_on.png"));
+		DetectMusic.half_note = Utils.readImage(Utils.getPath("assets/half_note.png"));
 	}
 
 	public void testImage(String src, String dst) {
@@ -238,14 +237,15 @@ public class SightReadingActivity extends Activity {
 		Mat revertSheet = sheet.clone();
 		Utils.invertColors(revertSheet);
 		
-		Utils.writeImage(revertSheet, Utils.getPath("output/reverted.png"));
-
 		initialiseAssets();
 
 		DetectMusic.detectTrebleClefs(revertSheet);
-		/*DetectMusic.detectTime(revertSheet);
-		DetectMusic.detectNotes(revertSheet);*/
-		DetectMusic.detectBars(sheet);
+		DetectMusic.detectBeams(revertSheet);
+		DetectMusic.detectTime(revertSheet);
+		DetectMusic.detectNotes(revertSheet);
+		DetectMusic.correctBeams(revertSheet);
+		//DetectMusic.detectFlats(revertSheet);
+		DetectMusic.detectHalfNotes(revertSheet);
 
 		DetectMusic.printAll(output);
 
