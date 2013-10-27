@@ -24,4 +24,11 @@ public class PlayedNote extends Note {
 	public int getOctave() {
 		return this.octave;
 	}
+	
+	@Override
+	public String toString() {
+		String result = "";
+		result += name + " at octave " + octave + ", it's a " + duration;
+		return result;
+	}
 }

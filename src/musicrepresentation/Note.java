@@ -1,9 +1,9 @@
 package musicrepresentation;
 
 public abstract class Note {
-	private final Duration duration;
-	private final int dots;
-	private final boolean rest;
+	protected final Duration duration;
+	protected final int dots;
+	protected final boolean rest;
 
 	public Note(Duration duration, int dots, boolean rest) {
 		this.duration = duration;

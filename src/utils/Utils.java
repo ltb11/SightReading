@@ -5,9 +5,14 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import musicdetection.Clef;
 import musicdetection.Line;
 import musicdetection.Note;
 import musicdetection.Stave;
+import musicrepresentation.Duration;
+import musicrepresentation.NoteName;
+import musicrepresentation.PlayedNote;
+import musicrepresentation.Shift;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -37,7 +42,7 @@ public class Utils {
 	public static void invertColors(Mat mat) {
 		Core.bitwise_not(mat, mat);
 	}
-	
+
 	public static void preprocessImage(Mat sheet) {
 		int width = sheet.cols();
 		int height = sheet.rows();
@@ -64,7 +69,7 @@ public class Utils {
 			}
 		}
 	}
-	
+
 	public static Mat resizeImage(Mat image, double newHeight) {
 		double newWidth = newHeight * image.cols() / image.rows();
 		Size newSize = new Size(newWidth, newHeight);
@@ -111,7 +116,7 @@ public class Utils {
 				new Size(length, length));
 		return result;
 	}
-	
+
 	/***************************************
 	 ************ CHECK METHODS ************
 	 **************************************/
@@ -122,12 +127,13 @@ public class Utils {
 			if (Math.abs(n.center().x - toCheck.x) < 30
 					&& whichStaveDoesAPointBelongTo(n.center(), staves,
 							staveGap).equals(
-							whichStaveDoesAPointBelongTo(toCheck, staves, staveGap)))
+							whichStaveDoesAPointBelongTo(toCheck, staves,
+									staveGap)))
 				return true;
 		}
 		return false;
 	}
-	
+
 	public static boolean isOnBeamLine(Point centre, double noteWidth,
 			double staveGap, List<Line> quavers) {
 		for (Line l : quavers) {
@@ -169,7 +175,7 @@ public class Utils {
 		}
 		return false;
 	}
-	
+
 	public static boolean isInRectangle(Point topLeft, int width, int height,
 			Point toCheck) {
 		return (toCheck.y >= topLeft.y && toCheck.y <= topLeft.y + height
@@ -187,7 +193,8 @@ public class Utils {
 
 	public static boolean isInCircle(Point centre, double radius, Mat ref) {
 		// checks the pixels within a square of side length=radius
-		// of the point where a note is suspected to be. If the area is only black,
+		// of the point where a note is suspected to be. If the area is only
+		// black,
 		// a note can't exist there, as a note would leave behind a trace in the
 		// eroded image
 		Point tmp = centre.clone();
@@ -206,11 +213,11 @@ public class Utils {
 		}
 		return false;
 	}
-	
+
 	/****************************************
 	 ************** IO METHODS **************
 	 ****************************************/
-	
+
 	public static String getDest(String src) {
 		String result = "";
 		int i = 0;
@@ -226,7 +233,6 @@ public class Utils {
 		}
 		return result;
 	}
-	
 
 	public static Mat readImage(String src) {
 
@@ -267,8 +273,8 @@ public class Utils {
 	public static List<Line> getSpacedLines(List<Line> lines,
 			List<Line> actualLines) {
 		/*
-		 * PRE: Given a list of horizontal lines of similar length Checks that the
-		 * lines are equally spaced
+		 * PRE: Given a list of horizontal lines of similar length Checks that
+		 * the lines are equally spaced
 		 */
 		Collections.sort(lines, new Comparator<Line>() {
 			@Override
@@ -428,6 +434,90 @@ public class Utils {
 		Point p = new Point((minX + maxX) / 2, (minY + maxY) / 2);
 		return p;
 	}
-	
-	
+
+	public static PlayedNote noteToNoteRepresentation(Note n) {
+		Stave s = n.stave();
+		Point p = n.center();
+		Log.v("Guillaume", Double.toString(p.x)+ "," + Double.toString(p.y));
+		// octave in MIDI representation
+		int line = getNote(s, p);
+		Clef c = s.getClefAtPos(p);
+		return new PlayedNote(getName(c, line), getOctave(c, line),
+				Shift.Natural, getDuration(n.duration()), 0);
+	}
+
+	// TODO: this method is only implemented for treble clef and for octaves 0
+	// and 1
+	private static int getOctave(Clef c, int line) {
+		if (c == Clef.Treble) {
+			if (line >= -2 && line <= 4)
+				return 0;
+			if (line >= 5 && line <= 11)
+				return 1;
+		}
+		return 10;
+	}
+
+	// TODO: this method is only implemented for treble clef
+	private static NoteName getName(Clef c, int line) {
+		line = line % 7;
+		while (line < 0)
+			line += 7;
+		if (c == Clef.Treble) {
+			switch (line) {
+			case 0:
+				return NoteName.E;
+			case 1:
+				return NoteName.F;
+			case 2:
+				return NoteName.G;
+			case 3:
+				return NoteName.A;
+			case 4:
+				return NoteName.B;
+			case 5:
+				return NoteName.C;
+			case 6:
+				return NoteName.D;
+			}
+		}
+		return null;
+	}
+
+	// line 0 is the bottom line of the staves
+	private static int getNote(Stave s, Point p) {
+		double directingVector = (s.topLine().end().y - s.topLine().start().y)
+				/ (s.topLine().end().x - s.topLine().start().x);
+		double staveGap = s.staveGap();
+		double origin = s.bottomLine().start().y;
+		//offset of the point from the start
+		double advance = p.x - s.bottomLine().start().x;
+		double distance = 10000, prevDistance = 20000;
+		double pointY = p.y;
+		int currentLine = -10;
+		//y is the variable that will change over the loop, augmented by staveGap/2 each time
+		double y = origin - advance * directingVector - currentLine * staveGap
+				/ 2;
+ 		while (prevDistance > distance) {
+			if (currentLine == 7) {
+				Log.v("Guillaume", "CHECK");
+			}
+			prevDistance = distance;
+			currentLine++;
+			y -= staveGap / 2;
+			distance = Math.abs(y - pointY);
+		}
+		return currentLine - 1;
+	}
+
+	private static Duration getDuration(double duration) {
+		if (duration == 1.)
+			return Duration.Crotchet;
+		if (duration == 2.)
+			return Duration.Minim;
+		if (duration == 0.5)
+			return Duration.Quaver;
+		return null;
+	}
+
 }

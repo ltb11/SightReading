@@ -78,6 +78,22 @@ public class DetectMusic {
 			Core.line(sheet, l.start(), l.end(), new Scalar(0, 255, 255), 3);
 	}
 
+	private static void printNoteRepresentations() {
+		Collections.sort(notes, new Comparator<Note>() {
+
+			@Override
+			public int compare(Note lhs, Note rhs) {
+				if (lhs.stave().topLine().start().y != rhs.stave().topLine().start().y)
+					return (int) (lhs.stave().topLine().start().y - rhs.stave().topLine().start().y);
+				
+				return (int) (lhs.center().x - rhs.center().x);
+			}
+			
+		});
+		for (Note n : notes)
+			Log.v("Guillaume", Utils.noteToNoteRepresentation(n).toString());
+	}
+	
 	public static void printAll(Mat sheet) {
 		printStaves(sheet);
 		printFourFour(sheet);
@@ -85,156 +101,9 @@ public class DetectMusic {
 		printNotes(sheet);
 		printBars(sheet);
 		printFlats(sheet);
+		printNoteRepresentations();
 		// printBeams(sheet);
 	}
-
-	/*
-	 * public static Mat detectMusic(Mat sheet) {
-	 * 
-	 * Mat output = new Mat(sheet, Range.all()); Imgproc.cvtColor(sheet, output,
-	 * Imgproc.COLOR_GRAY2BGR);
-	 * 
-	 * Utils.invertColors(sheet); Mat linesMat = new Mat();
-	 * Imgproc.HoughLinesP(sheet, linesMat, 1, Math.PI / 180, 100); List<Line>
-	 * lines = Utils.getHoughLinesFromMat(linesMat);
-	 * 
-	 * // scale the image Mat scaledSheet = ScaleMat(sheet, 1000);
-	 * 
-	 * // invert and get houghlines Utils.invertColors(scaledSheet); // Mat
-	 * newSheet = correctImage(sheet);
-	 * 
-	 * // List<Line> lines = GetLines(scaledSheet);
-	 * 
-	 * // Pre - lines sorted into clumps List<Line> linesSection = lines;
-	 * 
-	 * double[] histogram = new double[sheet.height()]; double averageAngle = 0;
-	 * for (Line line : linesSection) { averageAngle += line.angle(); }
-	 * averageAngle = averageAngle / linesSection.size(); double
-	 * tanOfAverageAngle = Math.tan(averageAngle); boolean anglePositive; if
-	 * (averageAngle > 0) { anglePositive = true; } else { anglePositive =
-	 * false; } // make a histogram of the lines for (Line line : linesSection)
-	 * { Point start = line.start(); Point end = line.end(); int startPosition =
-	 * getHistogramPosition(sheet.width(), sheet.height(), tanOfAverageAngle,
-	 * anglePositive, start); int endPosition =
-	 * getHistogramPosition(sheet.width(), sheet.height(), tanOfAverageAngle,
-	 * anglePositive, end);
-	 * 
-	 * double weight = line.length();
-	 * 
-	 * addToHistogram(histogram, startPosition, endPosition, weight); }
-	 * 
-	 * // threshold histogram /* double total = 0; int numberOfValues = 0; for
-	 * (double n : histogram) { if (n != 0) { total += n; numberOfValues++; } }
-	 * double mean = total / numberOfValues; for (double n : histogram) { n =
-	 * Math.max(n - mean, 0); }
-	 * 
-	 * double total = 0; for (double n : histogram) { total += n; } double mean
-	 * = total / histogram.length; for (double n : histogram) { n = Math.max(n -
-	 * mean, 0); }
-	 * 
-	 * // TODO this code may no longer be relevant /* List<Integer>
-	 * stavePositions = new LinkedList<Integer>();
-	 * 
-	 * 
-	 * // look for blips representing staves int position = 0; while (position <
-	 * histogram.length) { if (histogram[position] != 0) { int upperBound =
-	 * position; while (position < histogram.length && histogram[position] != 0)
-	 * { position++; } int lowerBound = position - 1;
-	 * stavePositions.add((upperBound + lowerBound) / 2); } position++; }
-	 * 
-	 * // check if this is a stave, i.e. 5 blips if (stavePositions.size() ==
-	 * 10) { // TODO retain it if it is, discard it if it isn't }
-	 * 
-	 * List<Line> histagramDetectiveStaves = new LinkedList<Line>(); for
-	 * (Integer p : stavePositions) { double offset = sheet.width() / 2 *
-	 * tanOfAverageAngle; if (anglePositive) { offset = (-1) * offset; } Point
-	 * start = new Point(0, p + offset); Point end = new Point(sheet.width(), p
-	 * - offset); Line line = new Line(start, end);
-	 * histagramDetectiveStaves.add(line);
-	 */
-
-	// TODO following code may now be redundant
-	/*
-	 * // erase the staves, dilate to fill gaps for (Stave s : staves)
-	 * s.eraseFromMat(sheet); staveGap = staves.get(0).staveGap();
-	 * Utils.resizeImage(noteHead, staveGap); noteWidth = noteHead.cols();
-	 * Imgproc.dilate(sheet, sheet, Imgproc.getStructuringElement(
-	 * Imgproc.MORPH_RECT, new Size(3,3)));
-	 * 
-	 * // Utils.writeImage(sheet, Utils.getPath("output/dilated.png")); Mat
-	 * noteDetectedSheet = sheet.clone(); Mat erodedSheet = sheet.clone();
-	 * Imgproc.erode(erodedSheet, erodedSheet, Imgproc.getStructuringElement(
-	 * Imgproc.MORPH_RECT, new Size(12, 12)));
-	 * Utils.writeImage(noteDetectedSheet, Utils.getPath("output/test.png")); //
-	 * List<Note> notes = detectNotes(noteDetectedSheet, erodedSheet);
-	 * 
-	 * /* for (Note n : notes) { Core.circle(output, n.center(), (int) staveGap
-	 * / 2, new Scalar(0, 0, 255)); }
-	 * 
-	 * 
-	 * Mat lineMat = new Mat(scaledSheet.size(), scaledSheet.type()); //
-	 * Utils.invertColors(scaledSheet); Imgproc.cvtColor(lineMat, lineMat,
-	 * Imgproc.COLOR_GRAY2BGR); Scalar green = new Scalar(0, 255, 0); Scalar
-	 * white = new Scalar(255, 255, 255); //
-	 * Utils.printMulticolouredLines(lineMat, lines); //
-	 * Utils.printLines(lineMat, histagramDetectiveStaves, white);
-	 * Utils.printLines(lineMat, lines, white); //
-	 * Utils.printMulticolouredLines(lineMat, histagramDetectiveStaves);
-	 * 
-	 * // print lines and return // Utils.invertColors(sheet);
-	 * 
-	 * // printLines(output,lines); return lineMat; }
-	 * 
-	 * private static void addToHistogram(double[] histogram, int startPosition,
-	 * int endPosition, double weight) { int centrePosition = (startPosition +
-	 * endPosition) / 2; int range = Math.abs(endPosition - startPosition);
-	 * 
-	 * if (centrePosition > 0 - range && centrePosition < histogram.length +
-	 * range) { if (centrePosition > 0 && centrePosition < histogram.length) {
-	 * histogram[centrePosition] = weight; }
-	 * 
-	 * double reducedWeight; int upperOffset; int lowerOffset;
-	 * 
-	 * for (int i = 1; i < range; i++) { reducedWeight = weight / range * (range
-	 * - i); upperOffset = centrePosition + i; if (upperOffset > 0 &&
-	 * upperOffset < histogram.length) { histogram[upperOffset] = reducedWeight;
-	 * } lowerOffset = centrePosition - i; if (lowerOffset > 0 && lowerOffset <
-	 * histogram.length) { histogram[lowerOffset] = reducedWeight; } }
-	 * 
-	 * } }
-	 * 
-	 * private static int getHistogramPosition(int width, int height, double
-	 * tanOfAverageAngle, boolean anglePositive, Point point) { double x =
-	 * point.x; double y = point.y; double adjacent = x - width / 2; if
-	 * (!anglePositive) { adjacent = (-1) * adjacent; } return (int) (y +
-	 * adjacent * tanOfAverageAngle); }
-	 * 
-	 * private static Mat ScaleMat(Mat input, int i) { float width =
-	 * input.cols(); float height = input.rows();
-	 * 
-	 * float ratio = width / height;
-	 * 
-	 * int newWidth = 2000; int newHeight = (int) (newWidth / ratio);
-	 * 
-	 * Size newSize = new Size(newWidth, newHeight); Mat scaled = new
-	 * Mat(newSize, input.type());
-	 * 
-	 * Point topLeft = new Point(0, 0); Point topRight = new Point(width, 0);
-	 * Point bottomRight = new Point(width, height); Point bottomLeft = new
-	 * Point(0, height);
-	 * 
-	 * Point newTopLeft = new Point(0, 0); Point newTopRight = new
-	 * Point(newWidth, 0); Point newBottomRight = new Point(newWidth,
-	 * newHeight); Point newBottomLeft = new Point(0, newHeight);
-	 * 
-	 * MatOfPoint2f src = new MatOfPoint2f(topLeft, topRight, bottomRight,
-	 * bottomLeft); MatOfPoint2f dst = new MatOfPoint2f(newTopLeft, newTopRight,
-	 * newBottomRight, newBottomLeft); Mat transform =
-	 * Imgproc.getPerspectiveTransform(src, dst);
-	 * 
-	 * Imgproc.warpPerspective(input, scaled, transform, newSize); return
-	 * scaled; }
-	 */
 
 	private static List<Line> getLines(Mat sheet) {
 		Mat linesMat = new Mat();
@@ -257,6 +126,8 @@ public class DetectMusic {
 			minLoc = Core.minMaxLoc(result).minLoc;
 			minVal = Core.minMaxLoc(result).minVal;
 			trebleClefs.add(minLoc);
+			Utils.whichStaveDoesAPointBelongTo(minLoc, staves, staveGap)
+					.addClef(Clef.Treble, minLoc);
 			Utils.zeroInMatrix(result, minLoc, (int) trebleClef.cols(),
 					(int) trebleClef.rows());
 		}
@@ -312,7 +183,7 @@ public class DetectMusic {
 			Mat part = rotateSheetOnStave(sheet, s);
 			Imgproc.erode(part, part, Imgproc.getStructuringElement(
 					Imgproc.MORPH_RECT, new Size(6, 6)));
-			Point clef = Utils.getClefPoint(s, trebleClefs, staveGap);
+			Point clef = s.originalClef();
 			Imgproc.HoughLinesP(part, lines, 1, Math.PI / 180, 100);
 			for (int i = 0; i < lines.cols(); i++) {
 				double[] data = lines.get(0, i);
@@ -344,7 +215,7 @@ public class DetectMusic {
 		half_note = Utils.resizeImage(half_note, staveGap);
 		for (Stave s : staves) {
 			Mat part = rotateSheetOnStave(sheet, s);
-			Point clef = Utils.getClefPoint(s, trebleClefs, staveGap);
+			Point clef = s.originalClef();
 			Mat result = new Mat();
 			Imgproc.matchTemplate(part, half_note, result, Imgproc.TM_CCOEFF);
 			Point minLoc;
@@ -358,7 +229,7 @@ public class DetectMusic {
 								+ half_note.rows() / 2);
 				if (!Utils.isThereANoteAtThisPosition(p, notes, staves,
 						staveGap))
-					notes.add(new Note(p, 2));
+					notes.add(new Note(p, 2, s));
 				Utils.zeroInMatrix(result, minLoc, (int) half_note.cols(),
 						(int) half_note.rows());
 			}
@@ -372,9 +243,9 @@ public class DetectMusic {
 		noteHead = Utils.resizeImage(noteHead, staveGap * 0.9);
 		noteWidth = noteHead.cols();
 		for (Stave s : staves)
-			detectNoteOnPart(sheet, eroded, (int) (s.topLine()
-					.start().y - 4 * staveGap),
-					(int) (s.bottomLine().start().y + 4 * staveGap));
+			detectNoteOnPart(sheet, eroded,
+					(int) (s.topLine().start().y - 4 * staveGap), (int) (s
+							.bottomLine().start().y + 4 * staveGap));
 	}
 
 	private static void detectNoteOnPart(Mat detectNotesSheet, Mat ref,
@@ -403,7 +274,8 @@ public class DetectMusic {
 						&& !Utils.isOnBeamLine(centre, noteWidth, staveGap,
 								beams)) {
 					Point p = Utils.findNearestNeighbour(centre, ref);
-					notes.add(new Note(p));
+					notes.add(new Note(p, Utils.whichStaveDoesAPointBelongTo(p,
+							staves, staveGap)));
 				}
 
 				Utils.zeroInMatrix(result, maxLoc, (int) noteWidth,
@@ -518,7 +390,7 @@ public class DetectMusic {
 
 	private static Mat rotateSheetOnStave(Mat sheet, Stave s) {
 		Line l = s.topLine();
-		Point clef = Utils.getClefPoint(s, trebleClefs, staveGap);
+		Point clef = s.originalClef();
 		double angleToRotate = (l.end().y - l.start().y)
 				/ (l.end().x - l.start().x);
 		Mat rotated = Utils.rotateMatrix(
