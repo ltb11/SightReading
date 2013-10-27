@@ -22,6 +22,8 @@ import org.opencv.core.Size;
 import org.opencv.core.Core.MinMaxLocResult;
 import org.opencv.imgproc.Imgproc;
 
+import playback.Playback;
+
 import utils.SheetStrip;
 import utils.Utils;
 import android.app.Activity;
@@ -60,9 +62,16 @@ public class SightReadingActivity extends Activity {
 				// this method to change the file name. The app will run,
 				// displaying no
 				// GUI and exit when done scanning
+				
+				Playback.test();
+				//Playback.playMidiFile("teddybear.mid");
+				
 				((EditText) findViewById(R.id.filePath))
 						.setText("Distorted.jpg");
 				scan.performClick();
+				
+				
+				
 			}
 				break;
 			default: {
