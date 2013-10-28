@@ -5,13 +5,13 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
-import musicrepresentation.MusicRepresentation;
+import musicrepresentation.Bar;
+import musicrepresentation.Piece;
 import musicrepresentation.PlayedStave;
 
 import org.opencv.core.Core;
 import org.opencv.core.Core.MinMaxLocResult;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -89,20 +89,22 @@ public class MusicDetector {
 		detectHalfNotes();
 	}
 	
-	public void createRepresentation() {
+	public Piece toPiece() {
 		for (Note n : notes) {
 			Utils.whichStaveDoesAPointBelongTo(n.center(), staves, staveGap).addNote(n);
 		}
 		
-		List<PlayedStave> playedStaves = new LinkedList<PlayedStave>();
+		List<Bar> bars = new LinkedList<Bar>();
 		for (Stave s : staves) {
 			s.orderNotes();
 			s.calculateNotePitch();
-			PlayedStave ps = s.createPlayedStave();
-			playedStaves.add(ps);
+
+			bars.addAll(s.toBars());
 		}
 		
-		MusicRepresentation rep = new MusicRepresentation(playedStaves);
+		Piece piece = new Piece(bars);
+		
+		return piece;
 	}
 
 	private List<Line> getLines(Mat sheet) {

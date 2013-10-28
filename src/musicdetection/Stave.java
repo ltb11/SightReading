@@ -7,15 +7,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import musicrepresentation.AbstractNote;
+import musicrepresentation.Bar;
+import musicrepresentation.Chord;
 import musicrepresentation.NoteName;
 import musicrepresentation.PlayedNote;
-import musicrepresentation.PlayedStave;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 
+import android.util.Log;
 import utils.Utils;
 
 public class Stave {
@@ -128,7 +131,7 @@ public class Stave {
 			int line = (int) Math.round(8 - pos*4);
 			NoteName name = Utils.getName(clefs.get(originalClef),line);
 			n.setName(name);
-			n.setOctave(0);
+			n.setOctave(4);
 		}
 	}
 
@@ -137,8 +140,25 @@ public class Stave {
 		return ((int)(line*2))/2;
 	}
 
-	public PlayedStave createPlayedStave() {
-		return new PlayedStave(createPlayedNotes());
+	public List<Bar> toBars() {
+		List<Bar> bars = new LinkedList<Bar>();
+		Bar currentBar = new Bar();
+		bars.add(currentBar);
+		
+		int duration = 0;
+		List<PlayedNote> notes = createPlayedNotes();
+		for(PlayedNote n : notes) {
+			Log.i("NOTE",n.toString());
+			currentBar.addChord(new Chord(n));
+			duration += n.getDuration();
+			if (duration>=AbstractNote.TEMP_44LENGTH) {
+				duration=0;
+				currentBar = new Bar();
+				bars.add(currentBar);
+			}
+		}
+		
+		return bars;
 	}
 
 	private List<PlayedNote> createPlayedNotes() {
