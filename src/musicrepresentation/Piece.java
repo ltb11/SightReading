@@ -13,7 +13,7 @@ public class Piece implements Iterable<Bar> {
     
     public Piece(List<Bar> bars){
         this.bars = bars;
-        this.bpm = 60;
+        this.bpm = 100;
         this.title = "FantasieImpromptu";
     }
 
