@@ -242,21 +242,25 @@ public class MusicDetector {
 		Mat eroded = sheet.clone();
 		Imgproc.erode(eroded, eroded, Imgproc.getStructuringElement(
 				Imgproc.MORPH_RECT, new Size(staveGap - 4, staveGap - 4)));
+		Utils.writeImage(eroded, "output/eroded");
 		noteHead = Utils.resizeImage(masterNoteHead, staveGap * 0.9);
 		noteWidth = noteHead.cols();
 		for (Stave s : staves)
-			detectNoteOnPart(sheet, eroded,
+			detectNoteOnPart(eroded,
 					(int) (s.topLine().start().y - 4 * staveGap), (int) (s
 							.bottomLine().start().y + 4 * staveGap));
 	}
 
-	private void detectNoteOnPart(Mat detectNotesSheet, Mat ref,
+	private void detectNoteOnPart(Mat ref,
 			int startY, int endY) {
 		Mat result = new Mat();
 		Imgproc.matchTemplate(
-				detectNotesSheet.submat(startY, endY, 0,
-						detectNotesSheet.cols()), noteHead, result,
+				sheet.submat(startY, endY, 0,
+						sheet.cols()), noteHead, result,
 				Imgproc.TM_SQDIFF);
+		
+		//Utils.saveTemplateMat(result, "templateMatched.png");
+		
 		MinMaxLocResult minMaxRes = Core.minMaxLoc(result);
 		double maxVal = minMaxRes.maxVal;
 		Point maxLoc = minMaxRes.maxLoc;
@@ -396,9 +400,11 @@ public class MusicDetector {
 		Point clef = s.originalClef();
 		double angleToRotate = (l.end().y - l.start().y)
 				/ (l.end().x - l.start().x);
+		int startY = Math.max(0, (int) (l.start().y - 4 * staveGap));
+		int endY = Math.min(sheet.rows(), (int) (s
+						.bottomLine().start().y + 4 * staveGap));
 		Mat rotated = Utils.rotateMatrix(
-				sheet.submat((int) (l.start().y - 4 * staveGap), (int) (s
-						.bottomLine().start().y + 4 * staveGap), (int) clef.x,
+				sheet.submat(startY, endY, (int) clef.x,
 						sheet.cols()), angleToRotate);
 		return rotated;
 	}
