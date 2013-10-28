@@ -31,5 +31,4 @@ public class Piece implements Iterable<Bar> {
     public Iterator<Bar> iterator(){
         return bars.iterator(); 
     }
-
 }

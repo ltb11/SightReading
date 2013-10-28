@@ -15,6 +15,7 @@ public class PlayedNote extends Note {
 		this.name = name;
 		this.octave = octave;
 	}
+
     @Override
     public int getPitch(){
         int noteVal = 0;

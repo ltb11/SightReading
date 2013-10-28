@@ -16,24 +16,28 @@ import java.util.ArrayList;
 
 public class Converter{
 
-    public static void Convert(Piece piece){
+    public static MidiFile Convert(Piece piece){
         MidiTrack tempoTrack = new MidiTrack();
         MidiTrack noteTrack  = new MidiTrack();
     
         TimeSignature ts = new TimeSignature();
         Tempo t = new Tempo();
-        t.setBpm(piece.getBpm());
+        int bpm = piece.getBpm();
+        t.setBpm(bpm);
 
         tempoTrack.insertEvent(ts);
         tempoTrack.insertEvent(t);
         
           
+        double crotchetLength = 60.0 / bpm;
         int nextNote = 0;
         for(Bar bar : piece){
             for(Chord chord: bar){
                 int channel = 0; 
                 for(Note note: chord){
-                    int length = note.getDuration();
+                    double duration = note.getDuration();
+                    duration /= Note.CROTCHET_DURATION;
+                    double length = crotchetLength * duration;
                     noteTrack.insertNote(channel,note.getPitch(),note.getVelocity(), nextNote,length);
                     channel++; 
                 }
@@ -44,16 +48,9 @@ public class Converter{
         ArrayList tracks = new ArrayList<MidiTrack>();
         tracks.add(tempoTrack);
         tracks.add(noteTrack);
-        
-        
     
         MidiFile midi = new MidiFile(MidiFile.DEFAULT_RESOLUTION, tracks);
-        File output = new File(piece.getTitle() + ".mid");
-        try{
-            midi.writeToFile(output);
-        } catch(IOException e){
-            System.err.println(e);
-        }
+        return midi;
     }
 
 

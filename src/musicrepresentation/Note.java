@@ -5,6 +5,7 @@ public abstract class Note {
    private final int dots;
    private final int velocity;
    public static final int STANDARD_VELOCITY = 60;
+   public static final int CROTCHET_DURATION = 512;
 
    public Note(Duration duration, int dots, int velocity){
         this.duration = duration;
