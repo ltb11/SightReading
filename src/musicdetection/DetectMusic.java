@@ -5,6 +5,9 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
+import musicrepresentation.MusicRepresentation;
+import musicrepresentation.PlayedStave;
+
 import org.opencv.core.Core;
 import org.opencv.core.Core.MinMaxLocResult;
 import org.opencv.core.Mat;
@@ -78,7 +81,7 @@ public class DetectMusic {
 			Core.line(sheet, l.start(), l.end(), new Scalar(0, 255, 255), 3);
 	}
 
-	private static void printNoteRepresentations() {
+	private static void printNoteRepresentations(Mat sheet) {
 		Collections.sort(notes, new Comparator<Note>() {
 
 			@Override
@@ -91,7 +94,7 @@ public class DetectMusic {
 			
 		});
 		for (Note n : notes)
-			Log.v("Guillaume", Utils.noteToNoteRepresentation(n).toString());
+			Log.v("Guillaume", Utils.noteToNoteRepresentation(n,sheet).toString());
 	}
 	
 	public static void printAll(Mat sheet) {
@@ -101,8 +104,30 @@ public class DetectMusic {
 		printNotes(sheet);
 		printBars(sheet);
 		printFlats(sheet);
-		printNoteRepresentations();
+		
+		createRepresentation();
+		
+		//printNoteRepresentations(sheet);
+		
+		
+		
 		// printBeams(sheet);
+	}
+
+	private static void createRepresentation() {
+		for (Note n : notes) {
+			Utils.whichStaveDoesAPointBelongTo(n.center(), staves, staveGap).addNote(n);
+		}
+		
+		List<PlayedStave> playedStaves = new LinkedList<PlayedStave>();
+		for (Stave s : staves) {
+			s.orderNotes();
+			s.calculateNotePitch();
+			PlayedStave ps = s.createPlayedStave();
+			playedStaves.add(ps);
+		}
+		
+		MusicRepresentation rep = new MusicRepresentation(playedStaves);
 	}
 
 	private static List<Line> getLines(Mat sheet) {

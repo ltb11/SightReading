@@ -1,13 +1,22 @@
 package musicdetection;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import musicrepresentation.NoteName;
+import musicrepresentation.PlayedNote;
+import musicrepresentation.PlayedStave;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+
+import utils.Utils;
 
 public class Stave {
 
@@ -16,12 +25,15 @@ public class Stave {
 	private Map<Point, Clef> clefs;
 	private Point originalClef;
 	
+	private List<Note> notes;
+	
 	public Stave(List<Line> lines) {
 		this.lines = lines;
 		if (lines.size() != 5)
 			throw new RuntimeException("Stave must have 5 lines!");
 		staveGap = (lines.get(4).start().y - lines.get(0).start().y) / 4; 
 		clefs = new HashMap<Point, Clef>();
+		notes = new LinkedList<Note>();
 		originalClef = null;
 	}
 	
@@ -81,5 +93,49 @@ public class Stave {
 		return result;
 	}
 
+	public void addNote(Note n) {
+		notes.add(n);
+	}
+
+	public void orderNotes() {
+		Collections.sort(notes, new Comparator<Note>() {
+
+			@Override
+			public int compare(Note lhs, Note rhs) {
+				return (int) (lhs.center().x - rhs.center().x);
+			}
+			
+		});
+	}
+
+	public void calculateNotePitch() {
+		double sy = topLine().start().y;
+		for (Note n : notes) {
+			double ny = (n.center().y);
+			// 0-1 where 0 is top line, 1 is bottom
+			double pos = (ny-sy)/(staveGap*4);
+			int line = (int) Math.round(8 - pos*4);
+			NoteName name = Utils.getName(clefs.get(originalClef),line);
+			n.setName(name);
+			n.setOctave(0);
+		}
+	}
+
+	private int lineToNote(double line) {
+		// TODO Auto-generated method stub
+		return ((int)(line*2))/2;
+	}
+
+	public PlayedStave createPlayedStave() {
+		return new PlayedStave(createPlayedNotes());
+	}
+
+	private List<PlayedNote> createPlayedNotes() {
+		List<PlayedNote> playedNotes = new LinkedList<PlayedNote>();
+		for (Note n : notes) {
+			playedNotes.add(n.toPlayedNote());
+		}
+		return playedNotes;
+	}
 
 }

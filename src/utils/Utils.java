@@ -20,6 +20,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Range;
 import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
@@ -435,12 +436,12 @@ public class Utils {
 		return p;
 	}
 
-	public static PlayedNote noteToNoteRepresentation(Note n) {
+	public static PlayedNote noteToNoteRepresentation(Note n,Mat sheet) {
 		Stave s = n.stave();
 		Point p = n.center();
 		Log.v("Guillaume", Double.toString(p.x)+ "," + Double.toString(p.y));
 		// octave in MIDI representation
-		int line = getNote(s, p);
+		int line = getNote(s, p, sheet);
 		Clef c = s.getClefAtPos(p);
 		return new PlayedNote(getName(c, line), getOctave(c, line),
 				Shift.Natural, getDuration(n.duration()), 0);
@@ -448,7 +449,7 @@ public class Utils {
 
 	// TODO: this method is only implemented for treble clef and for octaves 0
 	// and 1
-	private static int getOctave(Clef c, int line) {
+	public  static int getOctave(Clef c, int line) {
 		if (c == Clef.Treble) {
 			if (line >= -2 && line <= 4)
 				return 0;
@@ -459,7 +460,7 @@ public class Utils {
 	}
 
 	// TODO: this method is only implemented for treble clef
-	private static NoteName getName(Clef c, int line) {
+	public  static NoteName getName(Clef c, int line) {
 		line = line % 7;
 		while (line < 0)
 			line += 7;
@@ -485,7 +486,7 @@ public class Utils {
 	}
 
 	// line 0 is the bottom line of the staves
-	private static int getNote(Stave s, Point p) {
+	private static int getNote(Stave s, Point p, Mat sheet) {
 		double directingVector = (s.topLine().end().y - s.topLine().start().y)
 				/ (s.topLine().end().x - s.topLine().start().x);
 		double staveGap = s.staveGap();
@@ -506,11 +507,12 @@ public class Utils {
 			currentLine++;
 			y -= staveGap / 2;
 			distance = Math.abs(y - pointY);
+			Core.line(sheet, new Point(p.x, y), new Point (p.x + 10, y), new Scalar (0, 255, 0));
 		}
 		return currentLine - 1;
 	}
 
-	private static Duration getDuration(double duration) {
+	public static Duration getDuration(double duration) {
 		if (duration == 1.)
 			return Duration.Crotchet;
 		if (duration == 2.)
