@@ -93,6 +93,4 @@ public class Playback {
 	    MidiFile midi = new MidiFile(MidiFile.DEFAULT_RESOLUTION, tracks);
 	    return midi;
 	}
-	
-	
 }

@@ -28,7 +28,6 @@ public class Converter{
 
         tempoTrack.insertEvent(ts);
         tempoTrack.insertEvent(t);
-        
           
         double crotchetLength = 60000.0 / (bpm * PPQ);
         int nextNote = 0;
@@ -53,8 +52,4 @@ public class Converter{
         MidiFile midi = new MidiFile(MidiFile.DEFAULT_RESOLUTION, tracks);
         return midi;
     }
-
-
-
-    
 }
