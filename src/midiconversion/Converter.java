@@ -30,7 +30,7 @@ public class Converter{
         tempoTrack.insertEvent(t);
           
         double crotchetLength = 60000.0 / (bpm * PPQ);
-        int nextNote = 0;
+        int nextNote = crotchetLength;
         for(Bar bar : piece){
             for(Chord chord: bar){
                 int channel = 0; 
