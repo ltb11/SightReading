@@ -44,7 +44,7 @@ public class Utils {
 		Core.bitwise_not(mat, mat);
 	}
 
-	public static void preprocessImage(Mat sheet) {
+	public static void thresholdImage(Mat sheet) {
 		int width = sheet.cols();
 		int height = sheet.rows();
 		int sep = 250;

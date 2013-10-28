@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-import musicdetection.DetectMusic;
+import musicdetection.MusicDetector;
 import musicdetection.Line;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -80,6 +80,7 @@ public class SightReadingActivity extends Activity {
 
 	public SightReadingActivity() {
 		Log.i(TAG, "Instantiated new " + this.getClass());
+		
 	}
 
 	/** Called when the activity is first created. */
@@ -202,61 +203,23 @@ public class SightReadingActivity extends Activity {
 			super.onActivityResult(requestCode, resultCode, data);
 	}
 
-	private void testProcessing(Mat input) {
-
-		Utils.preprocessImage(input);
-		Mat projection = input.clone();
-		Mat proj = Utils.horizontalProjection(projection);
-		// 190 threshold for white from 255 used to detect spaces between staves
-		LinkedList<Integer> divisions = Utils.detectDivisions(proj, 190);
-		List<SheetStrip> strips = Utils.sliceSheet(input, divisions);
-
-		List<Line> lines = new LinkedList<Line>();
-		for (SheetStrip strip : strips) {
-			lines.addAll(strip.FindLines());
-		}
-		DetectMusic.detectStaves(lines);
-	}
-
 	private void scanImage() {
 		String src = ((EditText) findViewById(R.id.filePath)).getText()
 				.toString();
 		testImage(src, Utils.getDest(src));
 	}
 
-	private void initialiseAssets() {
-		DetectMusic.noteHead = Utils.readImage(Utils
-				.getPath("assets/notehead.png"));
-		DetectMusic.trebleClef = Utils.readImage(Utils
-				.getPath("assets/GClef.png"));
-		DetectMusic.fourFour = Utils.readImage(Utils.getPath("assets/44.png"));
-		DetectMusic.bar = Utils.readImage(Utils.getPath("assets/bar.png"));
-		DetectMusic.flat_inter = Utils.readImage(Utils.getPath("assets/flat_inter.png"));
-		DetectMusic.flat_on = Utils.readImage(Utils.getPath("assets/flat_on.png"));
-		DetectMusic.half_note = Utils.readImage(Utils.getPath("assets/half_note.png"));
-	}
-
 	public void testImage(String src, String dst) {
 		String srcPath = Utils.getPath("input/" + src);
-		Mat houghMat = Utils.readImage(srcPath);
-		Mat sheet = Utils.resizeImage(houghMat, Utils.STANDARD_IMAGE_WIDTH);
-		Mat output = sheet.clone();
+		Mat input = Utils.readImage(srcPath);
+		Mat scaledInput = Utils.resizeImage(input, Utils.STANDARD_IMAGE_WIDTH);
+
+		Mat output = scaledInput.clone();
 		Imgproc.cvtColor(output, output, Imgproc.COLOR_GRAY2BGR);
-		testProcessing(sheet);
-		Mat revertSheet = sheet.clone();
-		Utils.invertColors(revertSheet);
-		
-		initialiseAssets();
 
-		DetectMusic.detectTrebleClefs(revertSheet);
-		DetectMusic.detectBeams(revertSheet);
-		DetectMusic.detectTime(revertSheet);
-		DetectMusic.detectNotes(revertSheet);
-		DetectMusic.correctBeams(revertSheet);
-		//DetectMusic.detectFlats(revertSheet);
-		DetectMusic.detectHalfNotes(revertSheet);
-
-		DetectMusic.printAll(output);
+		MusicDetector detector = new MusicDetector(scaledInput);
+		detector.detect();
+		detector.print(output);
 
 		Utils.writeImage(output, Utils.getPath("output/" + dst));
 		finish();

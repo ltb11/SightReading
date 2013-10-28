@@ -17,104 +17,79 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import utils.SheetStrip;
 import utils.Utils;
 import android.util.Log;
 
-public class DetectMusic {
+public class MusicDetector {
 
-	private static final double staveLengthTolerance = 0.1;
-	public static Mat noteHead;
-	public static Mat trebleClef;
-	public static Mat fourFour;
-	public static Mat bar;
-	public static Mat flat_inter;
-	public static Mat flat_on;
-	public static Mat half_note;
-	private static double staveGap;
-	private static double noteWidth;
-	private static List<Stave> staves = new LinkedList<Stave>();
-	private static List<Point> trebleClefs = new LinkedList<Point>();
-	private static List<Point> fourFours = new LinkedList<Point>();
-	private static List<Note> notes = new LinkedList<Note>();
-	private static List<Line> beams = new LinkedList<Line>();
-	private static List<Line> bars = new LinkedList<Line>();
-	private static List<Point> flats = new LinkedList<Point>();
+	public static final Mat masterNoteHead =  Utils.readImage(Utils.getPath("assets/notehead.png"));
+	public static final Mat masterTrebleClef = Utils.readImage(Utils.getPath("assets/GClef.png"));
+	public static final Mat masterFourFour = Utils.readImage(Utils.getPath("assets/44.png"));
+	public static final Mat masterBar = Utils.readImage(Utils.getPath("assets/bar.png"));
+	public static final Mat masterFlat_inter = Utils.readImage(Utils.getPath("assets/flat_inter.png"));
+	public static final Mat masterFlat_on = Utils.readImage(Utils.getPath("assets/flat_on.png"));
+	public static final Mat masterHalf_note = Utils.readImage(Utils.getPath("assets/half_note.png"));
+	
+	private Mat noteHead;
+	private Mat trebleClef;
+	private Mat fourFour;
+	private Mat bar;
+	private Mat flat_inter;
+	private Mat flat_on;
+	private Mat half_note;
+	
+	private Mat sheet;
+	private final double staveLengthTolerance = 0.1;
+	private double staveGap;
+	private double noteWidth;
+	private List<Stave> staves = new LinkedList<Stave>();
+	private List<Point> trebleClefs = new LinkedList<Point>();
+	private List<Point> fourFours = new LinkedList<Point>();
+	private List<Note> notes = new LinkedList<Note>();
+	private List<Line> beams = new LinkedList<Line>();
+	private List<Line> bars = new LinkedList<Line>();
+	private List<Point> flats = new LinkedList<Point>();
 
-	private static void printStaves(Mat sheet) {
-		for (Stave s : staves)
-			s.draw(sheet);
+	public MusicDetector(final Mat input) {
+		sheet = preprocess(input.clone());
+		detect();
 	}
 
-	private static void printTreble(Mat sheet) {
-		for (Point p : trebleClefs)
-			Core.rectangle(sheet, p, new Point(p.x + trebleClef.cols(), p.y
-					+ trebleClef.rows()), new Scalar(0, 255, 0), 3);
+	private Mat preprocess(Mat input) {
+		
+		// scale and threshold
+		Utils.thresholdImage(input);
+		
+		// create projections
+		Mat projection = input.clone();
+		Mat proj = Utils.horizontalProjection(projection);
+		LinkedList<Integer> divisions = Utils.detectDivisions(proj, 190);
+		List<SheetStrip> strips = Utils.sliceSheet(input, divisions);
+	
+		// detect staves
+		List<Line> lines = new LinkedList<Line>();
+		for (SheetStrip strip : strips) {
+			lines.addAll(strip.FindLines());
+		}
+		detectStaves(lines);
+		
+		Utils.invertColors(input);
+		
+		return input;
 	}
 
-	private static void printFourFour(Mat sheet) {
-		for (Point p : fourFours)
-			Core.rectangle(sheet, p, new Point(p.x + fourFour.cols(), p.y
-					+ fourFour.rows()), new Scalar(255, 255, 0), 3);
-	}
-
-	private static void printNotes(Mat sheet) {
-		for (Note n : notes)
-			Core.circle(sheet, n.center(), (int) (staveGap / 2),
-					(n.duration() == 1. ? new Scalar(0, 0, 255)
-							: (n.duration() == 2. ? new Scalar(128, 128, 0)
-									: new Scalar(255, 0, 255))), -1);
-	}
-
-	private static void printBeams(Mat sheet) {
-		for (Line l : beams)
-			Core.line(sheet, l.start(), l.end(), new Scalar(0, 255, 255), 3);
-	}
-
-	private static void printFlats(Mat sheet) {
-		for (Point p : flats)
-			Core.rectangle(sheet, p, new Point(p.x + flat_on.cols(), p.y
-					+ flat_on.rows()), new Scalar(255, 0, 127), 4);
-	}
-
-	private static void printBars(Mat sheet) {
-		for (Line l : bars)
-			Core.line(sheet, l.start(), l.end(), new Scalar(0, 255, 255), 3);
-	}
-
-	private static void printNoteRepresentations(Mat sheet) {
-		Collections.sort(notes, new Comparator<Note>() {
-
-			@Override
-			public int compare(Note lhs, Note rhs) {
-				if (lhs.stave().topLine().start().y != rhs.stave().topLine().start().y)
-					return (int) (lhs.stave().topLine().start().y - rhs.stave().topLine().start().y);
-				
-				return (int) (lhs.center().x - rhs.center().x);
-			}
-			
-		});
-		for (Note n : notes)
-			Log.v("Guillaume", Utils.noteToNoteRepresentation(n,sheet).toString());
+	public void detect() {
+		detectTrebleClefs();
+		detectBeams();
+		detectTime();
+		detectNotes();
+		correctBeams();
+		//detectFlats();
+		detectHalfNotes();
 	}
 	
-	public static void printAll(Mat sheet) {
-		printStaves(sheet);
-		printFourFour(sheet);
-		printTreble(sheet);
-		printNotes(sheet);
-		printBars(sheet);
-		printFlats(sheet);
-		
-		createRepresentation();
-		
-		//printNoteRepresentations(sheet);
-		
-		
-		
-		// printBeams(sheet);
-	}
-
-	private static void createRepresentation() {
+	public void createRepresentation() {
 		for (Note n : notes) {
 			Utils.whichStaveDoesAPointBelongTo(n.center(), staves, staveGap).addNote(n);
 		}
@@ -130,7 +105,7 @@ public class DetectMusic {
 		MusicRepresentation rep = new MusicRepresentation(playedStaves);
 	}
 
-	private static List<Line> getLines(Mat sheet) {
+	private List<Line> getLines(Mat sheet) {
 		Mat linesMat = new Mat();
 		Imgproc.HoughLinesP(sheet, linesMat, 1, Math.PI / 180, 100, 1, 15);
 		List<Line> lines = Utils.getHoughLinesFromMat(linesMat);
@@ -140,8 +115,8 @@ public class DetectMusic {
 		return lines;
 	}
 
-	public static void detectTrebleClefs(Mat sheet) {
-		trebleClef = Utils.resizeImage(trebleClef, DetectMusic.staveGap * 8);
+	private void detectTrebleClefs() {
+		trebleClef = Utils.resizeImage(masterTrebleClef, staveGap * 8);
 		Mat result = new Mat();
 		Imgproc.matchTemplate(sheet, trebleClef, result, Imgproc.TM_CCOEFF);
 		Point minLoc = Core.minMaxLoc(result).minLoc;
@@ -158,8 +133,8 @@ public class DetectMusic {
 		}
 	}
 
-	public static void detectTime(Mat sheet) {
-		fourFour = Utils.resizeImage(fourFour, staveGap * 4);
+	private void detectTime() {
+		fourFour = Utils.resizeImage(masterFourFour, staveGap * 4);
 		Mat result = new Mat();
 		Imgproc.matchTemplate(sheet, fourFour, result, Imgproc.TM_CCOEFF);
 		Point minLoc;
@@ -175,8 +150,8 @@ public class DetectMusic {
 		}
 	}
 
-	public static void detectFlats(Mat sheet) {
-		flat_on = Utils.resizeImage(flat_on, staveGap);
+	private void detectFlats() {
+		flat_on = Utils.resizeImage(masterFlat_on, staveGap);
 		// for (Stave s : staves) {
 		// Mat part = rotateSheetOnStave(sheet, s);
 		// Point clef = Utils.getClefPoint(s, trebleClefs, staveGap);
@@ -201,11 +176,11 @@ public class DetectMusic {
 		// }
 	}
 
-	public static void detectBeams(Mat sheet) {
+	private void detectBeams() {
 		Mat lines = new Mat();
 		List<Line> allLines = new LinkedList<Line>();
 		for (Stave s : staves) {
-			Mat part = rotateSheetOnStave(sheet, s);
+			Mat part = rotateSheetOnStave(s);
 			Imgproc.erode(part, part, Imgproc.getStructuringElement(
 					Imgproc.MORPH_RECT, new Size(6, 6)));
 			Point clef = s.originalClef();
@@ -236,10 +211,10 @@ public class DetectMusic {
 		}
 	}
 
-	public static void detectHalfNotes(Mat sheet) {
-		half_note = Utils.resizeImage(half_note, staveGap);
+	private void detectHalfNotes() {
+		half_note = Utils.resizeImage(masterHalf_note, staveGap);
 		for (Stave s : staves) {
-			Mat part = rotateSheetOnStave(sheet, s);
+			Mat part = rotateSheetOnStave(s);
 			Point clef = s.originalClef();
 			Mat result = new Mat();
 			Imgproc.matchTemplate(part, half_note, result, Imgproc.TM_CCOEFF);
@@ -261,11 +236,11 @@ public class DetectMusic {
 		}
 	}
 
-	public static void detectNotes(Mat sheet) {
+	private void detectNotes() {
 		Mat eroded = sheet.clone();
 		Imgproc.erode(eroded, eroded, Imgproc.getStructuringElement(
 				Imgproc.MORPH_RECT, new Size(staveGap - 4, staveGap - 4)));
-		noteHead = Utils.resizeImage(noteHead, staveGap * 0.9);
+		noteHead = Utils.resizeImage(masterNoteHead, staveGap * 0.9);
 		noteWidth = noteHead.cols();
 		for (Stave s : staves)
 			detectNoteOnPart(sheet, eroded,
@@ -273,7 +248,7 @@ public class DetectMusic {
 							.bottomLine().start().y + 4 * staveGap));
 	}
 
-	private static void detectNoteOnPart(Mat detectNotesSheet, Mat ref,
+	private void detectNoteOnPart(Mat detectNotesSheet, Mat ref,
 			int startY, int endY) {
 		Mat result = new Mat();
 		Imgproc.matchTemplate(
@@ -310,7 +285,7 @@ public class DetectMusic {
 		}
 	}
 
-	public static void detectStaves(List<Line> lines) {
+	private void detectStaves(List<Line> lines) {
 		// sort them by length (longest first)
 		Collections.sort(lines, new Comparator<Line>() {
 			@Override
@@ -363,7 +338,7 @@ public class DetectMusic {
 		staveGap = staves.get(0).staveGap();
 	}
 
-	public static Mat correctImage(Mat sheet) {
+	/*public Mat correctImage(Mat sheet) {
 
 		// detect staves
 		List<Line> lines = getLines(sheet);
@@ -411,9 +386,9 @@ public class DetectMusic {
 		Imgproc.warpPerspective(sheet, scaledSheet, transform, newSize);
 
 		return sheet;
-	}
+	}*/
 
-	private static Mat rotateSheetOnStave(Mat sheet, Stave s) {
+	private Mat rotateSheetOnStave(Stave s) {
 		Line l = s.topLine();
 		Point clef = s.originalClef();
 		double angleToRotate = (l.end().y - l.start().y)
@@ -425,7 +400,7 @@ public class DetectMusic {
 		return rotated;
 	}
 
-	public static void correctBeams(Mat revertSheet) {
+	public void correctBeams() {
 		for (int i = 0; i < beams.size(); i++) {
 			if (!Utils.isABeam(beams.get(i), notes, staveGap)) {
 				beams.remove(i);
@@ -441,6 +416,72 @@ public class DetectMusic {
 					n.setDuration(0.5);
 			}
 		}
+	}
+
+	public void print(Mat sheet) {
+		printStaves(sheet);
+		printFourFour(sheet);
+		printTreble(sheet);
+		printNotes(sheet);
+		printBars(sheet);
+		printFlats(sheet);
+	}
+
+	private void printStaves(Mat sheet) {
+		for (Stave s : staves)
+			s.draw(sheet);
+	}
+
+	private void printTreble(Mat sheet) {
+		for (Point p : trebleClefs)
+			Core.rectangle(sheet, p, new Point(p.x + trebleClef.cols(), p.y
+					+ trebleClef.rows()), new Scalar(0, 255, 0), 3);
+	}
+
+	private void printFourFour(Mat sheet) {
+		for (Point p : fourFours)
+			Core.rectangle(sheet, p, new Point(p.x + fourFour.cols(), p.y
+					+ fourFour.rows()), new Scalar(255, 255, 0), 3);
+	}
+
+	private void printNotes(Mat sheet) {
+		for (Note n : notes)
+			Core.circle(sheet, n.center(), (int) (staveGap / 2),
+					(n.duration() == 1. ? new Scalar(0, 0, 255)
+							: (n.duration() == 2. ? new Scalar(128, 128, 0)
+									: new Scalar(255, 0, 255))), -1);
+	}
+
+	private void printBeams(Mat sheet) {
+		for (Line l : beams)
+			Core.line(sheet, l.start(), l.end(), new Scalar(0, 255, 255), 3);
+	}
+
+	private void printFlats(Mat sheet) {
+		for (Point p : flats)
+			Core.rectangle(sheet, p, new Point(p.x + flat_on.cols(), p.y
+					+ flat_on.rows()), new Scalar(255, 0, 127), 4);
+	}
+
+	private void printBars(Mat sheet) {
+		for (Line l : bars)
+			Core.line(sheet, l.start(), l.end(), new Scalar(0, 255, 255), 3);
+	}
+
+	private void printNoteRepresentations(Mat sheet) {
+		Collections.sort(notes, new Comparator<Note>() {
+	
+			@Override
+			public int compare(Note lhs, Note rhs) {
+				if (lhs.stave().topLine().start().y != rhs.stave().topLine().start().y)
+					return (int) (lhs.stave().topLine().start().y - rhs.stave().topLine().start().y);
+				
+				return (int) (lhs.center().x - rhs.center().x);
+			}
+			
+		});
+		for (Note n : notes)
+			Log.v("Guillaume", Utils.noteToNoteRepresentation(n,sheet).toString());
 	}
 
 }
