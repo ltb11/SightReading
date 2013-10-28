@@ -444,7 +444,7 @@ public class Utils {
 		int line = getNote(s, p, sheet);
 		Clef c = s.getClefAtPos(p);
 		return new PlayedNote(getName(c, line), getOctave(c, line),
-				Shift.Natural, getDuration(n.duration()), 0);
+				 getDuration(n.duration()), 0);
 	}
 
 	// TODO: this method is only implemented for treble clef and for octaves 0

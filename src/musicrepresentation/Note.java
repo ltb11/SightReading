@@ -1,42 +1,49 @@
 package musicrepresentation;
 
 public abstract class Note {
-	protected final Duration duration;
-	protected final int dots;
-	protected final boolean rest;
+   private final Duration duration;
+   private final int dots;
+   private final int velocity;
+   public static final int STANDARD_VELOCITY = 60;
+   public static final int CROTCHET_DURATION = 512;
 
-	public Note(Duration duration, int dots, boolean rest) {
-		this.duration = duration;
-		this.dots = dots;
-		this.rest = rest;
-	}
+   public Note(Duration duration, int dots, int velocity){
+        this.duration = duration;
+        this.dots = dots;
+        this.velocity=velocity;
+   }
 
-	public int actualDuration() {
-		int val = value(duration);
-		for (int i = dots; i != 0; --i) {
-			val *= 1.5;
-		}
-		return val;
-	}
+    public int getDuration(){
+        int val = value(duration);
+        for(int i = dots; i != 0; --i){
+            val *= 1.5;
+        }
+        return val;
+    }
+    
+    public void play() {
+    	//TODO: implement the method depending on the way it's gonna be called.
+    	// Do that for every note so the playback in the end is just 
+    	// For (Note n : allNotes) n.play();
+    }
 
-	public boolean getRest() {
-		return this.rest;
-	}
+    private int value(Duration duration){
+        int value = 32 * 512; //smallest possible division of a note is 1/512, ain't nobody got time for fractions...
+        int ord = duration.ordinal();
+        while(ord > 0){
+            value /= 2;
+            ord--;
+        }
+        return value;
+    }
 
-	public void play() {
-		// TODO: implement the method depending on the way it's gonna be called.
-		// Do that for every note so the playback in the end is just
-		// For (Note n : allNotes) n.play();
-	}
+    public int getPitch(){
+        return 0;
+    }
+    
+    public int getVelocity(){
+        return velocity;
+    }
 
-	private int value(Duration duration) {
-		int value = 32 * 512; // smallest possible division of a note is 1/512,
-								// ain't nobody got time for fractions...
-		int ord = duration.ordinal();
-		while (ord > 0) {
-			value /= 2;
-			ord--;
-		}
-		return value;
-	}
 }
+
