@@ -59,7 +59,7 @@ public class SightReadingActivity extends Activity {
 				// displaying no
 				// GUI and exit when done scanning
 				
-				Playback.test();
+				//Playback.test();
 				//Playback.playMidiFile("teddybear.mid");
 				
 				((EditText) findViewById(R.id.filePath))

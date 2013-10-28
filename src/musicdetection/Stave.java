@@ -20,35 +20,36 @@ import utils.Utils;
 
 public class Stave {
 
-	private List<Line> lines;
+	private List<StaveLine> lines;
 	private double staveGap;
 	private Map<Point, Clef> clefs;
 	private Point originalClef;
 	
 	private List<Note> notes;
 	
-	public Stave(List<Line> lines) {
+	public Stave(List<StaveLine> lines) {
 		this.lines = lines;
 		if (lines.size() != 5)
 			throw new RuntimeException("Stave must have 5 lines!");
-		staveGap = (lines.get(4).start().y - lines.get(0).start().y) / 4; 
+		staveGap = (lines.get(4).toLine().start().y - lines.get(0).toLine().start().y) / 4; 
 		clefs = new HashMap<Point, Clef>();
 		notes = new LinkedList<Note>();
 		originalClef = null;
 	}
 	
 	public void eraseFromMat(Mat image) {
+		throw new UnsupportedOperationException("obsolete");
 		/*Scalar c1 = new Scalar(255, 0, 0);
 		Scalar c2 = new Scalar(0, 255, 0);
 		Scalar c3 = new Scalar(0, 0, 255);
 		Scalar c4 = new Scalar(255, 0, 255);
 		Scalar c5 = new Scalar(255, 255, 0);
-		Scalar[] cs = new Scalar[] { c1, c2, c3, c4, c5};*/
+		Scalar[] cs = new Scalar[] { c1, c2, c3, c4, c5};
 		Scalar col = new Scalar(0,0,0);
 		
 		for (int i = 0; i < 5; i++) {
 			Core.line(image, lines.get(i).start(), lines.get(i).end(), col, 1);
-		}
+		}*/
 	}
 	
 	public void addClef(Clef c, Point p) {
@@ -65,7 +66,17 @@ public class Stave {
 		Scalar col = new Scalar(128,0,0);
 		
 		for (int i = 0; i < 5; i++) {
-			Core.line(image, lines.get(i).start(), lines.get(i).end(), col, 3);
+			Core.line(image, lines.get(i).toLine().start(), lines.get(i).toLine().end(), col, 3);
+		}
+	}
+	
+	public void drawDetailed(Mat image) {
+		Scalar col = new Scalar(128,0,0);
+		
+		for (int i = 0; i < 5; i++) {
+			for(Line l : lines.get(i).getLines()) {
+				Core.line(image, l.start(), l.end(), col, 3);
+			}
 		}
 	}
 	
@@ -74,11 +85,11 @@ public class Stave {
 	}
 
 	public Line topLine() {
-		return lines.get(0);
+		return lines.get(0).toLine();
 	}
 
 	public Line bottomLine() {
-		return lines.get(4);
+		return lines.get(4).toLine();
 	}
 
 	public Clef getClefAtPos(Point p) {
