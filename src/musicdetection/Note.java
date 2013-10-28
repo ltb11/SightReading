@@ -54,6 +54,6 @@ public class Note {
 
 	public PlayedNote toPlayedNote() {
 		// TODO Auto-generated method stub
-		return new PlayedNote(name, octave, Shift.Natural, Utils.getDuration(duration), 0);
+		return new PlayedNote(name, octave, Utils.getDuration(duration), 0);
 	}
 }

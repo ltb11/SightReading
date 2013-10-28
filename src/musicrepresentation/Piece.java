@@ -11,8 +11,8 @@ public class Piece implements Iterable<Bar> {
     private final List<Bar> bars;
     private int bpm;
     
-    public Piece(){
-        this.bars = new ArrayList<Bar>();
+    public Piece(List<Bar> bars){
+        this.bars = bars;
         this.bpm = 60;
         this.title = "FantasieImpromptu";
     }

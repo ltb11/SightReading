@@ -1,13 +1,15 @@
 package musicrepresentation;
 
-public abstract class Note {
+public abstract class AbstractNote {
    private final Duration duration;
    private final int dots;
    private final int velocity;
    public static final int STANDARD_VELOCITY = 60;
    public static final int CROTCHET_DURATION = 512;
 
-   public Note(Duration duration, int dots, int velocity){
+   public static final int TEMP_44LENGTH = 512*4;
+   
+   public AbstractNote(Duration duration, int dots, int velocity){
         this.duration = duration;
         this.dots = dots;
         this.velocity=velocity;

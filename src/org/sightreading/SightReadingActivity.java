@@ -5,12 +5,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 
+import midiconversion.Converter;
 import musicdetection.MusicDetector;
-import musicdetection.Line;
+import musicrepresentation.Piece;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
@@ -19,8 +18,6 @@ import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
 import playback.Playback;
-
-import utils.SheetStrip;
 import utils.Utils;
 import android.app.Activity;
 import android.content.Context;
@@ -44,6 +41,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.leff.midi.MidiFile;
+
 public class SightReadingActivity extends Activity {
 	public static final String TAG = "SightReadingActivity";
 	public static EditText currentFileName;
@@ -59,7 +58,7 @@ public class SightReadingActivity extends Activity {
 				// displaying no
 				// GUI and exit when done scanning
 				
-				Playback.test();
+				//Playback.test();
 				//Playback.playMidiFile("teddybear.mid");
 				
 				((EditText) findViewById(R.id.filePath))
@@ -221,6 +220,12 @@ public class SightReadingActivity extends Activity {
 		detector.detect();
 		detector.print(output);
 
+		Piece piece = detector.toPiece();
+		MidiFile f = Converter.Convert(piece);
+		
+		Playback.saveMidiFile(f, "test.mid");
+		//Playback.playMidiFile("test.mid");
+		
 		Utils.writeImage(output, Utils.getPath("output/" + dst));
 		finish();
 	}
