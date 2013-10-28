@@ -123,17 +123,29 @@ public class Stave {
 	}
 
 	public void calculateNotePitch() {
-		double sy = topLine().start().y;
 		for (Note n : notes) {
+			double nx = (n.center().x);
 			double ny = (n.center().y);
+			double y1 = getY(lines.get(0),nx);
+			double y2 = getY(lines.get(4),nx);
+			double gap = y2-y1;
+			
 			// 0-1 where 0 is top line, 1 is bottom
-			double pos = (ny-sy)/(staveGap*4);
-			int line = (int) Math.round(8 - pos*4);
+			double pos = (ny-y1)/gap;
+			int line = (int) Math.round(8 - pos*8);
 			NoteName name = Utils.getName(clefs.get(originalClef),line);
 			n.setName(name);
 			n.setOctave(Utils.getOctave(clefs.get(originalClef), line));
-			Log.v("Guillaume", n.toString());
 		}
+	}
+
+	private double getY(StaveLine line, double x) {
+		for(Line l : line.getLines()) {
+			if (l.end().x>x) {
+				return l.start().y;
+			}
+		}
+		return 0;
 	}
 
 	private int lineToNote(double line) {

@@ -205,10 +205,10 @@ public class SightReadingActivity extends Activity {
 	private void scanImage() {
 		String src = ((EditText) findViewById(R.id.filePath)).getText()
 				.toString();
-		testImage(src, Utils.getDest(src));
+		testImage(src, Utils.getDestImage(src), Utils.getDestMid(src));
 	}
 
-	public void testImage(String src, String dst) {
+	public void testImage(String src, String dstImage, String destMid) {
 		String srcPath = Utils.getPath("input/" + src);
 		Mat input = Utils.readImage(srcPath);
 		Mat scaledInput = Utils.resizeImage(input, Utils.STANDARD_IMAGE_WIDTH);
@@ -223,10 +223,10 @@ public class SightReadingActivity extends Activity {
 		Piece piece = detector.toPiece();
 		MidiFile f = Converter.Convert(piece);
 		
-		Playback.saveMidiFile(f, "test.mid");
+		Playback.saveMidiFile(f, destMid);
 		//Playback.playMidiFile("test.mid");
 		
-		Utils.writeImage(output, Utils.getPath("output/" + dst));
+		Utils.writeImage(output, Utils.getPath("output/" + dstImage));
 		finish();
 	}
 }
