@@ -22,9 +22,11 @@ import org.opencv.core.Range;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
+import org.opencv.engine.OpenCVEngineInterface;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
+import android.R.integer;
 import android.os.Environment;
 import android.util.Log;
 
@@ -510,6 +512,17 @@ public class Utils {
 			Core.line(sheet, new Point(p.x, y), new Point (p.x + 10, y), new Scalar (0, 255, 0));
 		}
 		return currentLine - 1;
+	}
+	
+	public static void saveTemplateMat(Mat template, String filename){
+		double max = Core.minMaxLoc(template).maxVal;
+		Mat output = new Mat(template.size(), CvType.CV_8UC1);
+		for (int col=0; col<template.cols();col++){
+			for (int row=0; row<template.rows(); row++){
+				output.put(row,col, 255*template.get(row, col)[0]/max);
+			}
+		}
+		writeImage(output, getPath("output/" + filename));
 	}
 
 	public static Duration getDuration(double duration) {
