@@ -131,7 +131,8 @@ public class Stave {
 			int line = (int) Math.round(8 - pos*4);
 			NoteName name = Utils.getName(clefs.get(originalClef),line);
 			n.setName(name);
-			n.setOctave(4);
+			n.setOctave(Utils.getOctave(clefs.get(originalClef), line));
+			Log.v("Guillaume", n.toString());
 		}
 	}
 
@@ -148,8 +149,11 @@ public class Stave {
 		int duration = 0;
 		List<PlayedNote> notes = createPlayedNotes();
 		for(PlayedNote n : notes) {
+			
 			Log.i("NOTE",n.toString());
-			currentBar.addChord(new Chord(n));
+			
+			currentBar.addNote(n);
+			
 			duration += n.getDuration();
 			if (duration>=AbstractNote.TEMP_44LENGTH) {
 				duration=0;

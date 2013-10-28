@@ -53,7 +53,6 @@ public class MusicDetector {
 
 	public MusicDetector(final Mat input) {
 		sheet = preprocess(input.clone());
-		detect();
 	}
 
 	private Mat preprocess(Mat input) {
@@ -90,6 +89,7 @@ public class MusicDetector {
 	}
 	
 	public Piece toPiece() {
+		
 		for (Note n : notes) {
 			Utils.whichStaveDoesAPointBelongTo(n.center(), staves, staveGap).addNote(n);
 		}

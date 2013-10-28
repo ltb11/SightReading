@@ -454,9 +454,9 @@ public class Utils {
 	public  static int getOctave(Clef c, int line) {
 		if (c == Clef.Treble) {
 			if (line >= -2 && line <= 4)
-				return 0;
+				return 4;
 			if (line >= 5 && line <= 11)
-				return 1;
+				return 5;
 		}
 		return 10;
 	}

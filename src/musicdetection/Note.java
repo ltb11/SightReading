@@ -56,4 +56,11 @@ public class Note {
 		// TODO Auto-generated method stub
 		return new PlayedNote(name, octave, Utils.getDuration(duration), 0);
 	}
+	
+	@Override
+	public String toString() {
+		String result = "";
+		result += name + " at octave " + octave + ", it's a " + duration;
+		return result;
+	}
 }

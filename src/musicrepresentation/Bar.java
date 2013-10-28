@@ -16,6 +16,11 @@ public class Bar implements Iterable<Chord>{
     public void addChord(Chord chord){
         chords.add(chord);
     }
+    
+    public void addNote(AbstractNote note) {
+    	Chord chord = new Chord(note);
+    	addChord(chord);
+    }
 
     public Iterator<Chord> iterator(){
         return chords.iterator();
