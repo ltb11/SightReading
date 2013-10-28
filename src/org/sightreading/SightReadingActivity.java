@@ -62,7 +62,7 @@ public class SightReadingActivity extends Activity {
 				//Playback.playMidiFile("teddybear.mid");
 				
 				((EditText) findViewById(R.id.filePath))
-						.setText("Distorted.jpg");
+						.setText("complexStaves.png");
 				scan.performClick();
 				
 				
