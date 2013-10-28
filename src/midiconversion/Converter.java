@@ -45,7 +45,7 @@ public class Converter{
             }
         }
         
-        ArrayList tracks = new ArrayList<MidiTrack>();
+        ArrayList<MidiTrack> tracks = new ArrayList<MidiTrack>();
         tracks.add(tempoTrack);
         tracks.add(noteTrack);
     

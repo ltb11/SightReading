@@ -221,7 +221,8 @@ public class Utils {
 	 ************** IO METHODS **************
 	 ****************************************/
 
-	public static String getDest(String src) {
+
+	public static String getDestImage(String src) {
 		String result = "";
 		int i = 0;
 		while (src.charAt(i) != '.') {
@@ -234,6 +235,17 @@ public class Utils {
 			result += src.charAt(i);
 			i++;
 		}
+		return result;
+	}
+	
+	public static String getDestMid(String src) {
+		String result = "";
+		int i = 0;
+		while (src.charAt(i) != '.') {
+			result += src.charAt(i);
+			i++;
+		}
+		result += ".mid";
 		return result;
 	}
 
