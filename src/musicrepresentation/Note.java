@@ -3,24 +3,20 @@ package musicrepresentation;
 public abstract class Note {
    private final Duration duration;
    private final int dots;
-   private final boolean rest;
+   private final int velocity;
 
-   public Note(Duration duration, int dots, boolean rest){
+   public Note(Duration duration, int dots, int velocity){
         this.duration = duration;
         this.dots = dots;
-        this.rest = rest;
+        this.velocity=velocity;
    }
 
-    public int actualDuration(){
+    public int getDuration(){
         int val = value(duration);
         for(int i = dots; i != 0; --i){
             val *= 1.5;
         }
         return val;
-    }
-
-    public boolean getRest(){
-        return this.rest;
     }
     
     public void play() {
@@ -38,4 +34,14 @@ public abstract class Note {
         }
         return value;
     }
+
+    public int getPitch(){
+        return 0;
+    }
+    
+    public int getVelocity(){
+        return velocity;
+    }
+
 }
+
