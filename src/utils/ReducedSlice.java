@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import musicdetection.Line;
+import musicdetection.StaveLine;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -60,18 +61,24 @@ public class ReducedSlice {
 		}
 	}
 
-	public List<Line> GetLines() {
-		List<Line> lines = new LinkedList<Line>();
+	public List<StaveLine> GetLines() {
+		List<StaveLine> staveLines = new LinkedList<StaveLine>();
 		for (Section section : sections) {
 			if (section.IsStartOfLine()) {
+				// get first section
+				List<Line> lines = new LinkedList<Line>();
 				Section end = section;
-				while (end.HasNext()) end = end.getNext();
-				lines.add(new Line(
-						new Point(section.startX,topLeft.y+section.y()), 
-						new Point(end.endX,topLeft.y+end.y())));
+				lines.add(end.toLine(this));
+				// iterate to end of sections
+				while (end.HasNext()) {
+					end = end.getNext();
+					lines.add(end.toLine(this));
+				}
+				
+				staveLines.add(new StaveLine(lines));
 			}
 		}
-		return lines;
+		return staveLines;
 	}
 
 	public List<Line> GetSectionLines() {
@@ -101,6 +108,11 @@ public class ReducedSlice {
 			this.endX=endX;
 			this.startY=startY;
 			this.endY=endY;
+		}
+
+		public Line toLine(ReducedSlice slice) {
+			double y = slice.topLeft.y+y();
+			return new Line(new Point(startX,y), new Point(endX,y));
 		}
 
 		public double y() {

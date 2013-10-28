@@ -8,7 +8,7 @@ import com.leff.midi.event.meta.TimeSignature;
 import musicrepresentation.Piece;
 import musicrepresentation.Bar;
 import musicrepresentation.Chord;
-import musicrepresentation.Note;
+import musicrepresentation.AbstractNote;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,16 +28,15 @@ public class Converter{
 
         tempoTrack.insertEvent(ts);
         tempoTrack.insertEvent(t);
-        
           
         double crotchetLength = 60000.0 / (bpm * PPQ);
         int nextNote = 0;
         for(Bar bar : piece){
             for(Chord chord: bar){
                 int channel = 0; 
-                for(Note note: chord){
+                for(AbstractNote note: chord){
                     int duration = note.getDuration();
-                    duration /= Note.CROTCHET_DURATION;
+                    duration /= AbstractNote.CROTCHET_DURATION;
                     int length = (int) crotchetLength * duration;
                     noteTrack.insertNote(channel,note.getPitch(),note.getVelocity(), nextNote,length);
                     channel++; 
@@ -53,8 +52,4 @@ public class Converter{
         MidiFile midi = new MidiFile(MidiFile.DEFAULT_RESOLUTION, tracks);
         return midi;
     }
-
-
-
-    
 }

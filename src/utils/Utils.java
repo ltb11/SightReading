@@ -9,10 +9,10 @@ import musicdetection.Clef;
 import musicdetection.Line;
 import musicdetection.Note;
 import musicdetection.Stave;
+import musicdetection.StaveLine;
 import musicrepresentation.Duration;
 import musicrepresentation.NoteName;
 import musicrepresentation.PlayedNote;
-import musicrepresentation.Shift;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -194,7 +194,7 @@ public class Utils {
 		return false;
 	}
 
-	public static boolean isInCircle(Point centre, double radius, Mat ref) {
+	public static Point isInCircle(Point centre, double radius, Mat ref) {
 		// checks the pixels within a square of side length=radius
 		// of the point where a note is suspected to be. If the area is only
 		// black,
@@ -211,10 +211,10 @@ public class Utils {
 						|| !height.contains((int) tmp.y))
 					continue;
 				if (ref.get((int) tmp.y, (int) tmp.x)[0] != 0)
-					return true;
+					return tmp;
 			}
 		}
-		return false;
+		return null;
 	}
 
 	/****************************************
@@ -273,30 +273,32 @@ public class Utils {
 		return lines;
 	}
 
-	public static List<Line> getSpacedLines(List<Line> lines,
-			List<Line> actualLines) {
+	public static List<StaveLine> getSpacedLines(List<StaveLine> lines,
+			List<StaveLine> actualLines) {
 		/*
 		 * PRE: Given a list of horizontal lines of similar length Checks that
 		 * the lines are equally spaced
 		 */
-		Collections.sort(lines, new Comparator<Line>() {
+		Collections.sort(lines, new Comparator<StaveLine>() {
 			@Override
-			public int compare(Line line0, Line line1) {
-				return (int) (Math.signum((line0.start().y - line1.start().y)));
+			public int compare(StaveLine line0, StaveLine line1) {
+				return (int) (Math.signum((line0.toLine().start().y - line1.toLine().start().y)));
 			}
 		});
 		// MID: lines is sorted highest to lowest
 
-		Line first = lines.get(0);
+		StaveLine first = lines.get(0);
 		for (int i = 1; i < lines.size(); i++) {
-			Line second = lines.get(i);
-			double space = second.start().y - first.start().y;
-			double pos = second.start().y + space;
-			List<Line> result = new LinkedList<Line>();
+			StaveLine second = lines.get(i);
+			List<StaveLine> result = new LinkedList<StaveLine>();
 			result.add(first);
 			result.add(second);
+			
+			double space = second.toLine().start().y - first.toLine().start().y;
+			double pos = second.toLine().start().y + space;
+			
 			for (int j = i + 1; j < lines.size(); j++) {
-				if (Math.abs(lines.get(j).start().y - pos) < space
+				if (Math.abs(lines.get(j).toLine().start().y - pos) < space
 						* staveGapTolerance) {
 					pos += space;
 					result.add(lines.get(j));
@@ -311,7 +313,7 @@ public class Utils {
 		/*
 		 * POST: Return only the lines that do belong to a stave
 		 */
-		return new LinkedList<Line>();
+		return new LinkedList<StaveLine>();
 	}
 
 	public static Point getClefPoint(Stave s, List<Point> trebleClefs,

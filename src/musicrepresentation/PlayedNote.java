@@ -1,12 +1,12 @@
 package musicrepresentation;
 
-public class PlayedNote extends Note {
+public class PlayedNote extends AbstractNote {
 	private final NoteName name;
 	private final int octave;
 
 	public PlayedNote(NoteName name, int octave,
 			Duration duration, int dots) {
-		this(name,octave,duration,dots,Note.STANDARD_VELOCITY);
+		this(name,octave,duration,dots,AbstractNote.STANDARD_VELOCITY);
 	}
 
 	public PlayedNote(NoteName name, int octave,

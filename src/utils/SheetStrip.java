@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import musicdetection.Line;
+import musicdetection.StaveLine;
 
 public class SheetStrip {
 
@@ -14,15 +15,9 @@ public class SheetStrip {
 		this.slices = slices;
 	}
 
-	public List<Line> FindLines() {
+	public List<StaveLine> FindLines() {
 		int totalSlices = slices.length;
 		this.reducedSlices = new ReducedSlice[totalSlices];
-
-		/*
-		 * // get lines List<Line> lines = new LinkedList<Line>(); for
-		 * (ReducedSlice slice : reducedSlices) {
-		 * lines.addAll(slice.GetSectionLines()); }
-		 */
 
 		// reduce all slices
 		for (int slice = 0; slice < totalSlices; slice++) {
@@ -35,7 +30,7 @@ public class SheetStrip {
 		}
 
 		// get lines
-		List<Line> lines = new LinkedList<Line>();
+		List<StaveLine> lines = new LinkedList<StaveLine>();
 		for (ReducedSlice slice : reducedSlices) {
 			lines.addAll(slice.GetLines());
 		}

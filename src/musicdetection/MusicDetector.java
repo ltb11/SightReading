@@ -5,13 +5,13 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
-import musicrepresentation.MusicRepresentation;
+import musicrepresentation.Bar;
+import musicrepresentation.Piece;
 import musicrepresentation.PlayedStave;
 
 import org.opencv.core.Core;
 import org.opencv.core.Core.MinMaxLocResult;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -68,7 +68,7 @@ public class MusicDetector {
 		List<SheetStrip> strips = Utils.sliceSheet(input, divisions);
 	
 		// detect staves
-		List<Line> lines = new LinkedList<Line>();
+		List<StaveLine> lines = new LinkedList<StaveLine>();
 		for (SheetStrip strip : strips) {
 			lines.addAll(strip.FindLines());
 		}
@@ -89,20 +89,22 @@ public class MusicDetector {
 		detectHalfNotes();
 	}
 	
-	public void createRepresentation() {
+	public Piece toPiece() {
 		for (Note n : notes) {
 			Utils.whichStaveDoesAPointBelongTo(n.center(), staves, staveGap).addNote(n);
 		}
 		
-		List<PlayedStave> playedStaves = new LinkedList<PlayedStave>();
+		List<Bar> bars = new LinkedList<Bar>();
 		for (Stave s : staves) {
 			s.orderNotes();
 			s.calculateNotePitch();
-			PlayedStave ps = s.createPlayedStave();
-			playedStaves.add(ps);
+
+			bars.addAll(s.toBars());
 		}
 		
-		MusicRepresentation rep = new MusicRepresentation(playedStaves);
+		Piece piece = new Piece(bars);
+		
+		return piece;
 	}
 
 	private List<Line> getLines(Mat sheet) {
@@ -270,14 +272,15 @@ public class MusicDetector {
 			if (maxVal > maxAllowedVal) {
 				Point centre = new Point(maxLoc.x + noteWidth / 2, maxLoc.y
 						+ startY + staveGap / 2);
-				if (Utils.isInCircle(centre, (int) noteWidth / 2, ref)
+				Point centerCorrected = Utils.isInCircle(centre, (int) noteWidth / 2, ref);
+				if (centerCorrected != null
 						&& !Utils.isInAnyRectangle(trebleClefs,
 								trebleClef.cols(), trebleClef.rows(), centre)
 						&& !Utils.isInAnyRectangle(fourFours, fourFour.cols(),
 								fourFour.rows(), centre)
 						&& !Utils.isOnBeamLine(centre, noteWidth, staveGap,
 								beams)) {
-					Point p = Utils.findNearestNeighbour(centre, ref);
+					Point p = Utils.findNearestNeighbour(centerCorrected, ref);
 					notes.add(new Note(p, Utils.whichStaveDoesAPointBelongTo(p,
 							staves, staveGap)));
 				}
@@ -289,28 +292,28 @@ public class MusicDetector {
 		}
 	}
 
-	private void detectStaves(List<Line> lines) {
+	private void detectStaves(List<StaveLine> lines) {
 		// sort them by length (longest first)
-		Collections.sort(lines, new Comparator<Line>() {
+		Collections.sort(lines, new Comparator<StaveLine>() {
 			@Override
-			public int compare(Line line0, Line line1) {
-				return (int) (Math.signum(line1.length() - line0.length()));
+			public int compare(StaveLine line0, StaveLine line1) {
+				return (int) (Math.signum(line1.toLine().length() - line0.toLine().length()));
 			}
 		});
 
 		int outside, inside;
 		for (outside = 0; outside < lines.size(); outside++) {
-			Line start = lines.get(outside);
+			Line start = lines.get(outside).toLine();
 
 			// TODO: !!!! this line may be causing problems, not sure
 			if (start.length() < Utils.STANDARD_IMAGE_WIDTH * 0.5)
 				break;
 
-			List<Line> subset = new LinkedList<Line>();
+			List<StaveLine> subset = new LinkedList<StaveLine>();
 
 			for (inside = outside; inside < lines.size(); inside++) {
-				Line line = lines.get(inside);
-				if (Math.abs(start.length() - line.length()) < start.length()
+				StaveLine line = lines.get(inside);
+				if (Math.abs(start.length() - line.toLine().length()) < start.length()
 						* staveLengthTolerance) {
 					subset.add(line);
 				} else
@@ -324,7 +327,7 @@ public class MusicDetector {
 			// getStaveLines must return (in y-axis order) all lines that belong
 			// to a stave
 			// so they can be pulled out, 5 at a time, to create the staves
-			List<Line> staveLines = Utils.getSpacedLines(subset, lines);
+			List<StaveLine> staveLines = Utils.getSpacedLines(subset, lines);
 			if (staveLines.size() != 5) {
 				outside--;
 				continue;
@@ -434,8 +437,10 @@ public class MusicDetector {
 	}
 
 	private void printStaves(Mat sheet) {
-		for (Stave s : staves)
-			s.draw(sheet);
+		for (Stave s : staves) {
+			//s.draw(sheet);
+			s.drawDetailed(sheet);
+		}
 	}
 
 	private void printTreble(Mat sheet) {
