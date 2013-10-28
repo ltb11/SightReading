@@ -242,7 +242,7 @@ public class MusicDetector {
 		Mat eroded = sheet.clone();
 		Imgproc.erode(eroded, eroded, Imgproc.getStructuringElement(
 				Imgproc.MORPH_RECT, new Size(staveGap - 4, staveGap - 4)));
-		Utils.writeImage(eroded, "output/eroded");
+
 		noteHead = Utils.resizeImage(masterNoteHead, staveGap * 0.9);
 		noteWidth = noteHead.cols();
 		for (Stave s : staves)
