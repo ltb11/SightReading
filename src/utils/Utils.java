@@ -12,7 +12,6 @@ import musicdetection.Stave;
 import musicdetection.StaveLine;
 import musicrepresentation.Duration;
 import musicrepresentation.NoteName;
-import musicrepresentation.PlayedNote;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
@@ -20,13 +19,10 @@ import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Range;
 import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.engine.OpenCVEngineInterface;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
-import android.R.integer;
 import android.os.Environment;
 import android.util.Log;
 
@@ -452,17 +448,6 @@ public class Utils {
 		return p;
 	}
 
-	public static PlayedNote noteToNoteRepresentation(Note n,Mat sheet) {
-		Stave s = n.stave();
-		Point p = n.center();
-		Log.v("Guillaume", Double.toString(p.x)+ "," + Double.toString(p.y));
-		// octave in MIDI representation
-		int line = getNote(s, p, sheet);
-		Clef c = s.getClefAtPos(p);
-		return new PlayedNote(getName(c, line), getOctave(c, line),
-				 getDuration(n.duration()), 0);
-	}
-
 	// TODO: this method is only implemented for treble clef and for octaves 0
 	// and 1
 	public  static int getOctave(Clef c, int line) {
@@ -499,44 +484,6 @@ public class Utils {
 			}
 		}
 		return null;
-	}
-
-	// line 0 is the bottom line of the staves
-	private static int getNote(Stave s, Point p, Mat sheet) {
-		double directingVector = (s.topLine().end().y - s.topLine().start().y)
-				/ (s.topLine().end().x - s.topLine().start().x);
-		double staveGap = s.staveGap();
-		double origin = s.bottomLine().start().y;
-		//offset of the point from the start
-		double advance = p.x - s.bottomLine().start().x;
-		double distance = 10000, prevDistance = 20000;
-		double pointY = p.y;
-		int currentLine = -10;
-		//y is the variable that will change over the loop, augmented by staveGap/2 each time
-		double y = origin - advance * directingVector - currentLine * staveGap
-				/ 2;
- 		while (prevDistance > distance) {
-			if (currentLine == 7) {
-				Log.v("Guillaume", "CHECK");
-			}
-			prevDistance = distance;
-			currentLine++;
-			y -= staveGap / 2;
-			distance = Math.abs(y - pointY);
-			Core.line(sheet, new Point(p.x, y), new Point (p.x + 10, y), new Scalar (0, 255, 0));
-		}
-		return currentLine - 1;
-	}
-	
-	public static void saveTemplateMat(Mat template, String filename){
-		double max = Core.minMaxLoc(template).maxVal;
-		Mat output = new Mat(template.size(), CvType.CV_8UC1);
-		for (int col=0; col<template.cols();col++){
-			for (int row=0; row<template.rows(); row++){
-				output.put(row,col, 255*template.get(row, col)[0]/max);
-			}
-		}
-		writeImage(output, getPath("output/" + filename));
 	}
 
 	public static Duration getDuration(double duration) {

@@ -24,7 +24,7 @@ public class Playback {
 		try {
 			FileInputStream fis = new FileInputStream(f);
 			FileDescriptor fd = fis.getFD();
-			//fis.close();
+			fis.close();
 			
 			MediaPlayer mediaPlayer = new MediaPlayer();
 			mediaPlayer.setDataSource( fd );

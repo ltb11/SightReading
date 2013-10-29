@@ -1,18 +1,16 @@
 package midiconversion;
 
+import java.util.ArrayList;
+
+import musicrepresentation.AbstractNote;
+import musicrepresentation.Bar;
+import musicrepresentation.Chord;
+import musicrepresentation.Piece;
+
 import com.leff.midi.MidiFile;
 import com.leff.midi.MidiTrack;
 import com.leff.midi.event.meta.Tempo;
 import com.leff.midi.event.meta.TimeSignature;
-
-import musicrepresentation.Piece;
-import musicrepresentation.Bar;
-import musicrepresentation.Chord;
-import musicrepresentation.AbstractNote;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 
 public class Converter{
 

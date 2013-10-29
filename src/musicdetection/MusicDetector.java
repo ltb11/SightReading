@@ -7,7 +7,6 @@ import java.util.List;
 
 import musicrepresentation.Bar;
 import musicrepresentation.Piece;
-import musicrepresentation.PlayedStave;
 
 import org.opencv.core.Core;
 import org.opencv.core.Core.MinMaxLocResult;
@@ -19,14 +18,12 @@ import org.opencv.imgproc.Imgproc;
 
 import utils.SheetStrip;
 import utils.Utils;
-import android.util.Log;
 
 public class MusicDetector {
 
 	public static final Mat masterNoteHead =  Utils.readImage(Utils.getPath("assets/notehead.png"));
 	public static final Mat masterTrebleClef = Utils.readImage(Utils.getPath("assets/GClef.png"));
 	public static final Mat masterFourFour = Utils.readImage(Utils.getPath("assets/44.png"));
-	public static final Mat masterBar = Utils.readImage(Utils.getPath("assets/bar.png"));
 	public static final Mat masterFlat_inter = Utils.readImage(Utils.getPath("assets/flat_inter.png"));
 	public static final Mat masterFlat_on = Utils.readImage(Utils.getPath("assets/flat_on.png"));
 	public static final Mat masterHalf_note = Utils.readImage(Utils.getPath("assets/half_note.png"));
@@ -34,8 +31,7 @@ public class MusicDetector {
 	private Mat noteHead;
 	private Mat trebleClef;
 	private Mat fourFour;
-	private Mat bar;
-	private Mat flat_inter;
+	//private Mat flat_inter;
 	private Mat flat_on;
 	private Mat half_note;
 	
@@ -48,7 +44,6 @@ public class MusicDetector {
 	private List<Point> fourFours = new LinkedList<Point>();
 	private List<Note> notes = new LinkedList<Note>();
 	private List<Line> beams = new LinkedList<Line>();
-	private List<Line> bars = new LinkedList<Line>();
 	private List<Point> flats = new LinkedList<Point>();
 
 	public MusicDetector(final Mat input) {
@@ -84,7 +79,7 @@ public class MusicDetector {
 		detectTime();
 		detectNotes();
 		correctBeams();
-		//detectFlats();
+		detectFlats();
 		detectHalfNotes();
 	}
 	
@@ -105,16 +100,6 @@ public class MusicDetector {
 		Piece piece = new Piece(bars);
 		
 		return piece;
-	}
-
-	private List<Line> getLines(Mat sheet) {
-		Mat linesMat = new Mat();
-		Imgproc.HoughLinesP(sheet, linesMat, 1, Math.PI / 180, 100, 1, 15);
-		List<Line> lines = Utils.getHoughLinesFromMat(linesMat);
-
-		// sew lines
-
-		return lines;
 	}
 
 	private void detectTrebleClefs() {
@@ -154,28 +139,45 @@ public class MusicDetector {
 
 	private void detectFlats() {
 		flat_on = Utils.resizeImage(masterFlat_on, staveGap);
-		// for (Stave s : staves) {
-		// Mat part = rotateSheetOnStave(sheet, s);
-		// Point clef = Utils.getClefPoint(s, trebleClefs, staveGap);
 		Mat result = new Mat();
-		Imgproc.matchTemplate(sheet, flat_on, result, Imgproc.TM_CCOEFF);
-		Point minLoc;
-		double minVal = Core.minMaxLoc(result).minVal;
-		double minAllowed = minVal * 0.9;
-		while (minVal < minAllowed) {
-			minLoc = Core.minMaxLoc(result).minLoc;
-			minVal = Core.minMaxLoc(result).minVal;
-			Log.v("Guillaume",
-					Double.toString(minLoc.x) + "," + Double.toString(minLoc.y));
-			// if (minLoc.x < staves.get(0).topLine().end().x * 0.95)
-			flats.add(/*
-					 * new Point(minLoc.x + clef.x, minLoc.y +
-					 * s.topLine().start().y - 4 * staveGap)
-					 */minLoc);
-			Utils.zeroInMatrix(result, minLoc, (int) flat_on.cols(),
-					(int) flat_on.rows());
+		double minVal = 0;
+		for (Note n : notes) {
+			Imgproc.matchTemplate(sheet.submat(
+					Math.max(0, (int) (n.center().y - staveGap)),
+					Math.min(sheet.rows(), (int) (n.center().y + staveGap)),
+					Math.max(0, (int) (n.center().x - 3 * noteWidth)),
+					Math.min(sheet.cols(), (int) (n.center().x))), flat_on,
+					result, Imgproc.TM_CCOEFF);
+			if (Core.minMaxLoc(result).minVal < minVal)
+				minVal = Core.minMaxLoc(result).minVal;
 		}
-		// }
+		double minAllowed = minVal * 0.8;
+		for (Stave s : staves) {
+			for (Note n : s.notes()) {
+				flat_on = Utils.resizeImage(masterFlat_on,
+						s.staveGapAtPos(n.center()));
+				Imgproc.matchTemplate(
+						sheet.submat(Math.max(0,
+								(int) (n.center().y - staveGap)), Math.min(
+								sheet.rows(), (int) (n.center().y + staveGap)),
+								Math.max(0,
+										(int) (n.center().x - 3 * noteWidth)),
+								Math.min(sheet.cols(), (int) (n.center().x))),
+						flat_on, result, Imgproc.TM_CCOEFF);
+				Point minLoc;
+				minVal = Core.minMaxLoc(result).minVal;
+				if (minVal < minAllowed) {
+					minLoc = Core.minMaxLoc(result).minLoc;
+					minVal = Core.minMaxLoc(result).minVal;
+					Point p = new Point(
+							minLoc.x + n.center().x - 3 * noteWidth, minLoc.y
+									+ n.center().y - staveGap);
+					flats.add(p);
+					Utils.zeroInMatrix(result, minLoc, (int) flat_on.cols(),
+							(int) flat_on.rows());
+				}
+			}
+		}
 	}
 
 	private void detectBeams() {
@@ -344,56 +346,6 @@ public class MusicDetector {
 		staveGap = staves.get(0).staveGap();
 	}
 
-	/*public Mat correctImage(Mat sheet) {
-
-		// detect staves
-		List<Line> lines = getLines(sheet);
-		detectStaves(lines);
-
-		//
-		Line top = staves.get(0).topLine();
-		Line bottom = staves.get(staves.size() - 1).bottomLine();
-
-		Point topLeft = top.start();
-		Point topRight = top.end();
-		Point bottomRight = bottom.end();
-		Point bottomLeft = bottom.start();
-
-		Core.line(sheet, topLeft, topRight, new Scalar(128, 0, 0), 10);
-		Core.line(sheet, topRight, bottomRight, new Scalar(128, 0, 0), 10);
-		Core.line(sheet, bottomRight, bottomLeft, new Scalar(128, 0, 0), 10);
-		Core.line(sheet, bottomLeft, topLeft, new Scalar(128, 0, 0), 10);
-
-		for (Stave s : staves)
-			s.draw(sheet);
-
-		float width = sheet.cols();
-		float height = sheet.rows();
-
-		float ratio = width / height;
-
-		int newWidth = 2000;
-		int newHeight = (int) (newWidth / ratio);
-
-		Size newSize = new Size(newWidth, newHeight);
-		Mat scaledSheet = new Mat(newSize, sheet.type());// CvType.CV_8UC1);
-
-		Point newTopLeft = new Point(0, 0);
-		Point newTopRight = new Point(newWidth, 0);
-		Point newBottomRight = new Point(newWidth, newHeight);
-		Point newBottomLeft = new Point(0, newHeight);
-
-		MatOfPoint2f src = new MatOfPoint2f(topLeft, topRight, bottomRight,
-				bottomLeft);
-		MatOfPoint2f dst = new MatOfPoint2f(newTopLeft, newTopRight,
-				newBottomRight, newBottomLeft);
-		Mat transform = Imgproc.getPerspectiveTransform(src, dst);
-
-		Imgproc.warpPerspective(sheet, scaledSheet, transform, newSize);
-
-		return sheet;
-	}*/
-
 	private Mat rotateSheetOnStave(Stave s) {
 		Line l = s.topLine();
 		Point clef = s.originalClef();
@@ -431,13 +383,11 @@ public class MusicDetector {
 		printFourFour(sheet);
 		printTreble(sheet);
 		printNotes(sheet);
-		printBars(sheet);
 		printFlats(sheet);
 	}
 
 	private void printStaves(Mat sheet) {
 		for (Stave s : staves) {
-			//s.draw(sheet);
 			s.drawDetailed(sheet);
 		}
 	}
@@ -462,36 +412,10 @@ public class MusicDetector {
 									: new Scalar(255, 0, 255))), -1);
 	}
 
-	private void printBeams(Mat sheet) {
-		for (Line l : beams)
-			Core.line(sheet, l.start(), l.end(), new Scalar(0, 255, 255), 3);
-	}
-
 	private void printFlats(Mat sheet) {
 		for (Point p : flats)
 			Core.rectangle(sheet, p, new Point(p.x + flat_on.cols(), p.y
 					+ flat_on.rows()), new Scalar(255, 0, 127), 4);
-	}
-
-	private void printBars(Mat sheet) {
-		for (Line l : bars)
-			Core.line(sheet, l.start(), l.end(), new Scalar(0, 255, 255), 3);
-	}
-
-	private void printNoteRepresentations(Mat sheet) {
-		Collections.sort(notes, new Comparator<Note>() {
-	
-			@Override
-			public int compare(Note lhs, Note rhs) {
-				if (lhs.stave().topLine().start().y != rhs.stave().topLine().start().y)
-					return (int) (lhs.stave().topLine().start().y - rhs.stave().topLine().start().y);
-				
-				return (int) (lhs.center().x - rhs.center().x);
-			}
-			
-		});
-		for (Note n : notes)
-			Log.v("Guillaume", Utils.noteToNoteRepresentation(n,sheet).toString());
 	}
 
 }

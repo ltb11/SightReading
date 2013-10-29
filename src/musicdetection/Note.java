@@ -2,7 +2,6 @@ package musicdetection;
 
 import musicrepresentation.NoteName;
 import musicrepresentation.PlayedNote;
-import musicrepresentation.Shift;
 
 import org.opencv.core.Point;
 
