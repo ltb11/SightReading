@@ -2,8 +2,10 @@ package musicdetection;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import musicrepresentation.Bar;
 import musicrepresentation.Piece;
@@ -44,7 +46,7 @@ public class MusicDetector {
 	private List<Point> fourFours = new LinkedList<Point>();
 	private List<Note> notes = new LinkedList<Note>();
 	private List<Line> beams = new LinkedList<Line>();
-	private List<Point> flats = new LinkedList<Point>();
+	private Map<Note, Point> flats = new HashMap<Note, Point>();
 
 	public MusicDetector(final Mat input) {
 		sheet = preprocess(input.clone());
@@ -172,7 +174,7 @@ public class MusicDetector {
 					Point p = new Point(
 							minLoc.x + n.center().x - 3 * noteWidth, minLoc.y
 									+ n.center().y - staveGap);
-					flats.add(p);
+					flats.put(n, p);
 					Utils.zeroInMatrix(result, minLoc, (int) flat_on.cols(),
 							(int) flat_on.rows());
 				}
@@ -413,7 +415,7 @@ public class MusicDetector {
 	}
 
 	private void printFlats(Mat sheet) {
-		for (Point p : flats)
+		for (Point p : flats.values())
 			Core.rectangle(sheet, p, new Point(p.x + flat_on.cols(), p.y
 					+ flat_on.rows()), new Scalar(255, 0, 127), 4);
 	}
