@@ -11,26 +11,19 @@ public class Note {
 
 	private Point center;
 	private double duration;
-	private Stave stave;
 	private NoteName name;
 	private int octave = 0;
 	
-	public Note(Point center, Stave s) {
+	public Note(Point center) {
 		this.center = center;
 		this.duration = 1;
-		this.stave = s;
 	}
 	
-	public Note(Point center, double d, Stave s) {
+	public Note(Point center, double d) {
 		this.center = center;
 		this.duration = 2;
-		this.stave = s;
 	}
-	
-	public Stave stave() {
-		return stave;
-	}
-	
+
 	public Point center() {
 		return center;
 	}

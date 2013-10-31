@@ -1,5 +1,6 @@
 package musicdetection;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -14,10 +15,13 @@ import org.opencv.core.Core;
 import org.opencv.core.Core.MinMaxLocResult;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Range;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+import org.sightreading.SightReadingActivity;
 
+import android.util.Log;
 import utils.SheetStrip;
 import utils.Utils;
 
@@ -76,13 +80,43 @@ public class MusicDetector {
 	}
 
 	public void detect() {
+		long startTimeOfEachMethod = SightReadingActivity.startTime;
+		long startTime = startTimeOfEachMethod;
+		Log.e("Guillaume", "Start time of detection: "
+				+ (System.currentTimeMillis() - startTimeOfEachMethod));
+		startTimeOfEachMethod = System.currentTimeMillis();
 		detectTrebleClefs();
+		Log.e("Guillaume", "Treble detection time: "
+				+ (System.currentTimeMillis() - startTimeOfEachMethod));
+		startTimeOfEachMethod = System.currentTimeMillis();
 		detectBeams();
+		Log.e("Guillaume", "Beam detection time: "
+				+ (System.currentTimeMillis() - startTimeOfEachMethod));
+		startTimeOfEachMethod = System.currentTimeMillis();
 		detectTime();
+		Log.e("Guillaume", "Time detection time: "
+				+ (System.currentTimeMillis() - startTimeOfEachMethod));
+
+		startTimeOfEachMethod = System.currentTimeMillis();
 		detectNotes();
+		Log.e("Guillaume", "Note detection time: "
+				+ (System.currentTimeMillis() - startTimeOfEachMethod));
+		startTimeOfEachMethod = System.currentTimeMillis();
 		correctBeams();
-		detectFlats();
+		Log.e("Guillaume", "Correction of beams time: "
+				+ (System.currentTimeMillis() - startTimeOfEachMethod));
+		startTimeOfEachMethod = System.currentTimeMillis();
 		detectHalfNotes();
+		Log.e("Guillaume", "Half-note detection time: "
+				+ (System.currentTimeMillis() - startTimeOfEachMethod));
+		sortNotes();
+		startTimeOfEachMethod = System.currentTimeMillis();
+		detectFlats();
+		Log.e("Guillaume", "Flat detection time: "
+				+ (System.currentTimeMillis() - startTimeOfEachMethod));
+		startTimeOfEachMethod = System.currentTimeMillis() - SightReadingActivity.startTime;
+		Log.e("Guillaume", "Total time for detection: "
+				+ (System.currentTimeMillis() - startTime));
 	}
 	
 	public Piece toPiece() {
@@ -105,37 +139,54 @@ public class MusicDetector {
 	}
 
 	private void detectTrebleClefs() {
-		trebleClef = Utils.resizeImage(masterTrebleClef, staveGap * 8);
-		Mat result = new Mat();
-		Imgproc.matchTemplate(sheet, trebleClef, result, Imgproc.TM_CCOEFF);
-		Point minLoc = Core.minMaxLoc(result).minLoc;
-		double minVal = Core.minMaxLoc(result).minVal;
-		double minAllowed = minVal * 0.90;
-		while (minVal < minAllowed) {
-			minLoc = Core.minMaxLoc(result).minLoc;
-			minVal = Core.minMaxLoc(result).minVal;
-			trebleClefs.add(minLoc);
-			Utils.whichStaveDoesAPointBelongTo(minLoc, staves, staveGap)
-					.addClef(Clef.Treble, minLoc);
-			Utils.zeroInMatrix(result, minLoc, (int) trebleClef.cols(),
-					(int) trebleClef.rows());
+		for (Stave s : staves) {
+			Mat result = new Mat();
+			trebleClef = Utils.resizeImage(masterTrebleClef, s.staveGap() * 8);
+			Imgproc.matchTemplate(
+					sheet.submat(s.yRange(), new Range(0, sheet.cols())),
+					trebleClef, result, Imgproc.TM_CCOEFF);
+			Point minLoc = Core.minMaxLoc(result).minLoc;
+			double minVal = Core.minMaxLoc(result).minVal;
+			double minAllowed = minVal * 0.9;
+			while (minVal < minAllowed) {
+				Point p = new Point(minLoc.x, s.startYRange() + minLoc.y);
+				trebleClefs.add(p);
+				s.addClef(Clef.Treble, p);
+				Utils.zeroInMatrix(result, minLoc, (int) trebleClef.cols(),
+						(int) trebleClef.rows());
+				minLoc = Core.minMaxLoc(result).minLoc;
+				minVal = Core.minMaxLoc(result).minVal;
+			}
 		}
 	}
 
 	private void detectTime() {
 		fourFour = Utils.resizeImage(masterFourFour, staveGap * 4);
 		Mat result = new Mat();
-		Imgproc.matchTemplate(sheet, fourFour, result, Imgproc.TM_CCOEFF);
-		Point minLoc;
-		double minVal = Core.minMaxLoc(result).minVal;
-		double minAllowed = minVal * 0.95;
-		while (minVal < minAllowed) {
-			minLoc = Core.minMaxLoc(result).minLoc;
-			minVal = Core.minMaxLoc(result).minVal;
-			if (minLoc.x < staves.get(0).topLine().end().x * 0.95)
-				fourFours.add(minLoc);
-			Utils.zeroInMatrix(result, minLoc, (int) fourFour.cols(),
-					(int) fourFour.rows());
+		List<Point> points = new ArrayList<Point>();
+		List<Double> values = new ArrayList<Double>();
+		double minAllowed;
+		for (Stave s : staves) {
+			Range r = new Range(Math.max(s.yRange().start, 0), Math.min(
+					s.yRange().end, sheet.rows()));
+			Imgproc.matchTemplate(sheet.submat(r, new Range(0, sheet.cols())),
+					fourFour, result, Imgproc.TM_CCOEFF);
+			Point minLoc;
+			double minVal = Core.minMaxLoc(result).minVal;
+			minAllowed = minVal * 0.95;
+			while (minVal < minAllowed) {
+				minLoc = Core.minMaxLoc(result).minLoc;
+				points.add(new Point(minLoc.x, s.startYRange() + minLoc.y));
+				values.add(minVal);
+				Utils.zeroInMatrix(result, minLoc, (int) fourFour.cols(),
+						(int) fourFour.rows());
+				minVal = Core.minMaxLoc(result).minVal;
+			}
+		}
+		minAllowed = Collections.min(values) * 0.95;
+		for (int i = 0; i < points.size(); i++) {
+			if (values.get(i) < minAllowed)
+				fourFours.add(points.get(i));
 		}
 	}
 
@@ -220,26 +271,24 @@ public class MusicDetector {
 	private void detectHalfNotes() {
 		half_note = Utils.resizeImage(masterHalf_note, staveGap);
 		for (Stave s : staves) {
-			Mat part = rotateSheetOnStave(s);
-			Point clef = s.originalClef();
 			Mat result = new Mat();
-			Imgproc.matchTemplate(part, half_note, result, Imgproc.TM_CCOEFF);
+			Imgproc.matchTemplate(sheet.submat(s.yRange(), new Range(0, sheet.cols())), half_note, result, Imgproc.TM_CCOEFF);
 			Point minLoc;
 			double minVal = Core.minMaxLoc(result).minVal;
 			double minAllowed = minVal * 0.999;
 			while (minVal < minAllowed) {
 				minLoc = Core.minMaxLoc(result).minLoc;
 				minVal = Core.minMaxLoc(result).minVal;
-				Point p = new Point(minLoc.x + clef.x + half_note.cols() / 2,
-						minLoc.y + s.topLine().start().y - 4 * staveGap
-								+ half_note.rows() / 2);
+				Point p = new Point(minLoc.x + /*clef.x*/ + half_note.cols() / 2,
+						minLoc.y + s.startYRange() + half_note.rows() / 2);
 				if (!Utils.isThereANoteAtThisPosition(p, notes, staves,
 						staveGap))
-					notes.add(new Note(p, 2, s));
+					notes.add(new Note(p, 2));
 				Utils.zeroInMatrix(result, minLoc, (int) half_note.cols(),
 						(int) half_note.rows());
 			}
 		}
+
 	}
 
 	private void detectNotes() {
@@ -284,8 +333,7 @@ public class MusicDetector {
 						&& !Utils.isOnBeamLine(centre, noteWidth, staveGap,
 								beams)) {
 					Point p = Utils.findNearestNeighbour(centerCorrected, ref);
-					notes.add(new Note(p, Utils.whichStaveDoesAPointBelongTo(p,
-							staves, staveGap)));
+					notes.add(new Note(p));
 				}
 
 				Utils.zeroInMatrix(result, maxLoc, (int) noteWidth,
@@ -386,6 +434,11 @@ public class MusicDetector {
 		printTreble(sheet);
 		printNotes(sheet);
 		printFlats(sheet);
+	}
+	
+	private void sortNotes() {
+		for (Stave s : staves)
+			s.orderNotes();
 	}
 
 	private void printStaves(Mat sheet) {

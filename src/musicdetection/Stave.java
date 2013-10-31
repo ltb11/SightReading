@@ -15,6 +15,7 @@ import musicrepresentation.PlayedNote;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Range;
 import org.opencv.core.Scalar;
 
 import utils.Utils;
@@ -73,6 +74,15 @@ public class Stave {
 	
 	public double staveGap() {
 		return staveGap;
+	}
+	
+	public double startYRange() {
+		return topLine().start().y - 4*staveGap;
+	}
+
+	public Range yRange() {
+		return new Range((int) (topLine().start().y - 4 * staveGap),
+				(int) (bottomLine().start().y + 4 * staveGap));
 	}
 
 	public Line topLine() {
