@@ -140,6 +140,11 @@ public class MusicDetector {
 		detectDots();
 		Log.v("Guillaume", "Dot detection time: "
 				+ (System.currentTimeMillis() - startTimeOfEachMethod));
+		startTimeOfEachMethod = System.currentTimeMillis();
+		detectQuavers();
+		Log.v("Guillaume",
+				"Quavers detection time: "
+						+ (System.currentTimeMillis() - startTimeOfEachMethod));
 		startTimeOfEachMethod = System.currentTimeMillis()
 				- SightReadingActivity.startTime;
 		Log.v("Guillaume",
@@ -193,7 +198,6 @@ public class MusicDetector {
 		Mat eroded = sheet.clone();
 		Imgproc.erode(eroded, eroded, Imgproc.getStructuringElement(
 				Imgproc.MORPH_RECT, new Size(4, 4)));
-		Utils.writeImage(eroded, Utils.getPath("output/eroded.png"));
 		for (Stave s : staves) {
 			for (Note n : s.notes()) {
 				List<MatOfPoint> contours = new LinkedList<MatOfPoint>();
@@ -226,6 +230,22 @@ public class MusicDetector {
 						break;
 					}
 				}
+			}
+		}
+	}
+
+	private void detectQuavers() {
+		Mat eroded = sheet.clone();
+		Imgproc.erode(eroded, eroded, Imgproc.getStructuringElement(
+				Imgproc.MORPH_RECT, new Size(staveGap / 3, staveGap / 3)));
+		Utils.writeImage(eroded, Utils.getPath("output/erodedNotes.png"));
+		for (Stave s : staves) {
+			for (Note n : s.notes()) {
+				Mat region = eroded.submat(new Range(
+						(int) (n.center().y - 4 * staveGap),
+						(int) (n.center().y - 2 * staveGap)), new Range(
+						(int) (n.center().x + noteWidth / 2),
+						(int) (n.center().x + 3 * noteWidth / 2)));
 			}
 		}
 	}
@@ -388,10 +408,11 @@ public class MusicDetector {
 								fourFour.rows(), centre)
 						&& !Utils.isOnBeamLine(centre, noteWidth, staveGap,
 								beams)) {
-					Point p = Utils.findNearestNeighbour(centerCorrected, ref);
+					Stave possibleStave = Utils.whichStaveDoesAPointBelongTo(centerCorrected, staves, staveGap);
+					Point p = Utils.findNearestNeighbour(centerCorrected, ref, (int) noteWidth, (int) staveGap);
 					Note n = new Note(p, 1);
 					notes.add(n);
-					Utils.whichStaveDoesAPointBelongTo(p, staves, staveGap)
+					possibleStave
 							.addNote(n);
 				}
 
@@ -470,7 +491,7 @@ public class MusicDetector {
 		return rotated;
 	}
 
-	public void correctBeams() {
+	private void correctBeams() {
 		for (int i = 0; i < beams.size(); i++) {
 			if (!Utils.isABeam(beams.get(i), notes, staveGap)) {
 				beams.remove(i);
