@@ -14,14 +14,9 @@ public class Note {
 	private NoteName name;
 	private int octave = 0;
 	
-	public Note(Point center) {
-		this.center = center;
-		this.duration = 1;
-	}
-	
 	public Note(Point center, double d) {
 		this.center = center;
-		this.duration = 2;
+		this.duration = d;
 	}
 
 	public Point center() {

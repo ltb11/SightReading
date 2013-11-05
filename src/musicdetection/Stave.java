@@ -185,4 +185,8 @@ public class Stave {
 		return playedNotes;
 	}
 
+	public double getTopYAtPos(Point pos) {
+		return getY(lines.get(0), pos.x);
+	}
+
 }

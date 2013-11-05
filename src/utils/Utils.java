@@ -1,5 +1,6 @@
 package utils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -16,12 +17,14 @@ import musicrepresentation.NoteName;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Range;
 import org.opencv.core.Rect;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
 
 import android.os.Environment;
 import android.util.Log;
@@ -217,7 +220,6 @@ public class Utils {
 	 ************** IO METHODS **************
 	 ****************************************/
 
-
 	public static String getDestImage(String src) {
 		String result = "";
 		int i = 0;
@@ -233,7 +235,7 @@ public class Utils {
 		}
 		return result;
 	}
-	
+
 	public static String getDestMid(String src) {
 		String result = "";
 		int i = 0;
@@ -290,7 +292,8 @@ public class Utils {
 		Collections.sort(lines, new Comparator<StaveLine>() {
 			@Override
 			public int compare(StaveLine line0, StaveLine line1) {
-				return (int) (Math.signum((line0.toLine().start().y - line1.toLine().start().y)));
+				return (int) (Math.signum((line0.toLine().start().y - line1
+						.toLine().start().y)));
 			}
 		});
 		// MID: lines is sorted highest to lowest
@@ -301,10 +304,10 @@ public class Utils {
 			List<StaveLine> result = new LinkedList<StaveLine>();
 			result.add(first);
 			result.add(second);
-			
+
 			double space = second.toLine().start().y - first.toLine().start().y;
 			double pos = second.toLine().start().y + space;
-			
+
 			for (int j = i + 1; j < lines.size(); j++) {
 				if (Math.abs(lines.get(j).toLine().start().y - pos) < space
 						* staveGapTolerance) {
@@ -409,48 +412,32 @@ public class Utils {
 		return divisions;
 	}
 
-	public static Point findNearestNeighbour(Point centre, Mat ref) {
-		int x = (int) centre.x;
-		int y = (int) centre.y;
-		int minX = x;
-		int maxX = x;
-		int minY = y;
-		int maxY = y;
-		boolean changed = true;
-		while (changed) {
-			changed = false;
-			for (int j = minY; j <= maxY; j++) {
-				if (ref.get(j, maxX + 1)[0] != 0) {
-					maxX++;
-					changed = true;
-				}
-			}
-			for (int j = minY; j <= maxY; j++) {
-				if (ref.get(j, minX - 1)[0] != 0) {
-					minX--;
-					changed = true;
-				}
-			}
-			for (int i = minX; i <= maxX; i++) {
-				if (ref.get(minY - 1, i)[0] != 0) {
-					minY--;
-					changed = true;
-				}
-			}
-			for (int i = minX; i <= maxX; i++) {
-				if (ref.get(maxY + 1, i)[0] != 0) {
-					maxY++;
-					changed = true;
-				}
+	public static Point findNearestNeighbour(Point centre, Mat ref, int width,
+			int height) {
+		List<MatOfPoint> contours = new LinkedList<MatOfPoint>();
+		int centreY = (int) centre.y;
+		int centreX = (int) centre.x;
+		double x = 0, y = 0;
+		Imgproc.findContours(ref.submat(centreY - height, centreY + height,
+				centreX - width, centreX + width), contours, new Mat(),
+				Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+		List<Moments> mu = new ArrayList<Moments>(contours.size());
+		for (int i = 0; i < contours.size(); i++) {
+			mu.add(i, Imgproc.moments(contours.get(i), false));
+			Moments m = mu.get(i);
+			if (m.get_m00() != 0) {
+				x = (m.get_m10() / m.get_m00()) + centreX - width;
+				y = (m.get_m01() / m.get_m00()) + centreY - height;
+				if (Math.abs(centreY - y) < height / 3)
+					return new Point(x, y);
 			}
 		}
-		Point p = new Point((minX + maxX) / 2, (minY + maxY) / 2);
-		return p;
+		return centre;
 	}
 
 	// TODO: this method is only implemented for treble clef and for octaves 0
 	// and 1
-	public  static int getOctave(Clef c, int line) {
+	public static int getOctave(Clef c, int line) {
 		if (c == Clef.Treble) {
 			if (line >= -2 && line <= 4)
 				return 4;
@@ -461,7 +448,7 @@ public class Utils {
 	}
 
 	// TODO: this method is only implemented for treble clef
-	public  static NoteName getName(Clef c, int line) {
+	public static NoteName getName(Clef c, int line) {
 		line = line % 7;
 		while (line < 0)
 			line += 7;

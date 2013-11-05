@@ -164,7 +164,7 @@ public class SightReadingActivity extends Activity {
 		testImage(src, Utils.getDestImage(src), Utils.getDestMid(src));
 	}
 
-	public void testImage(String src, String dstImage, String destMid) {
+	private void testImage(String src, String dstImage, String destMid) {
 		String srcPath = Utils.getPath("input/" + src);
 		Mat input = Utils.readImage(srcPath);
 		Mat scaledInput = Utils.resizeImage(input, Utils.STANDARD_IMAGE_WIDTH);
