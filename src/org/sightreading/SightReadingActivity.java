@@ -1,24 +1,15 @@
 package org.sightreading;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 
 import midiconversion.Converter;
 import musicdetection.MusicDetector;
 import musicrepresentation.Piece;
 
 import org.opencv.android.BaseLoaderCallback;
-import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
-import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import playback.Playback;
@@ -26,16 +17,11 @@ import utils.Utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.WindowManager;
@@ -43,25 +29,17 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.leff.midi.MidiFile;
 
-public class SightReadingActivity extends Activity implements OnTouchListener,
-		CvCameraViewListener2 {
+public class SightReadingActivity extends Activity {
 	public static final String TAG = "SightReadingActivity";
 	public static EditText currentFileName;
 	private Button scan;
 	public final static long startTime = System.currentTimeMillis();
-
-	private SightReadingView mOpenCvCameraView;
-	private boolean mIsColorSelected = false;
-	private Mat mRgba;
-	private Scalar mBlobColorRgba;
-	private Mat mSpectrum;
+	private View view;
 
 	private BaseLoaderCallback mOpenCVCallBack = new BaseLoaderCallback(this) {
 		@Override
@@ -73,16 +51,12 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 				// displaying no
 				// GUI and exit when done scanning
 
-				Playback.test();
+				// Playback.test();
 				// Playback.playMidiFile("teddybear.mid");
 
 				// ((EditText) findViewById(R.id.filePath))
 				// .setText("Distorted.jpg");
 				// scan.performClick();
-
-				mOpenCvCameraView.enableView();
-				mOpenCvCameraView.setOnTouchListener(SightReadingActivity.this);
-
 			}
 				break;
 			default: {
@@ -118,24 +92,6 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		(new File(Utils.getPath("") + File.separator + "input")).mkdirs();
 		(new File(Utils.getPath("") + File.separator + "output")).mkdirs();
 		(new File(Utils.getPath("") + File.separator + "assets")).mkdirs();
-
-		// mOpenCvCameraView = (SightReadingView)
-		// findViewById(R.layout.sight_reading_surface_view);
-		// mOpenCvCameraView.setVisibility(SurfaceView.INVISIBLE);
-		// mOpenCvCameraView.setCvCameraViewListener(this);
-	}
-
-	public void onDestroy() {
-		super.onDestroy();
-		if (mOpenCvCameraView != null)
-			mOpenCvCameraView.disableView();
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		if (mOpenCvCameraView != null)
-			mOpenCvCameraView.disableView();
 	}
 
 	private void initialiseButtons() {
@@ -148,15 +104,15 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 				scanImage();
 			}
 		});
-
+		// TODO this is messy and may not work
+		final Context context = this;
 		ImageButton imageButton = (ImageButton) findViewById(R.id.camera);
 		imageButton.setOnClickListener(new View.OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
-				// takePicture();
-				mOpenCvCameraView.enableView();
-				mOpenCvCameraView.setVisibility(SurfaceView.INVISIBLE);
+				Intent SRCameraIntent = new Intent(context,
+						SRCameraActivity.class);
+				startActivityForResult(SRCameraIntent, 0);
 			}
 		});
 
@@ -202,32 +158,6 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 		});
 	}
 
-	private void takePicture() {
-		Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-		startActivityForResult(cameraIntent, 2);
-	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == 2) {
-			Bitmap photo = (Bitmap) data.getExtras().get("data");
-			SimpleDateFormat dateFormat = new SimpleDateFormat(
-					"yyyymmddhhmmss", Locale.UK);
-			String date = dateFormat.format(new Date());
-			String photoFile = Utils.getPath("pictures/IMG_" + date + ".jpg");
-			try {
-				FileOutputStream out = new FileOutputStream(photoFile);
-				photo.compress(Bitmap.CompressFormat.PNG, 0, out);
-				ImageView currentView = ((ImageView) findViewById(R.id.currentImage));
-				Bitmap bitmapPic = BitmapFactory.decodeFile(photoFile);
-				currentView.setImageBitmap(bitmapPic);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-		} else
-			super.onActivityResult(requestCode, resultCode, data);
-	}
-
 	private void scanImage() {
 		String src = ((EditText) findViewById(R.id.filePath)).getText()
 				.toString();
@@ -254,34 +184,5 @@ public class SightReadingActivity extends Activity implements OnTouchListener,
 
 		Utils.writeImage(output, Utils.getPath("output/" + dstImage));
 		finish();
-	}
-
-	@Override
-	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-		mRgba = inputFrame.rgba();
-		return mRgba;
-	}
-
-	@Override
-	public void onCameraViewStarted(int width, int height) {
-		mRgba = new Mat(height, width, CvType.CV_8UC4);
-		mSpectrum = new Mat();
-		mBlobColorRgba = new Scalar(255);
-	}
-
-	@Override
-	public void onCameraViewStopped() {
-		mRgba.release();
-	}
-
-	@Override
-	public boolean onTouch(View v, MotionEvent event) {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-		String currentDateandTime = sdf.format(new Date());
-		String fileName = Environment.getExternalStorageDirectory().getPath()
-				+ "/sample_picture_" + currentDateandTime + ".jpg";
-		mOpenCvCameraView.takePicture(fileName);
-		Toast.makeText(this, fileName + " saved", Toast.LENGTH_SHORT).show();
-		return false;
 	}
 }
