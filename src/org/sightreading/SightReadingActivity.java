@@ -39,7 +39,6 @@ public class SightReadingActivity extends Activity {
 	public static EditText currentFileName;
 	private Button scan;
 	public final static long startTime = System.currentTimeMillis();
-	private View view;
 
 	private BaseLoaderCallback mOpenCVCallBack = new BaseLoaderCallback(this) {
 		@Override
