@@ -46,17 +46,7 @@ public class SightReadingActivity extends Activity {
 		public void onManagerConnected(int status) {
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
-				// Due to an unfinished implementation of the GUI, please use
-				// this method to change the file name. The app will run,
-				// displaying no
-				// GUI and exit when done scanning
 
-				// Playback.test();
-				// Playback.playMidiFile("teddybear.mid");
-
-				// ((EditText) findViewById(R.id.filePath))
-				// .setText("Distorted.jpg");
-				// scan.performClick();
 			}
 				break;
 			default: {
@@ -98,70 +88,10 @@ public class SightReadingActivity extends Activity {
 		scan = (Button) findViewById(R.id.scan);
 		scan.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				((TextView) findViewById(R.id.scanning))
-						.setVisibility(View.VISIBLE);
-				v.refreshDrawableState();
-				scanImage();
+				Intent i = new Intent(SightReadingActivity.this, SRCameraActivity.class);
+		        startActivity(i);
 			}
 		});
-		// TODO this is messy and may not work
-		final Context context = this;
-		ImageButton imageButton = (ImageButton) findViewById(R.id.camera);
-		imageButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent SRCameraIntent = new Intent(context,
-						SRCameraActivity.class);
-				startActivityForResult(SRCameraIntent, 0);
-			}
-		});
-
-		currentFileName = (EditText) findViewById(R.id.filePath);
-		currentFileName
-				.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-					public boolean onEditorAction(TextView v, int actionId,
-							KeyEvent event) {
-						if (actionId == KeyEvent.KEYCODE_ENTER) {
-							// hide virtual keyboard
-							InputMethodManager imm = (InputMethodManager) v
-									.getContext().getSystemService(
-											Context.INPUT_METHOD_SERVICE);
-							imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-							currentFileName.setCursorVisible(false);
-							return true;
-						}
-						return false;
-					}
-				});
-
-		LinearLayout l = (LinearLayout) findViewById(R.id.globalLayout);
-		l.setOnTouchListener(new OnTouchListener() {
-
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					if (currentFileName.isFocused()) {
-						Rect outRect = new Rect();
-						currentFileName.getGlobalVisibleRect(outRect);
-						if (!outRect.contains((int) event.getRawX(),
-								(int) event.getRawY())) {
-							currentFileName.clearFocus();
-							InputMethodManager imm = (InputMethodManager) v
-									.getContext().getSystemService(
-											Context.INPUT_METHOD_SERVICE);
-							imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-						}
-					}
-				}
-				return false;
-			}
-		});
-	}
-
-	private void scanImage() {
-		String src = ((EditText) findViewById(R.id.filePath)).getText()
-				.toString();
-		testImage(src, Utils.getDestImage(src), Utils.getDestMid(src));
 	}
 
 	private void testImage(String src, String dstImage, String destMid) {

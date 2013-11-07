@@ -123,13 +123,16 @@ public class SRCameraActivity extends Activity implements OnTouchListener,
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+		/*SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 		String currentDateandTime = sdf.format(new Date());
 		String fileName = Utils.getPath("") + "/captured/" + currentDateandTime
 				+ ".jpg";
 		mOpenCvCameraView.takePicture(fileName);
+		
 		Toast.makeText(this, fileName + " saved", Toast.LENGTH_SHORT).show();
-
+		 */
+		
+		
 		return false;
 	}
 }

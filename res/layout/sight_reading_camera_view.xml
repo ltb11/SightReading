@@ -1,12 +1,55 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-
-    <org.sightreading.SRCameraView
-        android:id="@+id/sight_reading_camera_view"
+    android:layout_height="match_parent" 
+	
+	>
+       
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone" />
+        android:gravity="top"
+        android:orientation="vertical" >
 
-</LinearLayout>
+        <org.sightreading.SRCameraView
+            android:id="@+id/sight_reading_camera_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tap to take a photo"
+        android:textAppearance="?android:attr/textAppearanceMedium" 
+        android:layout_centerHorizontal="true" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+		android:layout_alignParentBottom="true">
+        
+        <TextView
+            android:id="@+id/savedPagesText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="You have saved X pages"
+            android:textAppearance="?android:attr/textAppearanceMedium" 
+			android:layout_alignParentLeft="true"
+			android:layout_centerVertical="true" />
+
+        <Button
+            android:id="@+id/button1"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:text="Done" 
+ 			android:layout_alignParentRight="true"/>
+        
+    </RelativeLayout>
+
+</RelativeLayout>
