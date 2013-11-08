@@ -18,7 +18,7 @@ import org.opencv.core.Point;
 import org.opencv.core.Range;
 import org.opencv.core.Scalar;
 
-import utils.Utils;
+import utils.OurUtils;
 import android.util.Log;
 
 public class Stave {
@@ -131,9 +131,9 @@ public class Stave {
 			// 0-1 where 0 is top line, 1 is bottom
 			double pos = (ny-y1)/gap;
 			int line = (int) Math.round(8 - pos*8);
-			NoteName name = Utils.getName(clefs.get(originalClef),line);
+			NoteName name = OurUtils.getName(clefs.get(originalClef),line);
 			n.setName(name);
-			n.setOctave(Utils.getOctave(clefs.get(originalClef), line));
+			n.setOctave(OurUtils.getOctave(clefs.get(originalClef), line));
 		}
 	}
 

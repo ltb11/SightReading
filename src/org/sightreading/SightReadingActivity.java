@@ -13,7 +13,7 @@ import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
 import playback.Playback;
-import utils.Utils;
+import utils.OurUtils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -79,9 +79,9 @@ public class SightReadingActivity extends Activity {
 			Log.e("TEST", "Cannot connect to OpenCV Manager");
 		}
 
-		(new File(Utils.getPath("") + File.separator + "input")).mkdirs();
-		(new File(Utils.getPath("") + File.separator + "output")).mkdirs();
-		(new File(Utils.getPath("") + File.separator + "assets")).mkdirs();
+		(new File(OurUtils.getPath("") + File.separator + "input")).mkdirs();
+		(new File(OurUtils.getPath("") + File.separator + "output")).mkdirs();
+		(new File(OurUtils.getPath("") + File.separator + "assets")).mkdirs();
 	}
 
 	private void initialiseButtons() {
@@ -95,9 +95,9 @@ public class SightReadingActivity extends Activity {
 	}
 
 	private void testImage(String src, String dstImage, String destMid) {
-		String srcPath = Utils.getPath("input/" + src);
-		Mat input = Utils.readImage(srcPath);
-		Mat scaledInput = Utils.resizeImage(input, Utils.STANDARD_IMAGE_WIDTH);
+		String srcPath = OurUtils.getPath("input/" + src);
+		Mat input = OurUtils.readImage(srcPath);
+		Mat scaledInput = OurUtils.resizeImage(input, OurUtils.STANDARD_IMAGE_WIDTH);
 
 		Mat output = scaledInput.clone();
 		Imgproc.cvtColor(output, output, Imgproc.COLOR_GRAY2BGR);
@@ -112,7 +112,7 @@ public class SightReadingActivity extends Activity {
 		Playback.saveMidiFile(f, destMid);
 		// Playback.playMidiFile("test.mid");
 
-		Utils.writeImage(output, Utils.getPath("output/" + dstImage));
+		OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));
 		finish();
 	}
 }
