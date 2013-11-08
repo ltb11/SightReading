@@ -5,7 +5,7 @@ import musicrepresentation.PlayedNote;
 
 import org.opencv.core.Point;
 
-import utils.Utils;
+import utils.OurUtils;
 
 public class Note {
 
@@ -41,7 +41,7 @@ public class Note {
 
 	public PlayedNote toPlayedNote() {
 		// TODO Auto-generated method stub
-		return new PlayedNote(name, octave, Utils.getDuration(duration), 0);
+		return new PlayedNote(name, octave, OurUtils.getDuration(duration), 0);
 	}
 	
 	@Override

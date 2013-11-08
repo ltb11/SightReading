@@ -9,11 +9,14 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 
-import utils.Utils;
+import utils.OurUtils;
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -65,14 +68,15 @@ public class SRCameraActivity extends Activity implements OnTouchListener,
 			Log.e("TEST", "Cannot connect to OpenCV Manager in cam");
 		}
 
-		(new File(Utils.getPath("") + File.separator + "input")).mkdirs();
-		(new File(Utils.getPath("") + File.separator + "output")).mkdirs();
-		(new File(Utils.getPath("") + File.separator + "assets")).mkdirs();
-		(new File(Utils.getPath("") + File.separator + "captured")).mkdirs();
+		(new File(OurUtils.getPath("") + File.separator + "input")).mkdirs();
+		(new File(OurUtils.getPath("") + File.separator + "output")).mkdirs();
+		(new File(OurUtils.getPath("") + File.separator + "assets")).mkdirs();
+		(new File(OurUtils.getPath("") + File.separator + "captured")).mkdirs();
 
 		mOpenCvCameraView = (SRCameraView) findViewById(R.id.sight_reading_camera_view);
 		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
 		mOpenCvCameraView.setCvCameraViewListener(this);
+		
 	}
 
 	public SRCameraActivity() {
@@ -119,13 +123,21 @@ public class SRCameraActivity extends Activity implements OnTouchListener,
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+		/*SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 		String currentDateandTime = sdf.format(new Date());
 		String fileName = Utils.getPath("") + "/captured/" + currentDateandTime
 				+ ".jpg";
 		mOpenCvCameraView.takePicture(fileName);
+		
 		Toast.makeText(this, fileName + " saved", Toast.LENGTH_SHORT).show();
-
+		 */
+		Bitmap image = Bitmap.createBitmap(mRgba.width(), mRgba.height(), Bitmap.Config.ARGB_8888);
+		Utils.matToBitmap(mRgba, image);
+		
+		Intent i = new Intent(SRCameraActivity.this, DisplayPhotoActivity.class);
+		DisplayPhotoActivity.image = image;
+		startActivity(i);
+		
 		return false;
 	}
 }

@@ -29,7 +29,7 @@ import org.opencv.imgproc.Moments;
 import android.os.Environment;
 import android.util.Log;
 
-public class Utils {
+public class OurUtils {
 
 	private static final double staveGapTolerance = 0.2;
 	public static final String sdPath = Environment
@@ -262,7 +262,7 @@ public class Utils {
 
 	// returns the path of a given src image, assuming root directory of DCIM
 	public static String getPath(String src) {
-		return Utils.sdPath + src;
+		return OurUtils.sdPath + src;
 	}
 
 	/*****************************************
