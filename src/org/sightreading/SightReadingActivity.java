@@ -88,7 +88,7 @@ public class SightReadingActivity extends Activity {
 		scan = (Button) findViewById(R.id.scan);
 		scan.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				Intent i = new Intent(SightReadingActivity.this, SRCameraActivity.class);
+				Intent i = new Intent(SightReadingActivity.this, CameraActivity.class);
 		        startActivity(i);
 			}
 		});

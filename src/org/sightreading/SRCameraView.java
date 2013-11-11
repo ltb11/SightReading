@@ -11,6 +11,7 @@ import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.Size;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.SurfaceHolder;
 
 public class SRCameraView extends JavaCameraView implements PictureCallback {
 
@@ -20,7 +21,7 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 	public SRCameraView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
-
+	
 	public List<String> getEffectList() {
 		return mCamera.getParameters().getSupportedColorEffects();
 	}
@@ -48,6 +49,7 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		mMaxHeight = resolution.height;
 		mMaxWidth = resolution.width;
 		connectCamera(getWidth(), getHeight());
+		
 	}
 
 	public Size getResolution() {
