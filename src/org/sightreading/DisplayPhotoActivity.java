@@ -1,6 +1,7 @@
 package org.sightreading;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
@@ -17,6 +19,9 @@ public class DisplayPhotoActivity extends Activity implements OnTouchListener {
 	public static EditText currentFileName;
 	public final static long startTime = System.currentTimeMillis();
 
+	private Button accept;
+	private Button discard;
+	
 	public static Bitmap image;
 
 	@Override
@@ -35,6 +40,33 @@ public class DisplayPhotoActivity extends Activity implements OnTouchListener {
 		BitmapDrawable drawable = new BitmapDrawable(this.getResources(), image);
 		ImageView layout = (ImageView) findViewById(R.id.imagePreview);
 		layout.setImageDrawable(drawable);
+		
+		initialiseButtons();
+	}
+	
+	private void initialiseButtons() {
+		accept = (Button) findViewById(R.id.buttonCameraKeepImage);
+		accept.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				DisplayPhotoActivity.this.keepImage();
+			}
+		});
+		discard = (Button) findViewById(R.id.buttonCameraDiscardImage);
+		discard.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				DisplayPhotoActivity.this.discardImage();
+			}
+		});
 	}
 
+	private  void discardImage() {
+		finish();
+	}
+
+	private void keepImage() {
+		CameraActivity.savePage(image);
+		finish();
+	}
+	
+	
 }

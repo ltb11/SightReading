@@ -37,12 +37,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="SRCameraActivity"
-            android:label="SRCameraActivity" >
+            android:name="CameraActivity"
+            android:label="CameraActivity" >
         </activity>
         <activity
             android:name="DisplayPhotoActivity"
             android:label="DisplayPhotoActivity" >
+        </activity>
+        <activity
+            android:name="ProcessingActivity"
+            android:label="ProcessingActivity" >
         </activity>
      </application>
 

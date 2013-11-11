@@ -8,29 +8,29 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.sightreading.R;
+import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
 
 import utils.OurUtils;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-public class SRCameraActivity extends Activity implements OnTouchListener,
+public class CameraActivity extends Activity implements OnTouchListener,
 		CvCameraViewListener2 {
 	public static final String TAG = "SRCameraActivity";
 	public static EditText currentFileName;
@@ -38,6 +38,9 @@ public class SRCameraActivity extends Activity implements OnTouchListener,
 
 	private SRCameraView mOpenCvCameraView;
 	private Mat mRgba;
+	private static int totalImages = 0;
+	
+	private Button done;
 
 	private BaseLoaderCallback mOpenCVCallBack = new BaseLoaderCallback(this) {
 		@Override
@@ -45,7 +48,7 @@ public class SRCameraActivity extends Activity implements OnTouchListener,
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
 				mOpenCvCameraView.enableView();
-				mOpenCvCameraView.setOnTouchListener(SRCameraActivity.this);
+				mOpenCvCameraView.setOnTouchListener(CameraActivity.this);
 			}
 				break;
 			default: {
@@ -81,9 +84,31 @@ public class SRCameraActivity extends Activity implements OnTouchListener,
 		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		
+		initialiseButtons();
 	}
 
-	public SRCameraActivity() {
+	private void initialiseButtons() {
+		done = (Button) findViewById(R.id.buttonCameraDone);
+		done.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				if (totalImages>0) {
+					Intent i = new Intent(CameraActivity.this, ProcessingActivity.class);
+		        	startActivity(i);
+				}
+			}
+		});
+	}
+	private void updateText() {
+		TextView text = (TextView) findViewById(R.id.savedPagesText);
+		text.setText("You have saved "+totalImages+" pages");
+	}
+
+	public static void savePage(Bitmap bitmap) {
+		// TODO: code for saving the page here
+		totalImages ++;
+	}
+	
+	public CameraActivity() {
 		Log.i(TAG, "Instantiated new " + this.getClass());
 
 	}
@@ -99,6 +124,7 @@ public class SRCameraActivity extends Activity implements OnTouchListener,
 		super.onResume();
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this,
 				mOpenCVCallBack);
+		updateText();
 	}
 
 	@Override
@@ -110,13 +136,32 @@ public class SRCameraActivity extends Activity implements OnTouchListener,
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-		mRgba = inputFrame.rgba();
+		//mRgba = inputFrame.rgba();
+		//return mRgba;
+		
+		Mat input = inputFrame.rgba();
+		mRgba = input;
+		
 		return mRgba;
+		
+		//Mat mRgbaT = input.t();
+		//Core.flip(input.t(), mRgbaT, 1);
+		
+		//Imgproc.resize(mRgbaT, mRgbaT, new Size(input.height(),input.width()));
+		//Imgproc.resize(mRgbaT, mRgbaT, new Size(input.width(),input.height()));
+		
+		/*Bitmap image = Bitmap.createBitmap(mRgba.width(), mRgba.height(), Bitmap.Config.ARGB_8888);
+		Utils.matToBitmap(mRgba, image);
+		
+		ImageView layout = (ImageView) findViewById(R.id.cameraPreview);
+		layout.setImageDrawable(new BitmapDrawable(this.getResources(), image));*/
+		
+		//return mRgbaT;
 	}
 
 	@Override
 	public void onCameraViewStarted(int width, int height) {
-		mRgba = new Mat(height, width, CvType.CV_8UC4);
+		mRgba = new Mat(width, height, CvType.CV_8UC4);
 	}
 
 	@Override
@@ -138,7 +183,7 @@ public class SRCameraActivity extends Activity implements OnTouchListener,
 		Bitmap image = Bitmap.createBitmap(mRgba.width(), mRgba.height(), Bitmap.Config.ARGB_8888);
 		Utils.matToBitmap(mRgba, image);
 		
-		Intent i = new Intent(SRCameraActivity.this, DisplayPhotoActivity.class);
+		Intent i = new Intent(CameraActivity.this, DisplayPhotoActivity.class);
 		DisplayPhotoActivity.image = image;
 		startActivity(i);
 		
