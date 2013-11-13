@@ -1,8 +1,6 @@
 package org.sightreading;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
@@ -23,10 +21,11 @@ import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.TextView;
 
-public class SRCameraActivity extends Activity implements OnTouchListener,
+public class CameraActivity extends Activity implements OnTouchListener,
 		CvCameraViewListener2 {
 	public static final String TAG = "SRCameraActivity";
 	public static EditText currentFileName;
@@ -34,6 +33,9 @@ public class SRCameraActivity extends Activity implements OnTouchListener,
 
 	private SRCameraView mOpenCvCameraView;
 	private Mat mRgba;
+	private static int totalImages = 0;
+
+	private Button done;
 
 	private BaseLoaderCallback mOpenCVCallBack = new BaseLoaderCallback(this) {
 		@Override
@@ -41,7 +43,7 @@ public class SRCameraActivity extends Activity implements OnTouchListener,
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
 				mOpenCvCameraView.enableView();
-				mOpenCvCameraView.setOnTouchListener(SRCameraActivity.this);
+				mOpenCvCameraView.setOnTouchListener(CameraActivity.this);
 			}
 				break;
 			default: {
@@ -76,10 +78,34 @@ public class SRCameraActivity extends Activity implements OnTouchListener,
 		mOpenCvCameraView = (SRCameraView) findViewById(R.id.sight_reading_camera_view);
 		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
 		mOpenCvCameraView.setCvCameraViewListener(this);
-		
+
+		initialiseButtons();
 	}
 
-	public SRCameraActivity() {
+	private void initialiseButtons() {
+		done = (Button) findViewById(R.id.buttonCameraDone);
+		done.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				if (totalImages > 0) {
+					Intent i = new Intent(CameraActivity.this,
+							ProcessingActivity.class);
+					startActivity(i);
+				}
+			}
+		});
+	}
+
+	private void updateText() {
+		TextView text = (TextView) findViewById(R.id.savedPagesText);
+		text.setText("You have saved " + totalImages + " pages");
+	}
+
+	public static void savePage(Bitmap bitmap) {
+		// TODO: code for saving the page here
+		totalImages++;
+	}
+
+	public CameraActivity() {
 		Log.i(TAG, "Instantiated new " + this.getClass());
 
 	}
@@ -95,6 +121,7 @@ public class SRCameraActivity extends Activity implements OnTouchListener,
 		super.onResume();
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this,
 				mOpenCVCallBack);
+		updateText();
 	}
 
 	@Override
@@ -106,13 +133,37 @@ public class SRCameraActivity extends Activity implements OnTouchListener,
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-		mRgba = inputFrame.rgba();
+		// mRgba = inputFrame.rgba();
+		// return mRgba;
+
+		Mat input = inputFrame.rgba();
+		mRgba = input;
+
 		return mRgba;
+
+		// Mat mRgbaT = input.t();
+		// Core.flip(input.t(), mRgbaT, 1);
+
+		// Imgproc.resize(mRgbaT, mRgbaT, new
+		// Size(input.height(),input.width()));
+		// Imgproc.resize(mRgbaT, mRgbaT, new
+		// Size(input.width(),input.height()));
+
+		/*
+		 * Bitmap image = Bitmap.createBitmap(mRgba.width(), mRgba.height(),
+		 * Bitmap.Config.ARGB_8888); Utils.matToBitmap(mRgba, image);
+		 * 
+		 * ImageView layout = (ImageView) findViewById(R.id.cameraPreview);
+		 * layout.setImageDrawable(new BitmapDrawable(this.getResources(),
+		 * image));
+		 */
+
+		// return mRgbaT;
 	}
 
 	@Override
 	public void onCameraViewStarted(int width, int height) {
-		mRgba = new Mat(height, width, CvType.CV_8UC4);
+		mRgba = new Mat(width, height, CvType.CV_8UC4);
 	}
 
 	@Override
@@ -123,21 +174,22 @@ public class SRCameraActivity extends Activity implements OnTouchListener,
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 
-		/*SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-		String currentDateandTime = sdf.format(new Date());
-		String fileName = Utils.getPath("") + "/captured/" + currentDateandTime
-				+ ".jpg";
-		mOpenCvCameraView.takePicture(fileName);
-		
-		Toast.makeText(this, fileName + " saved", Toast.LENGTH_SHORT).show();
+		/*
+		 * SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+		 * String currentDateandTime = sdf.format(new Date()); String fileName =
+		 * Utils.getPath("") + "/captured/" + currentDateandTime + ".jpg";
+		 * mOpenCvCameraView.takePicture(fileName);
+		 * 
+		 * Toast.makeText(this, fileName + " saved", Toast.LENGTH_SHORT).show();
 		 */
-		Bitmap image = Bitmap.createBitmap(mRgba.width(), mRgba.height(), Bitmap.Config.ARGB_8888);
+		Bitmap image = Bitmap.createBitmap(mRgba.width(), mRgba.height(),
+				Bitmap.Config.ARGB_8888);
 		Utils.matToBitmap(mRgba, image);
-		
-		Intent i = new Intent(SRCameraActivity.this, DisplayPhotoActivity.class);
+
+		Intent i = new Intent(CameraActivity.this, DisplayPhotoActivity.class);
 		DisplayPhotoActivity.image = image;
 		startActivity(i);
-		
+
 		return false;
 	}
 }

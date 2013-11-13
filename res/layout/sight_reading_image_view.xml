@@ -24,21 +24,21 @@
         android:layout_gravity="center" >
 
         <Button
-            android:id="@+id/button1"
+            android:id="@+id/buttonCameraKeepImage"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
- 			android:layout_marginRight="20dp"
+            android:layout_marginRight="20dp"
             android:text="  Yes  " />
 
         <Button
-            android:id="@+id/button2"
+            android:id="@+id/buttonCameraDiscardImage"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
- 			android:layout_marginRight="20dp"
+            android:layout_marginRight="20dp"
             android:text="Try Again" />
 
     </LinearLayout>
