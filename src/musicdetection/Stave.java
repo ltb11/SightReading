@@ -131,9 +131,9 @@ public class Stave {
 			// 0-1 where 0 is top line, 1 is bottom
 			double pos = (ny-y1)/gap;
 			int line = (int) Math.round(8 - pos*8);
-			NoteName name = OurUtils.getName(clefs.get(originalClef),line);
+			NoteName name = OurUtils.getName(getClefAtPos(n.center()),line);
 			n.setName(name);
-			n.setOctave(OurUtils.getOctave(clefs.get(originalClef), line));
+			n.setOctave(OurUtils.getOctave(getClefAtPos(n.center()), line));
 		}
 	}
 

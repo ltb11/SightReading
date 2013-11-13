@@ -96,7 +96,7 @@ public class SightReadingActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				String toTest = "ACDLL.jpg";
+				String toTest = "snowy_river.png";
 				testImage(toTest, OurUtils.getDestImage(toTest), OurUtils.getDestMid(toTest));
 			}
 		});
