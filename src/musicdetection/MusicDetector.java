@@ -68,6 +68,13 @@ public class MusicDetector {
 
 	public MusicDetector(final Mat input) {
 		workingSheet = preprocess(input.clone());
+		Log.v("Guillaume", "" + staves.size());
+		Mat clone = input.clone();
+		Imgproc.cvtColor(clone, clone, Imgproc.COLOR_GRAY2BGR);
+		printStaves(clone);
+		OurUtils.writeImage(clone, OurUtils.getPath("ACDLLTest.jpg"));
+		for (Stave s : staves)
+			Log.v("Guillaume", "" + s.staveGap());
 	}
 
 	private Mat preprocess(Mat input) {
@@ -93,6 +100,12 @@ public class MusicDetector {
 		return input;
 	}
 
+	/* Order to respect:
+	 * detectBeams
+	 * detectNotes
+	 * correctBeams
+	 * detectQuavers
+	 */
 	public void detect() {
 		long startTimeOfEachMethod = SightReadingActivity.startTime;
 		long startTime = startTimeOfEachMethod;
@@ -242,6 +255,8 @@ public class MusicDetector {
 		OurUtils.writeImage(eroded, OurUtils.getPath("output/erodedNotes.png"));
 		for (Stave s : staves) {
 			for (Note n : s.notes()) {
+				if (n.duration() != 1)
+					continue;
 				Mat region = eroded.submat(new Range(
 						(int) (n.center().y - 4 * staveGap),
 						(int) (n.center().y - 2 * staveGap)), new Range(
@@ -309,7 +324,7 @@ public class MusicDetector {
 												(int) (n.center().x))),
 						flat_on, result, Imgproc.TM_CCOEFF_NORMED);
 				Point minLoc;
-				if (Core.minMaxLoc(result).minVal < -0.5) {
+				if (Core.minMaxLoc(result).minVal < -0.4) {
 					minLoc = Core.minMaxLoc(result).minLoc;
 					Point p = new Point(
 							minLoc.x + n.center().x - 3 * noteWidth, minLoc.y
