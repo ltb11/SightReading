@@ -80,9 +80,9 @@ public class Stave {
 		return topLine().start().y - 4*staveGap;
 	}
 
-	public Range yRange() {
-		return new Range((int) (topLine().start().y - 4 * staveGap),
-				(int) (bottomLine().start().y + 4 * staveGap));
+	public Range yRange(int maxRows) {
+		return new Range((int) Math.max(0, topLine().start().y - 4 * staveGap),
+				(int) Math.min(maxRows, bottomLine().start().y + 4 * staveGap));
 	}
 
 	public Line topLine() {
