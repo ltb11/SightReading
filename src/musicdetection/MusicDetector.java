@@ -180,11 +180,6 @@ public class MusicDetector {
 
 	public Piece toPiece() {
 
-		for (Note n : notes) {
-			OurUtils.whichStaveDoesAPointBelongTo(n.center(), staves, staveGap)
-					.addNote(n);
-		}
-
 		List<Bar> bars = new LinkedList<Bar>();
 		for (Stave s : staves) {
 			s.orderNotes();
