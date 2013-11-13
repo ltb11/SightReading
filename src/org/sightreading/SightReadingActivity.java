@@ -92,6 +92,14 @@ public class SightReadingActivity extends Activity {
 		        startActivity(i);
 			}
 		});
+		findViewById(R.id.parse).setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				String toTest = "ACDLL.jpg";
+				testImage(toTest, OurUtils.getDestImage(toTest), OurUtils.getDestMid(toTest));
+			}
+		});
 	}
 
 	private void testImage(String src, String dstImage, String destMid) {
@@ -106,10 +114,10 @@ public class SightReadingActivity extends Activity {
 		detector.detect();
 		detector.print(output);
 
-		Piece piece = detector.toPiece();
-		MidiFile f = Converter.Convert(piece);
+		//Piece piece = detector.toPiece();
+		//MidiFile f = Converter.Convert(piece);
 
-		Playback.saveMidiFile(f, destMid);
+		//Playback.saveMidiFile(f, destMid);
 		// Playback.playMidiFile("test.mid");
 
 		OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));
