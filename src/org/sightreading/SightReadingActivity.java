@@ -96,7 +96,7 @@ public class SightReadingActivity extends Activity {
 			
 			@Override
 			public void onClick(View v) {
-				String toTest = "snowy_river.png";
+				String toTest = "Distorted.jpg";
 				testImage(toTest, OurUtils.getDestImage(toTest), OurUtils.getDestMid(toTest));
 			}
 		});
@@ -114,11 +114,11 @@ public class SightReadingActivity extends Activity {
 		detector.detect();
 		detector.print(output);
 
-		//Piece piece = detector.toPiece();
-		//MidiFile f = Converter.Convert(piece);
+		Piece piece = detector.toPiece();
+		MidiFile f = Converter.Convert(piece);
 
-		//Playback.saveMidiFile(f, destMid);
-		// Playback.playMidiFile("test.mid");
+		Playback.saveMidiFile(f, destMid);
+		//Playback.playMidiFile("test.mid");
 
 		OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));
 		finish();

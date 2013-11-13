@@ -229,14 +229,12 @@ public class MusicDetector {
 		for (Stave s : staves) {
 			for (Note n : s.notes()) {
 				List<MatOfPoint> contours = new LinkedList<MatOfPoint>();
-				Imgproc.findContours(eroded.submat(
-						(int) Math.max(0, n.center().y - staveGap), Math.min(
-								eroded.rows(),
-								(int) (n.center().y + staveGap / 2)), (int) Math.max(0,n
-								.center().x + noteWidth), Math.min(
-								eroded.cols(),
-								(int) (n.center().x + 2 * noteWidth))),
-						contours, new Mat(), Imgproc.RETR_LIST,
+				Imgproc.findContours(eroded.submat((int) Math.max(0,
+						n.center().y - staveGap), Math.min(eroded.rows(),
+						(int) (n.center().y + staveGap / 2)), (int) Math.max(0,
+						n.center().x + noteWidth), Math.min(eroded.cols(),
+						(int) (n.center().x + 2 * noteWidth))), contours,
+						new Mat(), Imgproc.RETR_LIST,
 						Imgproc.CHAIN_APPROX_SIMPLE);
 				List<Moments> mu = new ArrayList<Moments>(contours.size());
 				for (int i = 0; i < contours.size(); i++) {
@@ -271,11 +269,15 @@ public class MusicDetector {
 			for (Note n : s.notes()) {
 				if (n.duration() != 1)
 					continue;
-				Mat region = eroded.submat(new Range(
-						(int) Math.max(0, n.center().y - 4 * staveGap),
-						(int) Math.max(0, n.center().y - 2 * staveGap)), new Range(
-						(int) Math.min(eroded.cols(), n.center().x + noteWidth / 2),
-						(int) Math.min(eroded.cols(), n.center().x + 3 * noteWidth / 2)));
+				Mat region = eroded
+						.submat(new Range((int) Math.max(0, n.center().y - 4
+								* staveGap), (int) Math.max(0, n.center().y - 2
+								* staveGap)),
+								new Range((int) Math.min(eroded.cols(),
+										n.center().x + noteWidth / 2),
+										(int) Math.min(eroded.cols(),
+												n.center().x + 3 * noteWidth
+														/ 2)));
 				List<MatOfPoint> contours = new LinkedList<MatOfPoint>();
 				Imgproc.findContours(region, contours, new Mat(),
 						Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
@@ -442,7 +444,8 @@ public class MusicDetector {
 	private void detectNotes() {
 		Mat eroded = workingSheet.clone();
 		Imgproc.erode(eroded, eroded, Imgproc.getStructuringElement(
-				Imgproc.MORPH_RECT, new Size(3*staveGap / 4, 3 * staveGap / 4)));
+				Imgproc.MORPH_RECT,
+				new Size(3 * staveGap / 4, 3 * staveGap / 4)));
 		Log.v("Guillaume", "" + staveGap);
 		OurUtils.writeImage(eroded, OurUtils.getPath("snowTest.png"));
 		noteHead = OurUtils.resizeImage(masterNoteHead, staveGap * 0.9);
@@ -472,20 +475,19 @@ public class MusicDetector {
 						+ yRange.start + staveGap / 2);
 				Point centerCorrected = OurUtils.isInCircle(centre,
 						(int) noteWidth / 2, ref);
-				if (/*centerCorrected != null
-						&&*/ !OurUtils.isInAnyRectangle(trebleClefs,
+				if (centerCorrected != null
+						&& !OurUtils.isInAnyRectangle(trebleClefs,
 								trebleClef.cols(), trebleClef.rows(), centre)
 						&& !OurUtils.isInAnyRectangle(fourFours,
 								fourFour.cols(), fourFour.rows(), centre)
 						&& !OurUtils.isOnBeamLine(centre, noteWidth, staveGap,
 								beams)) {
 					Stave possibleStave = OurUtils
-							.whichStaveDoesAPointBelongTo(centre,
-									staves, staveGap);
-					//Point p = OurUtils.findNearestNeighbour(centerCorrected,
-						//	ref, (int) noteWidth, (int) staveGap);
-					//Note n = new Note(p, 1);
-					Note n = new Note(centre, 1);
+							.whichStaveDoesAPointBelongTo(centre, staves,
+									staveGap);
+					Point p = OurUtils.findNearestNeighbour(centerCorrected,
+							ref, (int) noteWidth, (int) staveGap);
+					Note n = new Note(p, 1);
 					notes.add(n);
 					possibleStave.addNote(n);
 				}
