@@ -2,36 +2,23 @@ package musicdetection;
 
 import musicrepresentation.NoteName;
 import musicrepresentation.PlayedNote;
-import musicrepresentation.Shift;
 
 import org.opencv.core.Point;
 
-import utils.Utils;
+import utils.OurUtils;
 
 public class Note {
 
 	private Point center;
 	private double duration;
-	private Stave stave;
 	private NoteName name;
 	private int octave = 0;
 	
-	public Note(Point center, Stave s) {
+	public Note(Point center, double d) {
 		this.center = center;
-		this.duration = 1;
-		this.stave = s;
+		this.duration = d;
 	}
-	
-	public Note(Point center, double d, Stave s) {
-		this.center = center;
-		this.duration = 2;
-		this.stave = s;
-	}
-	
-	public Stave stave() {
-		return stave;
-	}
-	
+
 	public Point center() {
 		return center;
 	}
@@ -54,7 +41,7 @@ public class Note {
 
 	public PlayedNote toPlayedNote() {
 		// TODO Auto-generated method stub
-		return new PlayedNote(name, octave, Utils.getDuration(duration), 0);
+		return new PlayedNote(name, octave, OurUtils.getDuration(duration), 0);
 	}
 	
 	@Override

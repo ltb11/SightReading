@@ -4,23 +4,6 @@
     android:versionCode="21"
     android:versionName="2.1" >
 
-    <application
-        android:icon="@drawable/icon"
-        android:label="@string/app_name"
-        android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
-        <activity
-            android:name="SightReadingActivity"
-            android:configChanges="keyboardHidden|orientation"
-            android:label="@string/app_name"
-            android:screenOrientation="landscape" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-    </application>
-
     <supports-screens
         android:anyDensity="true"
         android:largeScreens="true"
@@ -35,17 +18,36 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-    <uses-feature
-        android:name="android.hardware.camera" />
-    <uses-feature
-        android:name="android.hardware.camera.autofocus" />
-    <uses-feature
-        android:name="android.hardware.camera.back" />
-    <uses-feature
-        android:name="android.hardware.camera.back.autofocus" />
-    <!-- Tell the system this app requires OpenGL ES 2.0. -->
-    <uses-feature
-        android:glEsVersion="0x00020000"
-        android:required="true" />
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+    <uses-feature android:name="android.hardware.camera.back" />
+    <uses-feature android:name="android.hardware.camera.back.autofocus" />
+
+    <application
+        android:icon="@drawable/icon"
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        <activity
+            android:name="SightReadingActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="CameraActivity"
+            android:label="CameraActivity" >
+        </activity>
+        <activity
+            android:name="DisplayPhotoActivity"
+            android:label="DisplayPhotoActivity" >
+        </activity>
+        <activity
+            android:name="ProcessingActivity"
+            android:label="ProcessingActivity" >
+        </activity>
+     </application>
 
 </manifest>

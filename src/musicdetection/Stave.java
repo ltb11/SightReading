@@ -9,17 +9,17 @@ import java.util.Map;
 
 import musicrepresentation.AbstractNote;
 import musicrepresentation.Bar;
-import musicrepresentation.Chord;
 import musicrepresentation.NoteName;
 import musicrepresentation.PlayedNote;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Range;
 import org.opencv.core.Scalar;
 
+import utils.OurUtils;
 import android.util.Log;
-import utils.Utils;
 
 public class Stave {
 
@@ -40,19 +40,8 @@ public class Stave {
 		originalClef = null;
 	}
 	
-	public void eraseFromMat(Mat image) {
-		throw new UnsupportedOperationException("obsolete");
-		/*Scalar c1 = new Scalar(255, 0, 0);
-		Scalar c2 = new Scalar(0, 255, 0);
-		Scalar c3 = new Scalar(0, 0, 255);
-		Scalar c4 = new Scalar(255, 0, 255);
-		Scalar c5 = new Scalar(255, 255, 0);
-		Scalar[] cs = new Scalar[] { c1, c2, c3, c4, c5};
-		Scalar col = new Scalar(0,0,0);
-		
-		for (int i = 0; i < 5; i++) {
-			Core.line(image, lines.get(i).start(), lines.get(i).end(), col, 1);
-		}*/
+	public List<Note> notes() {
+		return notes;
 	}
 	
 	public void addClef(Clef c, Point p) {
@@ -85,6 +74,15 @@ public class Stave {
 	
 	public double staveGap() {
 		return staveGap;
+	}
+	
+	public double startYRange() {
+		return topLine().start().y - 4*staveGap;
+	}
+
+	public Range yRange(int maxRows) {
+		return new Range((int) Math.max(0, topLine().start().y - 4 * staveGap),
+				(int) Math.min(maxRows, bottomLine().start().y + 4 * staveGap));
 	}
 
 	public Line topLine() {
@@ -133,9 +131,9 @@ public class Stave {
 			// 0-1 where 0 is top line, 1 is bottom
 			double pos = (ny-y1)/gap;
 			int line = (int) Math.round(8 - pos*8);
-			NoteName name = Utils.getName(clefs.get(originalClef),line);
+			NoteName name = OurUtils.getName(getClefAtPos(n.center()),line);
 			n.setName(name);
-			n.setOctave(Utils.getOctave(clefs.get(originalClef), line));
+			n.setOctave(OurUtils.getOctave(getClefAtPos(n.center()), line));
 		}
 	}
 
@@ -147,10 +145,12 @@ public class Stave {
 		}
 		return 0;
 	}
-
-	private int lineToNote(double line) {
-		// TODO Auto-generated method stub
-		return ((int)(line*2))/2;
+	
+	public double staveGapAtPos(Point center) {
+		double nx = (center.x);
+		double y1 = getY(lines.get(0),nx);
+		double y2 = getY(lines.get(4),nx);
+		return (y2 - y1) / 4;
 	}
 
 	public List<Bar> toBars() {
@@ -183,6 +183,10 @@ public class Stave {
 			playedNotes.add(n.toPlayedNote());
 		}
 		return playedNotes;
+	}
+
+	public double getTopYAtPos(Point pos) {
+		return getY(lines.get(0), pos.x);
 	}
 
 }

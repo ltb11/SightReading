@@ -3,7 +3,6 @@ package utils;
 import java.util.LinkedList;
 import java.util.List;
 
-import musicdetection.Line;
 import musicdetection.StaveLine;
 
 public class SheetStrip {

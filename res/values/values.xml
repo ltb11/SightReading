@@ -14,4 +14,5 @@
     <string name="default_image_description">This is the default image to be scanned and played</string>
     <string name="camera_description">Image of a camera</string>
     <string name="scanning">Scanning...</string>
+    <string name="parse">Parse file - Only for testing</string>
 </resources>

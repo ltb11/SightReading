@@ -1,5 +1,6 @@
 package utils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
@@ -7,30 +8,29 @@ import java.util.List;
 
 import musicdetection.Clef;
 import musicdetection.Line;
+import musicdetection.MusicDetector;
 import musicdetection.Note;
 import musicdetection.Stave;
 import musicdetection.StaveLine;
 import musicrepresentation.Duration;
 import musicrepresentation.NoteName;
-import musicrepresentation.PlayedNote;
 
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Range;
 import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
 import org.opencv.core.Size;
-import org.opencv.engine.OpenCVEngineInterface;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
 
-import android.R.integer;
 import android.os.Environment;
 import android.util.Log;
 
-public class Utils {
+public class OurUtils {
 
 	private static final double staveGapTolerance = 0.2;
 	public static final String sdPath = Environment
@@ -47,6 +47,10 @@ public class Utils {
 	}
 
 	public static void thresholdImage(Mat sheet) {
+		/*divides the image into 250x250 pixel sections as much as possible, 
+		then for each section it takes the man pixel intensity, and thresholds the section
+		based on that value. 
+		*/
 		int width = sheet.cols();
 		int height = sheet.rows();
 		int sep = 250;
@@ -56,11 +60,6 @@ public class Utils {
 				int yMax = Math.min(i + sep, height);
 				Mat section = new Mat(sheet, new Range(i, yMax), new Range(j,
 						xMax));
-				// Mat section = new Mat(sheet, new Range(j,xMax), new
-				// Range(i,yMax));
-				// Mat section = new Mat(sheet, new Range(0,3000), new
-				// Range(0,2000));
-
 				double mean = Core.mean(section).val[0];
 				mean = Math.max(Math.min(mean - 20, 255), 0);
 				Imgproc.threshold(section, section, mean, 256,
@@ -165,11 +164,11 @@ public class Utils {
 		boolean beginning = false;
 		boolean end = false;
 		for (Note n : notes) {
-			if (Math.abs(n.center().x - line.start().x) < 20
+			if (Math.abs(n.center().x - line.start().x) < MusicDetector.beamLengthTolerance
 					&& Math.abs(n.center().y - line.start().y) > 2 * staveGap
 					&& Math.abs(n.center().y - line.start().y) < 4 * staveGap)
 				beginning = true;
-			else if (Math.abs(n.center().x - line.end().x) < 20
+			else if (Math.abs(n.center().x - line.end().x) < MusicDetector.beamLengthTolerance
 					&& Math.abs(n.center().y - line.end().y) > 2 * staveGap
 					&& Math.abs(n.center().y - line.end().y) < 4 * staveGap)
 				end = true;
@@ -221,7 +220,6 @@ public class Utils {
 	 ************** IO METHODS **************
 	 ****************************************/
 
-
 	public static String getDestImage(String src) {
 		String result = "";
 		int i = 0;
@@ -237,7 +235,7 @@ public class Utils {
 		}
 		return result;
 	}
-	
+
 	public static String getDestMid(String src) {
 		String result = "";
 		int i = 0;
@@ -264,7 +262,7 @@ public class Utils {
 
 	// returns the path of a given src image, assuming root directory of DCIM
 	public static String getPath(String src) {
-		return Utils.sdPath + src;
+		return OurUtils.sdPath + src;
 	}
 
 	/*****************************************
@@ -294,7 +292,8 @@ public class Utils {
 		Collections.sort(lines, new Comparator<StaveLine>() {
 			@Override
 			public int compare(StaveLine line0, StaveLine line1) {
-				return (int) (Math.signum((line0.toLine().start().y - line1.toLine().start().y)));
+				return (int) (Math.signum((line0.toLine().start().y - line1
+						.toLine().start().y)));
 			}
 		});
 		// MID: lines is sorted highest to lowest
@@ -305,10 +304,10 @@ public class Utils {
 			List<StaveLine> result = new LinkedList<StaveLine>();
 			result.add(first);
 			result.add(second);
-			
+
 			double space = second.toLine().start().y - first.toLine().start().y;
 			double pos = second.toLine().start().y + space;
-			
+
 			for (int j = i + 1; j < lines.size(); j++) {
 				if (Math.abs(lines.get(j).toLine().start().y - pos) < space
 						* staveGapTolerance) {
@@ -413,59 +412,32 @@ public class Utils {
 		return divisions;
 	}
 
-	public static Point findNearestNeighbour(Point centre, Mat ref) {
-		int x = (int) centre.x;
-		int y = (int) centre.y;
-		int minX = x;
-		int maxX = x;
-		int minY = y;
-		int maxY = y;
-		boolean changed = true;
-		while (changed) {
-			changed = false;
-			for (int j = minY; j <= maxY; j++) {
-				if (ref.get(j, maxX + 1)[0] != 0) {
-					maxX++;
-					changed = true;
-				}
-			}
-			for (int j = minY; j <= maxY; j++) {
-				if (ref.get(j, minX - 1)[0] != 0) {
-					minX--;
-					changed = true;
-				}
-			}
-			for (int i = minX; i <= maxX; i++) {
-				if (ref.get(minY - 1, i)[0] != 0) {
-					minY--;
-					changed = true;
-				}
-			}
-			for (int i = minX; i <= maxX; i++) {
-				if (ref.get(maxY + 1, i)[0] != 0) {
-					maxY++;
-					changed = true;
-				}
+	public static Point findNearestNeighbour(Point centre, Mat ref, int width,
+			int height) {
+		List<MatOfPoint> contours = new LinkedList<MatOfPoint>();
+		int centreY = (int) centre.y;
+		int centreX = (int) centre.x;
+		double x = 0, y = 0;
+		Imgproc.findContours(ref.submat(centreY - height, centreY + height,
+				centreX - width, centreX + width), contours, new Mat(),
+				Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
+		List<Moments> mu = new ArrayList<Moments>(contours.size());
+		for (int i = 0; i < contours.size(); i++) {
+			mu.add(i, Imgproc.moments(contours.get(i), false));
+			Moments m = mu.get(i);
+			if (m.get_m00() != 0) {
+				x = (m.get_m10() / m.get_m00()) + centreX - width;
+				y = (m.get_m01() / m.get_m00()) + centreY - height;
+				if (Math.abs(centreY - y) < height / 3)
+					return new Point(x, y);
 			}
 		}
-		Point p = new Point((minX + maxX) / 2, (minY + maxY) / 2);
-		return p;
-	}
-
-	public static PlayedNote noteToNoteRepresentation(Note n,Mat sheet) {
-		Stave s = n.stave();
-		Point p = n.center();
-		Log.v("Guillaume", Double.toString(p.x)+ "," + Double.toString(p.y));
-		// octave in MIDI representation
-		int line = getNote(s, p, sheet);
-		Clef c = s.getClefAtPos(p);
-		return new PlayedNote(getName(c, line), getOctave(c, line),
-				 getDuration(n.duration()), 0);
+		return centre;
 	}
 
 	// TODO: this method is only implemented for treble clef and for octaves 0
 	// and 1
-	public  static int getOctave(Clef c, int line) {
+	public static int getOctave(Clef c, int line) {
 		if (c == Clef.Treble) {
 			if (line >= -2 && line <= 4)
 				return 4;
@@ -476,7 +448,7 @@ public class Utils {
 	}
 
 	// TODO: this method is only implemented for treble clef
-	public  static NoteName getName(Clef c, int line) {
+	public static NoteName getName(Clef c, int line) {
 		line = line % 7;
 		while (line < 0)
 			line += 7;
@@ -498,45 +470,16 @@ public class Utils {
 				return NoteName.D;
 			}
 		}
+		
+		if (c == Clef.Bass){
+			return getName(Clef.Treble, line-2);
+		}
+		
+		if (c == Clef.Alto){
+			//TODO
+			return NoteName.A;
+		}
 		return null;
-	}
-
-	// line 0 is the bottom line of the staves
-	private static int getNote(Stave s, Point p, Mat sheet) {
-		double directingVector = (s.topLine().end().y - s.topLine().start().y)
-				/ (s.topLine().end().x - s.topLine().start().x);
-		double staveGap = s.staveGap();
-		double origin = s.bottomLine().start().y;
-		//offset of the point from the start
-		double advance = p.x - s.bottomLine().start().x;
-		double distance = 10000, prevDistance = 20000;
-		double pointY = p.y;
-		int currentLine = -10;
-		//y is the variable that will change over the loop, augmented by staveGap/2 each time
-		double y = origin - advance * directingVector - currentLine * staveGap
-				/ 2;
- 		while (prevDistance > distance) {
-			if (currentLine == 7) {
-				Log.v("Guillaume", "CHECK");
-			}
-			prevDistance = distance;
-			currentLine++;
-			y -= staveGap / 2;
-			distance = Math.abs(y - pointY);
-			Core.line(sheet, new Point(p.x, y), new Point (p.x + 10, y), new Scalar (0, 255, 0));
-		}
-		return currentLine - 1;
-	}
-	
-	public static void saveTemplateMat(Mat template, String filename){
-		double max = Core.minMaxLoc(template).maxVal;
-		Mat output = new Mat(template.size(), CvType.CV_8UC1);
-		for (int col=0; col<template.cols();col++){
-			for (int row=0; row<template.rows(); row++){
-				output.put(row,col, 255*template.get(row, col)[0]/max);
-			}
-		}
-		writeImage(output, getPath("output/" + filename));
 	}
 
 	public static Duration getDuration(double duration) {

@@ -11,20 +11,20 @@ import com.leff.midi.event.NoteOff;
 import com.leff.midi.event.NoteOn;
 import com.leff.midi.event.meta.Tempo;
 
-import utils.Utils;
+import utils.OurUtils;
 import android.media.MediaPlayer;
 import android.util.Log;
 
 public class Playback {
 
 	public static void playMidiFile(String fileName) {
-		String path = Utils.sdPath+"midi/"; 
+		String path = OurUtils.sdPath+"midi/"; 
 		File f = new File(path,fileName);
 		
 		try {
 			FileInputStream fis = new FileInputStream(f);
 			FileDescriptor fd = fis.getFD();
-			//fis.close();
+			fis.close();
 			
 			MediaPlayer mediaPlayer = new MediaPlayer();
 			mediaPlayer.setDataSource( fd );
@@ -38,7 +38,7 @@ public class Playback {
 	}
 	
 	public static void saveMidiFile(MidiFile midi, String fileName) {
-		String path = Utils.sdPath+"midi/"; 
+		String path = OurUtils.sdPath+"midi/"; 
 		File output = new File(path, fileName);
 	    try {
 	        midi.writeToFile(output);
