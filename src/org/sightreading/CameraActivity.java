@@ -2,6 +2,10 @@ package org.sightreading;
 
 import java.io.File;
 
+import midiconversion.Converter;
+import musicdetection.MusicDetector;
+import musicrepresentation.Piece;
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
@@ -13,6 +17,10 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+
+import playback.Playback;
+
+import com.leff.midi.MidiFile;
 
 import utils.OurUtils;
 import android.app.Activity;
@@ -106,6 +114,8 @@ public class CameraActivity extends Activity implements OnTouchListener,
 	public static void savePage(Bitmap bitmap) {
 		// TODO: code for saving the page here
 		totalImages ++;
+		String fName = "page"+ totalImages;
+		OurUtils.saveTestImage(bitmap,fName);
 	}
 	
 	public CameraActivity() {
