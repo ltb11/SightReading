@@ -80,9 +80,9 @@ public class Stave {
 		return topLine().start().y - 4*staveGap;
 	}
 
-	public Range yRange() {
-		return new Range((int) (topLine().start().y - 4 * staveGap),
-				(int) (bottomLine().start().y + 4 * staveGap));
+	public Range yRange(int maxRows) {
+		return new Range((int) Math.max(0, topLine().start().y - 4 * staveGap),
+				(int) Math.min(maxRows, bottomLine().start().y + 4 * staveGap));
 	}
 
 	public Line topLine() {
@@ -131,9 +131,9 @@ public class Stave {
 			// 0-1 where 0 is top line, 1 is bottom
 			double pos = (ny-y1)/gap;
 			int line = (int) Math.round(8 - pos*8);
-			NoteName name = OurUtils.getName(clefs.get(originalClef),line);
+			NoteName name = OurUtils.getName(getClefAtPos(n.center()),line);
 			n.setName(name);
-			n.setOctave(OurUtils.getOctave(clefs.get(originalClef), line));
+			n.setOctave(OurUtils.getOctave(getClefAtPos(n.center()), line));
 		}
 	}
 

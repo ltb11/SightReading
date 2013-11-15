@@ -8,6 +8,7 @@ import java.util.List;
 
 import musicdetection.Clef;
 import musicdetection.Line;
+import musicdetection.MusicDetector;
 import musicdetection.Note;
 import musicdetection.Stave;
 import musicdetection.StaveLine;
@@ -46,6 +47,10 @@ public class OurUtils {
 	}
 
 	public static void thresholdImage(Mat sheet) {
+		/*divides the image into 250x250 pixel sections as much as possible, 
+		then for each section it takes the man pixel intensity, and thresholds the section
+		based on that value. 
+		*/
 		int width = sheet.cols();
 		int height = sheet.rows();
 		int sep = 250;
@@ -55,11 +60,6 @@ public class OurUtils {
 				int yMax = Math.min(i + sep, height);
 				Mat section = new Mat(sheet, new Range(i, yMax), new Range(j,
 						xMax));
-				// Mat section = new Mat(sheet, new Range(j,xMax), new
-				// Range(i,yMax));
-				// Mat section = new Mat(sheet, new Range(0,3000), new
-				// Range(0,2000));
-
 				double mean = Core.mean(section).val[0];
 				mean = Math.max(Math.min(mean - 20, 255), 0);
 				Imgproc.threshold(section, section, mean, 256,
@@ -164,11 +164,11 @@ public class OurUtils {
 		boolean beginning = false;
 		boolean end = false;
 		for (Note n : notes) {
-			if (Math.abs(n.center().x - line.start().x) < 20
+			if (Math.abs(n.center().x - line.start().x) < MusicDetector.beamLengthTolerance
 					&& Math.abs(n.center().y - line.start().y) > 2 * staveGap
 					&& Math.abs(n.center().y - line.start().y) < 4 * staveGap)
 				beginning = true;
-			else if (Math.abs(n.center().x - line.end().x) < 20
+			else if (Math.abs(n.center().x - line.end().x) < MusicDetector.beamLengthTolerance
 					&& Math.abs(n.center().y - line.end().y) > 2 * staveGap
 					&& Math.abs(n.center().y - line.end().y) < 4 * staveGap)
 				end = true;
@@ -469,6 +469,15 @@ public class OurUtils {
 			case 6:
 				return NoteName.D;
 			}
+		}
+		
+		if (c == Clef.Bass){
+			return getName(Clef.Treble, line-2);
+		}
+		
+		if (c == Clef.Alto){
+			//TODO
+			return NoteName.A;
 		}
 		return null;
 	}

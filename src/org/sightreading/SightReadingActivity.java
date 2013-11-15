@@ -114,7 +114,8 @@ public class SightReadingActivity extends Activity {
 		MidiFile f = Converter.Convert(piece);
 
 		Playback.saveMidiFile(f, destMid);
-		Playback.playMidiFile("test.mid");
+
+		//Playback.playMidiFile("test.mid");
 
 		OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));
 		
