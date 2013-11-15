@@ -110,7 +110,7 @@ public class SightReaderActivity extends Activity {
 
 				// restrict file types visible
 				intent.putExtra(FileDialog.FORMAT_FILTER,
-						new String[] { "sightreader" });
+						new String[] { "sr" });
 
 				startActivityForResult(intent, 0);
 

@@ -112,7 +112,7 @@ public class CameraActivity extends Activity implements OnTouchListener,
 		// TODO: code for saving the page here
 		totalImages++;
 		String fName = "page"+ totalImages;
-		OurUtils.saveTestImage(bitmap,fName);
+		OurUtils.saveTempImage(bitmap,fName);
 	}
 
 	public CameraActivity() {

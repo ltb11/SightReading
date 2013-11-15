@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,11 +31,16 @@ import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
+import org.sightreader.SRFileBuilder;
 
+import playback.Playback;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.Log;
+
+import com.leff.midi.MidiFile;
 
 public class OurUtils {
 
@@ -44,6 +49,10 @@ public class OurUtils {
 			.getExternalStorageDirectory().getAbsolutePath() + "/DCIM/";
 	public static final int totalVerticalSlices = 20;
 	public static final double STANDARD_IMAGE_WIDTH = 2500;
+
+	public static final String DATA_FOLDER = "data";
+	public static final String IMAGE_FOLDER = "images";
+	public static final String MIDI_FOLDER = "music";
 
 	/***************************************
 	 ********** MATRIX OPERATIONS **********
@@ -54,10 +63,11 @@ public class OurUtils {
 	}
 
 	public static void thresholdImage(Mat sheet) {
-		/*divides the image into 250x250 pixel sections as much as possible, 
-		then for each section it takes the man pixel intensity, and thresholds the section
-		based on that value. 
-		*/
+		/*
+		 * divides the image into 250x250 pixel sections as much as possible,
+		 * then for each section it takes the man pixel intensity, and
+		 * thresholds the section based on that value.
+		 */
 		int width = sheet.cols();
 		int height = sheet.rows();
 		int sep = 250;
@@ -269,7 +279,7 @@ public class OurUtils {
 
 	// returns the path of a given src image, assuming root directory of DCIM
 	public static String getPath(String folder) {
-		return OurUtils.sdPath +"SightReader/" + folder;
+		return OurUtils.sdPath + "SightReader/" + folder;
 	}
 
 	/*****************************************
@@ -477,13 +487,13 @@ public class OurUtils {
 				return NoteName.D;
 			}
 		}
-		
-		if (c == Clef.Bass){
-			return getName(Clef.Treble, line-2);
+
+		if (c == Clef.Bass) {
+			return getName(Clef.Treble, line - 2);
 		}
-		
-		if (c == Clef.Alto){
-			//TODO
+
+		if (c == Clef.Alto) {
+			// TODO
 			return NoteName.A;
 		}
 		return null;
@@ -499,46 +509,60 @@ public class OurUtils {
 		return null;
 	}
 
-	public static void saveTestImage(Bitmap bitmap, String fName) {
+	public static void saveTempImage(Bitmap bitmap, String fName) {
 		String pName = getPath("temp/");
 		saveImage(bitmap, pName, fName);
-		
+
 	}
-	
-	public static Bitmap loadTestImage(String fName) throws FileNotFoundException {
+
+	public static Bitmap loadTempImage(String fName)
+			throws FileNotFoundException {
 		String pName = getPath("temp/");
 		return loadImage(pName, fName);
-		
+
 	}
-	
+
 	private static void saveImage(Bitmap bitmap, String pName, String fName) {
 		File dir = new File(pName);
-		if(!dir.exists())
+		if (!dir.exists())
 			dir.mkdirs();
 		File file = new File(dir, fName + ".png");
-	    
+
 		FileOutputStream fOut = null;
 		try {
 			fOut = new FileOutputStream(file);
 			bitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut);
-	    	fOut.flush();
-	    	fOut.close();		
-	    } catch (Exception e) {
+			fOut.flush();
+			fOut.close();
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
-	private static Bitmap loadImage(String pName, String fName) throws FileNotFoundException  {
+
+	private static Bitmap loadImage(String pName, String fName)
+			throws FileNotFoundException {
 		File dir = new File(pName);
-		if(!dir.exists())
-			dir.mkdirs();
 		File file = new File(dir, fName + ".png");
-	    
 		FileInputStream fis;
 
 		fis = new FileInputStream(file);
 		Bitmap b = BitmapFactory.decodeStream(fis);
 		return b;
+	}
+
+	/** Use this to save midi images ad .sr connector when files are generated */
+	public static void saveSRFiles(MidiFile midi, List<Bitmap> images,
+			String saveName) {
+		SRFileBuilder builder = new SRFileBuilder(saveName);
+		Iterator<Bitmap> imagesIterator = images.iterator();
+		for (int i = 1; imagesIterator.hasNext(); i++) {
+			saveImage(imagesIterator.next(), getPath(IMAGE_FOLDER), saveName
+					+ i);
+			builder.addImagePath(getPath(IMAGE_FOLDER) + saveName + i + ".png");
+		}
+		Playback.saveMidiFile(midi, saveName);
+		builder.setMidiPath(saveName);
+		builder.build();
 	}
 }

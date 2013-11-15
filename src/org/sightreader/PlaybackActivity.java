@@ -1,26 +1,21 @@
 package org.sightreader;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+
+import playback.Playback;
 import android.app.Activity;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.View.OnTouchListener;
-import android.widget.Button;
-import android.widget.ImageView;
 
-public class PlaybackActivity extends Activity implements OnTouchListener {
+public class PlaybackActivity extends Activity {
 
 	public static final String TAG = "SRPlaybackActivity";
 	public final static long startTime = System.currentTimeMillis();
-
-	@Override
-	public boolean onTouch(View arg0, MotionEvent arg1) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 	/** Called when the activity is first created. */
 	@Override
@@ -28,6 +23,23 @@ public class PlaybackActivity extends Activity implements OnTouchListener {
 		Log.i(TAG, "playback creating");
 		super.onCreate(savedInstanceState);
 		String filePath = savedInstanceState.getString("FILEPATH");
-		
+		FileInputStream inputStream = null;
+		try {
+			inputStream = new FileInputStream(filePath);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		BufferedReader bufferReader = new BufferedReader(new InputStreamReader(
+				inputStream, Charset.forName("UTF-8")));
+		String midiPath = null;
+		try {
+			midiPath = bufferReader.readLine();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Playback.playMidiFile(midiPath);
 	}
 }
