@@ -1,4 +1,4 @@
-package org.sightreading;
+package org.sightreader;
 
 import java.io.FileOutputStream;
 import java.util.List;

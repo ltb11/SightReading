@@ -22,7 +22,7 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
-import org.sightreading.SightReadingActivity;
+import org.sightreader.SightReaderActivity;
 
 import android.util.Log;
 import utils.SheetStrip;
@@ -119,7 +119,7 @@ public class MusicDetector {
 	 * Order to respect: detectBeams detectNotes correctBeams detectQuavers
 	 */
 	public void detect() {
-		long startTimeOfEachMethod = SightReadingActivity.startTime;
+		long startTimeOfEachMethod = SightReaderActivity.startTime;
 		long startTime = startTimeOfEachMethod;
 		Log.v("Guillaume",
 				"Start time of detection: "
@@ -172,7 +172,7 @@ public class MusicDetector {
 				"Quavers detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
 		startTimeOfEachMethod = System.currentTimeMillis()
-				- SightReadingActivity.startTime;
+				- SightReaderActivity.startTime;
 		Log.v("Guillaume",
 				"Total time for detection: "
 						+ (System.currentTimeMillis() - startTime));

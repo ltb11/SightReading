@@ -1,4 +1,4 @@
-package org.sightreading;
+package org.sightreader;
 
 import android.app.Activity;
 import android.content.Intent;

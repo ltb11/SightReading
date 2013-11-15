@@ -1,4 +1,4 @@
-package org.sightreading;
+package org.sightreader;
 
 import java.io.File;
 
@@ -27,8 +27,8 @@ import com.lamerman.FileDialog;
 import com.lamerman.SelectionMode;
 import com.leff.midi.MidiFile;
 
-public class SightReadingActivity extends Activity {
-	public static final String TAG = "SightReadingActivity";
+public class SightReaderActivity extends Activity {
+	public static final String TAG = "SightReaderActivity";
 	public static EditText currentFileName;
 	private Button scan;
 	private Button play;
@@ -50,7 +50,7 @@ public class SightReadingActivity extends Activity {
 		}
 	};
 
-	public SightReadingActivity() {
+	public SightReaderActivity() {
 		Log.i(TAG, "Instantiated new " + this.getClass());
 	}
 
@@ -81,7 +81,7 @@ public class SightReadingActivity extends Activity {
 		scan = (Button) findViewById(R.id.scan);
 		scan.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				Intent i = new Intent(SightReadingActivity.this,
+				Intent i = new Intent(SightReaderActivity.this,
 						CameraActivity.class);
 				startActivity(i);
 			}
@@ -92,9 +92,12 @@ public class SightReadingActivity extends Activity {
 		play.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				// to get the file dialogue library use the below command:
-				// svn checkout http://android-file-dialog.googlecode.com/svn/trunk/ android-file-dialog-read-only
-				// then import the project to eclipse and add the project to the buildpath for this project
-				Intent intent = new Intent(SightReadingActivity.this,
+				// svn checkout
+				// http://android-file-dialog.googlecode.com/svn/trunk/
+				// android-file-dialog-read-only
+				// then import the project to eclipse and add the project to the
+				// buildpath for this project
+				Intent intent = new Intent(SightReaderActivity.this,
 						FileDialog.class);
 				// maybe context should be getBaseContext()?
 				intent.putExtra(FileDialog.START_PATH, "/sdcard");
