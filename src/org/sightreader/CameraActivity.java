@@ -1,6 +1,6 @@
 package org.sightreader;
 
-import java.io.File; 
+import java.io.File;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
@@ -10,7 +10,6 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.sightreading.R;
 
 import utils.OurUtils;
 import android.app.Activity;

@@ -100,7 +100,7 @@ public class SightReaderActivity extends Activity {
 				Intent intent = new Intent(SightReaderActivity.this,
 						FileDialog.class);
 				// maybe context should be getBaseContext()?
-				intent.putExtra(FileDialog.START_PATH, "/sdcard");
+				intent.putExtra(FileDialog.START_PATH, OurUtils.getPath(""));
 
 				// set user not able to select directories
 				intent.putExtra(FileDialog.CAN_SELECT_DIR, false);
@@ -109,8 +109,8 @@ public class SightReaderActivity extends Activity {
 						SelectionMode.MODE_OPEN);
 
 				// restrict file types visible
-				intent.putExtra(FileDialog.FORMAT_FILTER, new String[] {
-						"jpeg", "png", "bmp" });
+				intent.putExtra(FileDialog.FORMAT_FILTER,
+						new String[] { "sightreader" });
 
 				startActivityForResult(intent, 0);
 

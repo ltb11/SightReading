@@ -1,7 +1,5 @@
 package org.sightreader;
 
-import org.sightreading.R;
-
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
