@@ -31,6 +31,12 @@
                 android:gravity="center_vertical"
                 android:orientation="vertical" >
 
+                <Button
+                    android:id="@+id/parse"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Parse" />
+
                 <TextView
                     android:id="@+id/SightReader"
                     android:layout_width="wrap_content"
