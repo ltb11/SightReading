@@ -1,5 +1,10 @@
 package utils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,6 +32,8 @@ import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.Log;
 
@@ -261,8 +268,8 @@ public class OurUtils {
 	}
 
 	// returns the path of a given src image, assuming root directory of DCIM
-	public static String getPath(String src) {
-		return OurUtils.sdPath + src;
+	public static String getPath(String folder) {
+		return OurUtils.sdPath +"SightReader/" + folder;
 	}
 
 	/*****************************************
@@ -492,4 +499,46 @@ public class OurUtils {
 		return null;
 	}
 
+	public static void saveTestImage(Bitmap bitmap, String fName) {
+		String pName = getPath("temp/");
+		saveImage(bitmap, pName, fName);
+		
+	}
+	
+	public static Bitmap loadTestImage(String fName) throws FileNotFoundException {
+		String pName = getPath("temp/");
+		return loadImage(pName, fName);
+		
+	}
+	
+	private static void saveImage(Bitmap bitmap, String pName, String fName) {
+		File dir = new File(pName);
+		if(!dir.exists())
+			dir.mkdirs();
+		File file = new File(dir, fName + ".png");
+	    
+		FileOutputStream fOut = null;
+		try {
+			fOut = new FileOutputStream(file);
+			bitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut);
+	    	fOut.flush();
+	    	fOut.close();		
+	    } catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private static Bitmap loadImage(String pName, String fName) throws FileNotFoundException  {
+		File dir = new File(pName);
+		if(!dir.exists())
+			dir.mkdirs();
+		File file = new File(dir, fName + ".png");
+	    
+		FileInputStream fis;
+
+		fis = new FileInputStream(file);
+		Bitmap b = BitmapFactory.decodeStream(fis);
+		return b;
+	}
 }

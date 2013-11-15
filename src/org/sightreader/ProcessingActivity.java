@@ -13,6 +13,7 @@ public class ProcessingActivity extends Activity {
 	public final static long startTime = System.currentTimeMillis();
 
 	public static Bitmap image;
+	private static int totalPages;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -22,8 +23,15 @@ public class ProcessingActivity extends Activity {
 		setContentView(R.layout.sight_reading_processing_view);
 		
 		initialiseButtons();
+		
+		loadImages();
 	}
 	
+	private void loadImages() {
+		//totalPages = CameraActivity.totalImages
+		
+	}
+
 	private void initialiseButtons() {
 
 	}
