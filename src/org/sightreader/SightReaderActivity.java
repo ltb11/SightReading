@@ -1,4 +1,4 @@
-package org.sightreading;
+package org.sightreader;
 
 import java.io.File;
 
@@ -21,19 +21,22 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import com.lamerman.FileDialog;
+import com.lamerman.SelectionMode;
 
-public class SightReadingActivity extends Activity {
-	public static final String TAG = "SightReadingActivity";
+public class SightReaderActivity extends Activity {
+	public static final String TAG = "SightReaderActivity";
 	public static EditText currentFileName;
 	private Button scan;
+	private Button play;
 	public final static long startTime = System.currentTimeMillis();
 
+	// load the OpenCV library
 	private BaseLoaderCallback mOpenCVCallBack = new BaseLoaderCallback(this) {
 		@Override
 		public void onManagerConnected(int status) {
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
-
 			}
 				break;
 			default: {
@@ -44,9 +47,8 @@ public class SightReadingActivity extends Activity {
 		}
 	};
 
-	public SightReadingActivity() {
+	public SightReaderActivity() {
 		Log.i(TAG, "Instantiated new " + this.getClass());
-
 	}
 
 	/** Called when the activity is first created. */
@@ -57,7 +59,6 @@ public class SightReadingActivity extends Activity {
 		setContentView(R.layout.sight_reading_surface_view);
 
 		initialiseButtons();
-		// requestWindowFeature(Window.FEATURE_NO_TITLE);
 
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -66,25 +67,58 @@ public class SightReadingActivity extends Activity {
 			Log.e("TEST", "Cannot connect to OpenCV Manager");
 		}
 
+		// Make sure the necessary folders exist
 		(new File(OurUtils.getPath("") + File.separator + "input")).mkdirs();
 		(new File(OurUtils.getPath("") + File.separator + "output")).mkdirs();
 		(new File(OurUtils.getPath("") + File.separator + "assets")).mkdirs();
 	}
 
 	private void initialiseButtons() {
+		// Set up the button which takes you to the camera
 		scan = (Button) findViewById(R.id.scan);
 		scan.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				Intent i = new Intent(SightReadingActivity.this,
+				Intent i = new Intent(SightReaderActivity.this,
 						CameraActivity.class);
 				startActivity(i);
 			}
 		});
-		findViewById(R.id.parse).setOnClickListener(new View.OnClickListener() {
 
+		// Set up the button which takes you to playback
+		play = (Button) findViewById(R.id.play);
+		play.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				// to get the file dialogue library use the below command:
+				// svn checkout
+				// http://android-file-dialog.googlecode.com/svn/trunk/
+				// android-file-dialog-read-only
+				// then import the project to eclipse and add the project to the
+				// buildpath for this project
+				Intent intent = new Intent(SightReaderActivity.this,
+						FileDialog.class);
+				// maybe context should be getBaseContext()?
+				intent.putExtra(FileDialog.START_PATH, "/sdcard");
+
+				// set user not able to select directories
+				intent.putExtra(FileDialog.CAN_SELECT_DIR, false);
+				// set user not able to create files
+				intent.putExtra(FileDialog.SELECTION_MODE,
+						SelectionMode.MODE_OPEN);
+
+				// restrict file types visible
+				intent.putExtra(FileDialog.FORMAT_FILTER, new String[] {
+						"jpeg", "png", "bmp" });
+
+				startActivityForResult(intent, 0);
+
+			}
+		});
+
+		// Set up button to test parsing
+		findViewById(R.id.parse).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				String toTest = "Distorted.jpg";
+				String toTest = "closeYourEyes.jpg";
 				testImage(toTest, OurUtils.getDestImage(toTest),
 						OurUtils.getDestMid(toTest));
 				finish();
@@ -98,6 +132,8 @@ public class SightReadingActivity extends Activity {
 				testProg();
 			}
 		});
+
+		// TODO: there is a button in the view that is not set up here!
 	}
 
 	private void testImage(String src, String dstImage, String destMid) {
@@ -122,10 +158,10 @@ public class SightReadingActivity extends Activity {
 		// MidiFile f = Converter.Convert(piece);
 
 		// Playback.saveMidiFile(f, destMid);
+
 		// Playback.playMidiFile("test.mid");
 
 		OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));
-		//finish();
 	}
 
 	public void testProg() {
