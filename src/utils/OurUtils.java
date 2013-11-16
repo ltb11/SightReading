@@ -47,10 +47,11 @@ public class OurUtils {
 	}
 
 	public static void thresholdImage(Mat sheet) {
-		/*divides the image into 250x250 pixel sections as much as possible, 
-		then for each section it takes the man pixel intensity, and thresholds the section
-		based on that value. 
-		*/
+		/*
+		 * divides the image into 250x250 pixel sections as much as possible,
+		 * then for each section it takes the man pixel intensity, and
+		 * thresholds the section based on that value.
+		 */
 		int width = sheet.cols();
 		int height = sheet.rows();
 		int sep = 250;
@@ -124,13 +125,12 @@ public class OurUtils {
 	 **************************************/
 
 	public static boolean isThereANoteAtThisPosition(Point toCheck,
-			List<Note> notes, List<Stave> staves, double staveGap) {
+			Stave currentStave, List<Note> notes, List<Stave> staves,
+			int maxRows) {
 		for (Note n : notes) {
 			if (Math.abs(n.center().x - toCheck.x) < 30
-					&& whichStaveDoesAPointBelongTo(n.center(), staves,
-							staveGap).equals(
-							whichStaveDoesAPointBelongTo(toCheck, staves,
-									staveGap)))
+					&& currentStave.equals(whichStaveDoesAPointBelongTo(
+							n.center(), staves, maxRows)))
 				return true;
 		}
 		return false;
@@ -340,11 +340,9 @@ public class OurUtils {
 	}
 
 	public static Stave whichStaveDoesAPointBelongTo(Point p,
-			List<Stave> staves, double staveGap) {
+			List<Stave> staves, int maxRows) {
 		for (Stave s : staves) {
-			if ((new Interval((int) (s.topLine().start().y - 4 * staveGap),
-					(int) (s.bottomLine().start().y + 4 * staveGap))
-					.contains((int) p.y)))
+			if (new Interval(s.yRange(maxRows)).contains((int) p.y))
 				return s;
 		}
 		return null;
@@ -470,13 +468,13 @@ public class OurUtils {
 				return NoteName.D;
 			}
 		}
-		
-		if (c == Clef.Bass){
-			return getName(Clef.Treble, line-2);
+
+		if (c == Clef.Bass) {
+			return getName(Clef.Treble, line - 2);
 		}
-		
-		if (c == Clef.Alto){
-			//TODO
+
+		if (c == Clef.Alto) {
+			// TODO
 			return NoteName.A;
 		}
 		return null;

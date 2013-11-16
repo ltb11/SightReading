@@ -59,7 +59,7 @@ public class MusicDetector {
 	private Mat fourFour;
 	// private Mat flat_inter;
 	private Mat flat_on;
-	private Mat whole_note;
+	private Mat half_note;
 
 	// For printing purposes only
 	private int dotWidth;
@@ -77,7 +77,7 @@ public class MusicDetector {
 	private List<Point> flats = new LinkedList<Point>();
 	private Map<Point, Note> dots = new HashMap<Point, Note>();
 
-	public MusicDetector(final Mat input) {
+	public MusicDetector(final Mat input) throws NoMusicDetectedException {
 		Log.v("Guillaume", "" + masterNoteHead.rows());
 		workingSheet = preprocess(input.clone());
 		master_half_notes.add(masterHalf_note);
@@ -92,7 +92,7 @@ public class MusicDetector {
 		OurUtils.writeImage(clone, OurUtils.getPath("output/BaabaaTest.jpg"));
 	}
 
-	private Mat preprocess(Mat input) {
+	private Mat preprocess(Mat input) throws NoMusicDetectedException {
 
 		// scale and threshold
 		OurUtils.thresholdImage(input);
@@ -208,7 +208,7 @@ public class MusicDetector {
 			while (minVal < minAllowed) {
 				Point p = new Point(minLoc.x, s.startYRange() + minLoc.y);
 				trebleClefs.add(p);
-				s.addClef(Clef.Treble, p);
+				s.addClef(Clef.Treble, p, trebleClef.cols());
 				OurUtils.zeroInMatrix(result, minLoc, (int) trebleClef.cols(),
 						(int) trebleClef.rows());
 				minLoc = Core.minMaxLoc(result).minLoc;
@@ -384,26 +384,27 @@ public class MusicDetector {
 
 	private void detectHalfNotes() {
 		for (Mat m : master_half_notes) {
-			whole_note = OurUtils.resizeImage(m, staveGap);
+			half_note = OurUtils.resizeImage(m, staveGap);
 			for (Stave s : staves) {
 				Mat result = new Mat();
 				Imgproc.matchTemplate(workingSheet.submat(s.yRange(workingSheet
-						.rows()), new Range(0, workingSheet.cols())),
-						whole_note, result, Imgproc.TM_CCOEFF);
+						.rows()), new Range((int) s.startDetection().x,
+						workingSheet.cols())), half_note, result,
+						Imgproc.TM_CCOEFF);
 				Point minLoc;
 				double minVal = Core.minMaxLoc(result).minVal;
 				double minAllowed = minVal * 0.999;
 				while (minVal < minAllowed) {
 					minLoc = Core.minMaxLoc(result).minLoc;
 					minVal = Core.minMaxLoc(result).minVal;
-					Point p = new Point(minLoc.x
-							+ /* clef.x */+whole_note.cols() / 2, minLoc.y
-							+ s.startYRange() + whole_note.rows() / 2);
-					if (!OurUtils.isThereANoteAtThisPosition(p, notes, staves,
-							staveGap))
+					Point p = new Point(s.startDetection().x + minLoc.x
+							+ half_note.cols() / 2, minLoc.y + s.startYRange()
+							+ half_note.rows() / 2);
+					if (!OurUtils.isThereANoteAtThisPosition(p, s, notes,
+							staves, workingSheet.rows()))
 						notes.add(new Note(p, 2));
 					OurUtils.zeroInMatrix(result, minLoc,
-							(int) whole_note.cols(), (int) whole_note.rows());
+							(int) half_note.cols(), (int) half_note.rows());
 				}
 			}
 		}
@@ -411,26 +412,27 @@ public class MusicDetector {
 
 	private void detectWholeNotes() {
 		for (Mat m : master_whole_notes) {
-			whole_note = OurUtils.resizeImage(m, staveGap);
+			half_note = OurUtils.resizeImage(m, staveGap);
 			for (Stave s : staves) {
 				Mat result = new Mat();
 				Imgproc.matchTemplate(workingSheet.submat(s.yRange(workingSheet
 						.rows()), new Range(0, workingSheet.cols())),
-						whole_note, result, Imgproc.TM_CCOEFF_NORMED);
+						half_note, result, Imgproc.TM_CCOEFF_NORMED);
 				Point minLoc;
-				double minVal = Core.minMaxLoc(result).minVal;
-				double minAllowed = minVal * 0.999;
+				//double minVal = Core.minMaxLoc(result).minVal;
+				//double minAllowed = minVal * 0.999;
 				while (Core.minMaxLoc(result).minVal < -0.6) {
 					minLoc = Core.minMaxLoc(result).minLoc;
-					minVal = Core.minMaxLoc(result).minVal;
+					//minVal = Core.minMaxLoc(result).minVal;
 					Point p = new Point(minLoc.x
-							+ /* clef.x */+whole_note.cols() / 2, minLoc.y
-							+ s.startYRange() + whole_note.rows() / 2);
-					if (!OurUtils.isThereANoteAtThisPosition(p, notes, staves,
-							staveGap) && p.x > s.originalClef().x + 100)
+							+ /* clef.x */+half_note.cols() / 2, minLoc.y
+							+ s.startYRange() + half_note.rows() / 2);
+					if (!OurUtils.isThereANoteAtThisPosition(p, s, notes,
+							staves, workingSheet.rows())
+							&& p.x > s.originalClef().x + 100)
 						notes.add(new Note(p, 4));
 					OurUtils.zeroInMatrix(result, minLoc,
-							(int) whole_note.cols(), (int) whole_note.rows());
+							(int) half_note.cols(), (int) half_note.rows());
 				}
 			}
 		}
@@ -479,12 +481,14 @@ public class MusicDetector {
 								beams)) {
 					Stave possibleStave = OurUtils
 							.whichStaveDoesAPointBelongTo(centre, staves,
-									staveGap);
+									workingSheet.rows());
 					Point p = OurUtils.findNearestNeighbour(centerCorrected,
 							ref, (int) noteWidth, (int) staveGap);
-					Note n = new Note(p, 1);
-					notes.add(n);
-					possibleStave.addNote(n);
+					if (p.x < possibleStave.topLine().end().x * 0.98) {
+						Note n = new Note(p, 1);
+						notes.add(n);
+						possibleStave.addNote(n);
+					}
 				}
 
 				OurUtils.zeroInMatrix(result, maxLoc, (int) noteWidth,
@@ -494,7 +498,7 @@ public class MusicDetector {
 		}
 	}
 
-	private void detectStaves(List<StaveLine> lines) {
+	private void detectStaves(List<StaveLine> lines) throws NoMusicDetectedException {
 		// sort them by length (longest first)
 		Collections.sort(lines, new Comparator<StaveLine>() {
 			@Override
@@ -545,6 +549,9 @@ public class MusicDetector {
 			// if stave.isValid() return stave;
 
 		}
+		if (staves.size() == 0)
+			throw new NoMusicDetectedException();
+		
 		staveGap = staves.get(0).staveGap();
 	}
 
@@ -587,7 +594,7 @@ public class MusicDetector {
 		printNotes(sheet);
 		printFlats(sheet);
 		printDots(sheet);
-		printBeams(sheet);
+		//printBeams(sheet);
 	}
 
 	private void sortNotes() {
@@ -603,7 +610,7 @@ public class MusicDetector {
 
 	private void printBeams(Mat sheet) {
 		for (Line l : beams) {
-			Core.line(sheet, l.start(), l.end(), new Scalar(128, 128, 0), 4);
+			Core.line(sheet, l.start(), l.end(), new Scalar(0, 255, 255), 4);
 		}
 	}
 
