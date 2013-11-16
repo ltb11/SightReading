@@ -96,9 +96,9 @@ public class SightReaderActivity extends Activity {
 				// http://android-file-dialog.googlecode.com/svn/trunk/
 				// android-file-dialog-read-only
 				// then import the project to eclipse and add the project to the
-				// buildpath for this project
+				// android library
 				Intent intent = new Intent(SightReaderActivity.this,
-						FileDialog.class);
+						FileDialogActivity.class);
 				// maybe context should be getBaseContext()?
 				intent.putExtra(FileDialog.START_PATH, OurUtils.getPath(""));
 
