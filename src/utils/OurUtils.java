@@ -141,13 +141,12 @@ public class OurUtils {
 	 **************************************/
 
 	public static boolean isThereANoteAtThisPosition(Point toCheck,
-			List<Note> notes, List<Stave> staves, double staveGap) {
+			Stave currentStave, List<Note> notes, List<Stave> staves,
+			int maxRows) {
 		for (Note n : notes) {
 			if (Math.abs(n.center().x - toCheck.x) < 30
-					&& whichStaveDoesAPointBelongTo(n.center(), staves,
-							staveGap).equals(
-							whichStaveDoesAPointBelongTo(toCheck, staves,
-									staveGap)))
+					&& currentStave.equals(whichStaveDoesAPointBelongTo(
+							n.center(), staves, maxRows)))
 				return true;
 		}
 		return false;
@@ -357,11 +356,9 @@ public class OurUtils {
 	}
 
 	public static Stave whichStaveDoesAPointBelongTo(Point p,
-			List<Stave> staves, double staveGap) {
+			List<Stave> staves, int maxRows) {
 		for (Stave s : staves) {
-			if ((new Interval((int) (s.topLine().start().y - 4 * staveGap),
-					(int) (s.bottomLine().start().y + 4 * staveGap))
-					.contains((int) p.y)))
+			if (new Interval(s.yRange(maxRows)).contains((int) p.y))
 				return s;
 		}
 		return null;

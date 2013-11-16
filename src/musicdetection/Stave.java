@@ -27,6 +27,7 @@ public class Stave {
 	private double staveGap;
 	private Map<Point, Clef> clefs;
 	private Point originalClef;
+	private Point startDetection;
 	
 	private List<Note> notes;
 	
@@ -44,10 +45,16 @@ public class Stave {
 		return notes;
 	}
 	
-	public void addClef(Clef c, Point p) {
+	public void addClef(Clef c, Point p, int cols) {
 		clefs.put(p, c);
-		if (originalClef == null)
+		if (originalClef == null) {
 			originalClef = p;
+			startDetection = new Point(originalClef.x + cols, originalClef.y);
+		}
+	}
+	
+	public Point startDetection() {
+		return startDetection;
 	}
 	
 	public Point originalClef() {

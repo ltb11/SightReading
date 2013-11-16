@@ -2,17 +2,16 @@ package org.sightreader;
 
 import java.io.File;
 
-import midiconversion.Converter;
 import musicdetection.MusicDetector;
-import musicrepresentation.Piece;
+import musicdetection.NoMusicDetectedException;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
-import playback.Playback;
 import utils.OurUtils;
 import android.app.Activity;
 import android.content.Intent;
@@ -22,10 +21,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-
 import com.lamerman.FileDialog;
 import com.lamerman.SelectionMode;
-import com.leff.midi.MidiFile;
 
 public class SightReaderActivity extends Activity {
 	public static final String TAG = "SightReaderActivity";
@@ -124,6 +121,15 @@ public class SightReaderActivity extends Activity {
 				String toTest = "closeYourEyes.jpg";
 				testImage(toTest, OurUtils.getDestImage(toTest),
 						OurUtils.getDestMid(toTest));
+				finish();
+			}
+		});
+		
+		findViewById(R.id.test).setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				testProg();
 			}
 		});
 
@@ -139,19 +145,50 @@ public class SightReaderActivity extends Activity {
 		Mat output = scaledInput.clone();
 		Imgproc.cvtColor(output, output, Imgproc.COLOR_GRAY2BGR);
 
-		MusicDetector detector = new MusicDetector(scaledInput);
+		MusicDetector detector = null;
+		try {
+			detector = new MusicDetector(scaledInput);
+		} catch (NoMusicDetectedException e) {
+			e.printStackTrace();
+		}
 		detector.detect();
 		detector.print(output);
 
-		Piece piece = detector.toPiece();
-		MidiFile f = Converter.Convert(piece);
+		// Piece piece = detector.toPiece();
+		// MidiFile f = Converter.Convert(piece);
 
-		Playback.saveMidiFile(f, destMid);
+		// Playback.saveMidiFile(f, destMid);
 
 		// Playback.playMidiFile("test.mid");
 
 		OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));
+	}
 
+	public void testProg() {
+		String[] tests = new String[] { "Distorted.jpg", "Baabaa.jpg",
+				"Baabaa 13-11-13 2.jpg" };
+		for (String s : tests) {
+			String dstImage = OurUtils.getDestImage(s);
+			testImage(s, dstImage, OurUtils.getDestMid(s));
+			Mat ref = OurUtils.readImage(OurUtils.getPath("ref/" + dstImage));
+			//Imgproc.cvtColor(ref, ref, Imgproc.COLOR_GRAY2BGR);
+			Mat toTest = OurUtils.readImage(OurUtils.getPath("output/" + dstImage));
+			//Imgproc.cvtColor(toTest, toTest, Imgproc.COLOR_GRAY2BGR);
+			/*for (int i = 0; i < ref.rows(); i++) {
+				for (int j = 0; j < ref.cols(); j++) {
+					for (int k = 0; k < 3; k++) {
+						//Log.v("Guillaume", ref.get(i, j)[0] + "/" + toTest.get(i, j)[0]);
+						assert (ref.get(i, j)[k] == toTest.get(i, j)[k]) : "Pixels not identical: "
+								+ i + "," + j;
+					}
+				}
+			}*/
+			Mat dest = new Mat();
+			Core.bitwise_xor(ref, toTest, dest);
+			assert (Core.norm(dest, Core.NORM_INF) == 0) : "Pixels not identical";
+			Log.v("Guillaume", s + " fully parsed");
+		}
 		finish();
 	}
+
 }

@@ -1,5 +1,7 @@
 package utils;
 
+import org.opencv.core.Range;
+
 public class Interval {
 	
 	private int min, max;
@@ -7,6 +9,11 @@ public class Interval {
 	public Interval(int min, int max) {
 		this.min = min;
 		this.max = max;
+	}
+	
+	public Interval (Range r) {
+		this.min = r.start;
+		this.max = r.end;
 	}
 	
 	public boolean contains(int number) {
