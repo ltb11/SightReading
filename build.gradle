@@ -2,10 +2,14 @@ buildscript{
 
     repositories {
         mavenCentral()
+		maven {
+			url 'https://raw.github.com/vRallev/mvn-repo/master/'
+		}
     }
 
     dependencies {
         classpath 'com.android.tools.build:gradle:0.6.+'
+		 
     }
 
 }
@@ -47,6 +51,7 @@ android {
 }
 
 dependencies {
+    compile 'org.opencv:opencv-android:2.4.6'
     compile fileTree(dir: 'libs', include:'*.jar')
 }
 
