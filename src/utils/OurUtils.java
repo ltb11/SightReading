@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,16 +30,11 @@ import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
-import org.sightreader.SRFileBuilder;
 
-import playback.Playback;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.Log;
-
-import com.leff.midi.MidiFile;
 
 public class OurUtils {
 
@@ -141,12 +135,9 @@ public class OurUtils {
 	 **************************************/
 
 	public static boolean isThereANoteAtThisPosition(Point toCheck,
-			Stave currentStave, List<Note> notes, List<Stave> staves,
-			int maxRows) {
-		for (Note n : notes) {
-			if (Math.abs(n.center().x - toCheck.x) < 30
-					&& currentStave.equals(whichStaveDoesAPointBelongTo(
-							n.center(), staves, maxRows)))
+			Stave currentStave) {
+		for (Note n : currentStave.notes()) {
+			if (Math.abs(n.center().x - toCheck.x) < 35)
 				return true;
 		}
 		return false;
@@ -549,17 +540,14 @@ public class OurUtils {
 	}
 
 	/** Use this to save midi images ad .sr connector when files are generated */
-	public static void saveSRFiles(MidiFile midi, List<Bitmap> images,
-			String saveName) {
-		SRFileBuilder builder = new SRFileBuilder(saveName);
-		Iterator<Bitmap> imagesIterator = images.iterator();
-		for (int i = 1; imagesIterator.hasNext(); i++) {
-			saveImage(imagesIterator.next(), getPath(IMAGE_FOLDER), saveName
-					+ i);
-			builder.addImagePath(getPath(IMAGE_FOLDER) + saveName + i + ".png");
-		}
-		Playback.saveMidiFile(midi, saveName);
-		builder.setMidiPath(saveName);
-		builder.build();
-	}
+	/*
+	 * public static void saveSRFiles(MidiFile midi, List<Bitmap> images, String
+	 * saveName) { SRFileBuilder builder = new SRFileBuilder(saveName);
+	 * Iterator<Bitmap> imagesIterator = images.iterator(); for (int i = 1;
+	 * imagesIterator.hasNext(); i++) { saveImage(imagesIterator.next(),
+	 * getPath(IMAGE_FOLDER), saveName + i);
+	 * builder.addImagePath(getPath(IMAGE_FOLDER) + saveName + i + ".png"); }
+	 * Playback.saveMidiFile(midi, saveName); builder.setMidiPath(saveName);
+	 * builder.build(); }
+	 */
 }

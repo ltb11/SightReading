@@ -106,8 +106,7 @@ public class SightReaderActivity extends Activity {
 						SelectionMode.MODE_OPEN);
 
 				// restrict file types visible
-				intent.putExtra(FileDialog.FORMAT_FILTER,
-						new String[] { "sr" });
+				intent.putExtra(FileDialog.FORMAT_FILTER, new String[] { "sr" });
 
 				startActivityForResult(intent, 0);
 
@@ -118,15 +117,15 @@ public class SightReaderActivity extends Activity {
 		findViewById(R.id.parse).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				String toTest = "closeYourEyes.jpg";
+				String toTest = "Distorted.jpg";
 				testImage(toTest, OurUtils.getDestImage(toTest),
 						OurUtils.getDestMid(toTest));
 				finish();
 			}
 		});
-		
+
 		findViewById(R.id.test).setOnClickListener(new View.OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				testProg();
@@ -171,21 +170,14 @@ public class SightReaderActivity extends Activity {
 			String dstImage = OurUtils.getDestImage(s);
 			testImage(s, dstImage, OurUtils.getDestMid(s));
 			Mat ref = OurUtils.readImage(OurUtils.getPath("ref/" + dstImage));
-			//Imgproc.cvtColor(ref, ref, Imgproc.COLOR_GRAY2BGR);
-			Mat toTest = OurUtils.readImage(OurUtils.getPath("output/" + dstImage));
-			//Imgproc.cvtColor(toTest, toTest, Imgproc.COLOR_GRAY2BGR);
-			/*for (int i = 0; i < ref.rows(); i++) {
-				for (int j = 0; j < ref.cols(); j++) {
-					for (int k = 0; k < 3; k++) {
-						//Log.v("Guillaume", ref.get(i, j)[0] + "/" + toTest.get(i, j)[0]);
-						assert (ref.get(i, j)[k] == toTest.get(i, j)[k]) : "Pixels not identical: "
-								+ i + "," + j;
-					}
-				}
-			}*/
+			Imgproc.cvtColor(ref, ref, Imgproc.COLOR_GRAY2BGR);
+			Mat toTest = OurUtils.readImage(OurUtils.getPath("output/"
+					+ dstImage));
+			Imgproc.cvtColor(toTest, toTest, Imgproc.COLOR_GRAY2BGR);
 			Mat dest = new Mat();
 			Core.bitwise_xor(ref, toTest, dest);
-			assert (Core.norm(dest, Core.NORM_INF) == 0) : "Pixels not identical";
+			if (!(Core.norm(dest, Core.NORM_INF) == 0))
+				Log.e("Guillaume", s + "not fully parsed. Pixels not identical");
 			Log.v("Guillaume", s + " fully parsed");
 		}
 		finish();
