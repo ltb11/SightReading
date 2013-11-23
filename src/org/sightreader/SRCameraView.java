@@ -11,7 +11,6 @@ import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.Size;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.SurfaceHolder;
 
 public class SRCameraView extends JavaCameraView implements PictureCallback {
 

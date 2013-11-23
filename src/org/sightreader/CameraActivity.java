@@ -2,10 +2,6 @@ package org.sightreader;
 
 import java.io.File;
 
-import midiconversion.Converter;
-import musicdetection.MusicDetector;
-import musicrepresentation.Piece;
-
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
@@ -14,10 +10,6 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-
-import playback.Playback;
-
-import com.leff.midi.MidiFile;
 
 import utils.OurUtils;
 import android.app.Activity;

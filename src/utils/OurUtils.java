@@ -157,7 +157,11 @@ public class OurUtils {
 
 	public static boolean isThereASimilarLine(List<Line> quavers, Line l) {
 		for (Line line : quavers) {
-			if (Math.abs(line.start().y - l.start().y) < 10) {
+			double slope = (line.end().y - line.start().y)
+					/ (line.end().x - line.start().x);
+			if (Math.abs((line.start().y + slope
+					* (l.start().x - line.start().x))
+					- l.start().y) < 10) {
 				if ((l.start().x >= line.start().x && l.start().x <= line.end().x)
 						|| (l.start().x <= line.start().x && l.end().x >= line
 								.start().x))
@@ -167,17 +171,13 @@ public class OurUtils {
 		return false;
 	}
 
-	public static boolean isABeam(Line line, List<Note> notes, double staveGap) {
+	public static boolean isABeam(Line line, Stave s) {
 		boolean beginning = false;
 		boolean end = false;
-		for (Note n : notes) {
-			if (Math.abs(n.center().x - line.start().x) < MusicDetector.beamLengthTolerance
-					&& Math.abs(n.center().y - line.start().y) > 2 * staveGap
-					&& Math.abs(n.center().y - line.start().y) < 4 * staveGap)
+		for (Note n : s.notes()) {
+			if (Math.abs(n.center().x - line.start().x) < MusicDetector.beamLengthTolerance)
 				beginning = true;
-			else if (Math.abs(n.center().x - line.end().x) < MusicDetector.beamLengthTolerance
-					&& Math.abs(n.center().y - line.end().y) > 2 * staveGap
-					&& Math.abs(n.center().y - line.end().y) < 4 * staveGap)
+			else if (Math.abs(n.center().x - line.end().x) < MusicDetector.beamLengthTolerance)
 				end = true;
 			if (beginning && end)
 				return true;

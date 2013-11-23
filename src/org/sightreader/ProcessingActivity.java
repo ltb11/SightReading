@@ -13,7 +13,7 @@ public class ProcessingActivity extends Activity {
 	public final static long startTime = System.currentTimeMillis();
 
 	public static Bitmap image;
-	private static int totalPages;
+	//private static int totalPages;
 
 	/** Called when the activity is first created. */
 	@Override

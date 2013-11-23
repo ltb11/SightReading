@@ -26,70 +26,87 @@ public class Stave {
 	private List<StaveLine> lines;
 	private double staveGap;
 	private Map<Point, Clef> clefs;
+	private Map<Point, Time> times;
 	private Point originalClef;
 	private Point startDetection;
-	
+
 	private List<Note> notes;
-	
+
 	public Stave(List<StaveLine> lines) {
 		this.lines = lines;
 		if (lines.size() != 5)
 			throw new RuntimeException("Stave must have 5 lines!");
-		staveGap = (lines.get(4).toLine().start().y - lines.get(0).toLine().start().y) / 4; 
+		staveGap = (lines.get(4).toLine().start().y - lines.get(0).toLine()
+				.start().y) / 4;
 		clefs = new HashMap<Point, Clef>();
 		notes = new LinkedList<Note>();
+		times = new HashMap<Point, Time>();
 		originalClef = null;
+		startDetection = null;
 	}
-	
+
 	public List<Note> notes() {
 		return notes;
 	}
-	
+
 	public void addClef(Clef c, Point p, int cols) {
 		clefs.put(p, c);
 		if (originalClef == null) {
 			originalClef = p;
-			startDetection = new Point(originalClef.x + cols, originalClef.y);
+			if (startDetection == null)
+				startDetection = new Point(p.x + cols, p.y);
 		}
 	}
-	
+
+	public void addTime(Time t, Point p, int cols) {
+		times.put(p, t);
+		if (Math.abs(p.x - originalClef.x) < 200)
+			startDetection = new Point(p.x + cols, p.y);
+	}
+
 	public Point startDetection() {
 		return startDetection;
 	}
-	
+
 	public Point originalClef() {
 		return originalClef;
 	}
-	
+
 	public void draw(Mat image) {
-		Scalar col = new Scalar(128,0,0);
-		
+		Scalar col = new Scalar(128, 0, 0);
+
 		for (int i = 0; i < 5; i++) {
-			Core.line(image, lines.get(i).toLine().start(), lines.get(i).toLine().end(), col, 3);
+			Core.line(image, lines.get(i).toLine().start(), lines.get(i)
+					.toLine().end(), col, 3);
 		}
 	}
-	
+
 	public void drawDetailed(Mat image) {
-		Scalar col = new Scalar(128,0,0);
-		
+		Scalar col = new Scalar(128, 0, 0);
+
 		for (int i = 0; i < 5; i++) {
-			for(Line l : lines.get(i).getLines()) {
+			for (Line l : lines.get(i).getLines()) {
 				Core.line(image, l.start(), l.end(), col, 3);
 			}
 		}
 	}
-	
+
 	public double staveGap() {
 		return staveGap;
 	}
-	
+
 	public double startYRange() {
-		return topLine().start().y - 4*staveGap;
+		return topLine().start().y - 4 * staveGap;
 	}
 
 	public Range yRange(int maxRows) {
 		return new Range((int) Math.max(0, topLine().start().y - 4 * staveGap),
 				(int) Math.min(maxRows, bottomLine().start().y + 4 * staveGap));
+	}
+
+	public Range xRange() {
+		return new Range((int) startDetection.x, (int) lines.get(0).toLine()
+				.end().x);
 	}
 
 	public Line topLine() {
@@ -123,7 +140,7 @@ public class Stave {
 			public int compare(Note lhs, Note rhs) {
 				return (int) (lhs.center().x - rhs.center().x);
 			}
-			
+
 		});
 	}
 
@@ -131,32 +148,32 @@ public class Stave {
 		for (Note n : notes) {
 			double nx = (n.center().x);
 			double ny = (n.center().y);
-			double y1 = getY(lines.get(0),nx);
-			double y2 = getY(lines.get(4),nx);
-			double gap = y2-y1;
-			
+			double y1 = getY(lines.get(0), nx);
+			double y2 = getY(lines.get(4), nx);
+			double gap = y2 - y1;
+
 			// 0-1 where 0 is top line, 1 is bottom
-			double pos = (ny-y1)/gap;
-			int line = (int) Math.round(8 - pos*8);
-			NoteName name = OurUtils.getName(getClefAtPos(n.center()),line);
+			double pos = (ny - y1) / gap;
+			int line = (int) Math.round(8 - pos * 8);
+			NoteName name = OurUtils.getName(getClefAtPos(n.center()), line);
 			n.setName(name);
 			n.setOctave(OurUtils.getOctave(getClefAtPos(n.center()), line));
 		}
 	}
 
 	private double getY(StaveLine line, double x) {
-		for(Line l : line.getLines()) {
-			if (l.end().x>x) {
+		for (Line l : line.getLines()) {
+			if (l.end().x > x) {
 				return l.start().y;
 			}
 		}
 		return 0;
 	}
-	
+
 	public double staveGapAtPos(Point center) {
 		double nx = (center.x);
-		double y1 = getY(lines.get(0),nx);
-		double y2 = getY(lines.get(4),nx);
+		double y1 = getY(lines.get(0), nx);
+		double y2 = getY(lines.get(4), nx);
 		return (y2 - y1) / 4;
 	}
 
@@ -164,23 +181,23 @@ public class Stave {
 		List<Bar> bars = new LinkedList<Bar>();
 		Bar currentBar = new Bar();
 		bars.add(currentBar);
-		
+
 		int duration = 0;
 		List<PlayedNote> notes = createPlayedNotes();
-		for(PlayedNote n : notes) {
-			
-			Log.i("NOTE",n.toString());
-			
+		for (PlayedNote n : notes) {
+
+			Log.i("NOTE", n.toString());
+
 			currentBar.addNote(n);
-			
+
 			duration += n.getDuration();
-			if (duration>=AbstractNote.TEMP_44LENGTH) {
-				duration=0;
+			if (duration >= AbstractNote.TEMP_44LENGTH) {
+				duration = 0;
 				currentBar = new Bar();
 				bars.add(currentBar);
 			}
 		}
-		
+
 		return bars;
 	}
 
