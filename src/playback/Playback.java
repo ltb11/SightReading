@@ -29,13 +29,13 @@ public class Playback {
 		try {
 			FileInputStream fis = new FileInputStream(f);
 			FileDescriptor fd = fis.getFD();
-			fis.close();
 
 			MediaPlayer mediaPlayer = new MediaPlayer();
 			mediaPlayer.setDataSource(fd);
 			mediaPlayer.prepare();
 			mediaPlayer.start();
 			Log.i("Playback", "Playback started: " + fileName);
+			//fis.close();
 		} catch (Exception e) {
 			Log.e("Playback", e.toString());
 		}

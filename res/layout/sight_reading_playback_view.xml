@@ -11,4 +11,18 @@
         android:text="Playback"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" >
+
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/playback_resetApp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Reset" />
+
 </LinearLayout>
