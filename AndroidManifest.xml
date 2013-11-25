@@ -53,6 +53,10 @@
             android:name="FileDialogActivity"
             android:label="FileDialogActivity" >
         </activity>
-    </application>
+        <activity
+            android:name="PlaybackActivity"
+            android:label="PlaybackActivity" >
+        </activity>
+        </application>
 
 </manifest>

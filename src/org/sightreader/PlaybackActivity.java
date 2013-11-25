@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
 import playback.Playback;
+import utils.OurUtils;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,7 +23,9 @@ public class PlaybackActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		Log.i(TAG, "playback creating");
 		super.onCreate(savedInstanceState);
-		String filePath = savedInstanceState.getString("FILEPATH");
+		setContentView(R.layout.sight_reading_playback_view);
+		
+		/*String filePath = savedInstanceState.getString("FILEPATH");
 		FileInputStream inputStream = null;
 		try {
 			inputStream = new FileInputStream(filePath);
@@ -38,8 +41,8 @@ public class PlaybackActivity extends Activity {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 
-		Playback.playMidiFile(midiPath);
+		Playback.playMidiFile("temp/", "output.midi");
 	}
 }

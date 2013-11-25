@@ -87,6 +87,8 @@ public class CameraActivity extends Activity implements OnTouchListener,
 		done.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				if (totalImages > 0) {
+					ProcessingActivity.SetPageNum(totalImages);
+					CameraActivity.reset();
 					Intent i = new Intent(CameraActivity.this,
 							ProcessingActivity.class);
 					startActivity(i);
@@ -94,11 +96,11 @@ public class CameraActivity extends Activity implements OnTouchListener,
 			}
 		});
 	}
-
-	public static int totalImagesCaptured() {
-		return totalImages;
-	}
 	
+	protected static void reset() {
+		totalImages = 0;
+	}
+
 	private void updateText() {
 		TextView text = (TextView) findViewById(R.id.savedPagesText);
 		text.setText("You have saved " + totalImages + " pages");
