@@ -31,6 +31,8 @@ public class MusicDetector {
 
 	public static final Mat masterTrebleClef = OurUtils.readImage(OurUtils
 			.getPath("assets/GClef.png"));
+	public static final Mat masterBassClef = OurUtils.readImage(OurUtils
+			.getPath("assets/BassClef.png"));
 	public static final Mat masterFourFour = OurUtils.readImage(OurUtils
 			.getPath("assets/44.png"));
 	public static final Mat masterFlat_inter = OurUtils.readImage(OurUtils
@@ -45,6 +47,7 @@ public class MusicDetector {
 			.getPath("assets/whole_note_on.png"));
 	public static final Mat masterWhole_note = OurUtils.readImage(OurUtils
 			.getPath("assets/whole_note.png"));
+	
 
 	private final List<Mat> master_half_notes = new LinkedList<Mat>();
 	private final List<Mat> master_whole_notes = new LinkedList<Mat>();
@@ -52,7 +55,9 @@ public class MusicDetector {
 	public static final int beamLengthTolerance = 30;
 
 	private Mat trebleClef;
+	private Mat bassClef;
 	private Mat fourFour;
+	private Mat threeFour;
 	// private Mat flat_inter;
 	private Mat flat_on;
 	private Mat half_note;
