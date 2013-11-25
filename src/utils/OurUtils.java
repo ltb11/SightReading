@@ -144,12 +144,19 @@ public class OurUtils {
 	}
 
 	public static boolean isOnBeamLine(Point centre, double noteWidth,
-			double staveGap, List<Line> quavers) {
-		for (Line l : quavers) {
-			if (!(centre.x - noteWidth / 2 > l.end().x
-					|| centre.x + noteWidth / 2 < l.start().x
-					|| centre.y - staveGap / 2 > l.end().y || centre.y
-					+ staveGap / 2 < l.start().y))
+			double staveGap, Line line) {
+		double slope = (line.end().y - line.start().y)
+				/ (line.end().x - line.start().x);
+		double beamY = (line.start().y + slope * (centre.x - line.start().x));
+		return !(centre.x + noteWidth < line.start().x
+				|| centre.x - noteWidth > line.end().x
+				|| centre.y + staveGap < beamY || centre.y - staveGap > beamY);
+	}
+
+	public static boolean isOnBeamLine(Point centre, double noteWidth,
+			double staveGap, List<Line> lines) {
+		for (Line l : lines) {
+			if (isOnBeamLine(centre, noteWidth, staveGap, l))
 				return true;
 		}
 		return false;
@@ -537,6 +544,10 @@ public class OurUtils {
 		fis = new FileInputStream(file);
 		Bitmap b = BitmapFactory.decodeStream(fis);
 		return b;
+	}
+
+	public static Line correctLine(Line potentialLine, Mat part, double staveGap) {
+		return potentialLine;
 	}
 
 	/** Use this to save midi images ad .sr connector when files are generated */

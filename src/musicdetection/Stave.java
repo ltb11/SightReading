@@ -54,14 +54,14 @@ public class Stave {
 		if (originalClef == null) {
 			originalClef = p;
 			if (startDetection == null)
-				startDetection = new Point(p.x + cols, p.y);
+				startDetection = new Point(p.x + cols, this.startYRange());
 		}
 	}
 
 	public void addTime(Time t, Point p, int cols) {
 		times.put(p, t);
 		if (Math.abs(p.x - originalClef.x) < 200)
-			startDetection = new Point(p.x + cols, p.y);
+			startDetection = new Point(p.x + cols, this.startYRange());
 	}
 
 	public Point startDetection() {
@@ -211,6 +211,10 @@ public class Stave {
 
 	public double getTopYAtPos(Point pos) {
 		return getY(lines.get(0), pos.x);
+	}
+
+	public void removeNote(Note n) {
+		notes.remove(n);
 	}
 
 }

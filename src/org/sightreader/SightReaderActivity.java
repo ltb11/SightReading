@@ -117,7 +117,7 @@ public class SightReaderActivity extends Activity {
 		findViewById(R.id.parse).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				String toTest = "Baabaa.jpg";
+				String toTest = "StarWars.jpg";
 				testImage(toTest, OurUtils.getDestImage(toTest),
 						OurUtils.getDestMid(toTest));
 				finish();
@@ -141,6 +141,8 @@ public class SightReaderActivity extends Activity {
 		Mat scaledInput = OurUtils.resizeImage(input,
 				OurUtils.STANDARD_IMAGE_WIDTH);
 
+		Log.d("Guillaume",
+				"Original image width after scaling: " + scaledInput.cols());
 		Mat output = scaledInput.clone();
 		Imgproc.cvtColor(output, output, Imgproc.COLOR_GRAY2BGR);
 
@@ -177,7 +179,8 @@ public class SightReaderActivity extends Activity {
 			Mat dest = new Mat();
 			Core.bitwise_xor(ref, toTest, dest);
 			if (Core.norm(dest, Core.NORM_INF) != 0)
-				Log.d("Guillaume", s + " not fully parsed. Pixels not identical");
+				Log.d("Guillaume", s
+						+ " not fully parsed. Pixels not identical");
 			else
 				Log.v("Guillaume", s + " fully parsed");
 		}

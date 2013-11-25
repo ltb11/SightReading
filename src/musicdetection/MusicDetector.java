@@ -12,6 +12,7 @@ import musicrepresentation.Bar;
 import musicrepresentation.Piece;
 
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
@@ -61,7 +62,7 @@ public class MusicDetector {
 	private int dotWidth;
 	private int dotHeight;
 
-	private Mat workingSheet;
+	private final Mat workingSheet;
 	private final double staveLengthTolerance = 0.1;
 	private double staveGap;
 	private double noteWidth;
@@ -72,6 +73,7 @@ public class MusicDetector {
 	private List<Line> beams = new LinkedList<Line>();
 	private List<Point> flats = new LinkedList<Point>();
 	private Map<Point, Note> dots = new HashMap<Point, Note>();
+	private List<Note> potentialNotes = new LinkedList<Note>();
 
 	public MusicDetector(final Mat input) throws NoMusicDetectedException {
 		workingSheet = preprocess(input.clone());
@@ -125,19 +127,14 @@ public class MusicDetector {
 				"Time detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
 		startTimeOfEachMethod = System.currentTimeMillis();
-		detectBeams();
-		Log.v("Guillaume",
-				"Beam detection time: "
-						+ (System.currentTimeMillis() - startTimeOfEachMethod));
-		startTimeOfEachMethod = System.currentTimeMillis();
 		detectNotes();
 		Log.v("Guillaume",
 				"Note detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
 		startTimeOfEachMethod = System.currentTimeMillis();
-		// correctBeams();
+		detectBeams();
 		Log.v("Guillaume",
-				"Correction of beams time: "
+				"Beam detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectHalfNotes();
@@ -328,7 +325,10 @@ public class MusicDetector {
 					Point p = new Point(
 							minLoc.x + n.center().x - 3 * noteWidth, minLoc.y
 									+ n.center().y - staveGap);
-					flats.add(p);
+					if (!OurUtils.isThereANoteAtThisPosition(p, OurUtils
+							.whichStaveDoesAPointBelongTo(p, staves,
+									workingSheet.rows())))
+						flats.add(p);
 					OurUtils.zeroInMatrix(result, minLoc, (int) flat_on.cols(),
 							(int) flat_on.rows());
 				}
@@ -336,45 +336,159 @@ public class MusicDetector {
 		}
 	}
 
-	
-	//TODO: Change the order to detectNotes -> detectBeams -> prune wrongly detected notes
-	//TODO: Get the previous rotateOnSheet algorithm and combine both of them
-	//TODO: Create big lines from consecutive small lines
+	// TODO: Change the order to detectNotes -> detectBeams -> prune wrongly
+	// detected notes
+	// TODO: Get the previous rotateOnSheet algorithm and combine both of them
+	// TODO: Create big lines from consecutive small lines
 	private void detectBeams() {
-		Mat lines = new Mat();
+		Log.d("Guillaume", "staveGap: " + staveGap);
 		List<Line> allLines = new LinkedList<Line>();
+		Mat part = workingSheet.clone();
+		Imgproc.erode(part, part, Imgproc.getStructuringElement(
+				Imgproc.MORPH_RECT, new Size(8, 8)));
 		for (Stave s : staves) {
-			Mat part = workingSheet.clone().submat(
-					s.yRange(workingSheet.rows()), s.xRange());
-			Imgproc.erode(part, part, Imgproc.getStructuringElement(
+			Mat partRot = rotateSheetOnStave(s);
+			Imgproc.erode(partRot, partRot, Imgproc.getStructuringElement(
 					Imgproc.MORPH_RECT, new Size(6, 6)));
-			Point clef = s.startDetection();
-			Imgproc.HoughLinesP(part, lines, 1, Math.PI / 180, 100);
-			for (int i = 0; i < lines.cols(); i++) {
-				double[] data = lines.get(0, i);
-				Point start = new Point(data[0] + clef.x, data[1]
-						+ s.topLine().start().y - 4 * staveGap);
-				Point end = new Point(data[2] + clef.x, data[3]
-						+ s.topLine().start().y - 4 * staveGap);
-				double lengthX = end.x - start.x;
-				if (/* lengthX > part.cols() / 30 && */lengthX < part.cols() / 6)
-					allLines.add(new Line(start, end));
+			Point startDetection = s.startDetection();
+			Mat partNorm = part.submat((s.yRange(workingSheet.rows())),
+					s.xRange());
+			/*
+			 * OurUtils.writeImage(part.clone(),
+			 * OurUtils.getPath("output/erodedSW_" + s.startYRange()) + ".jpg");
+			 */
+			/*
+			 * for (int colLength = 1500; colLength > 0; colLength -= 400) { for
+			 * (int cols = 0; cols < partNorm.cols() - colLength; cols +=
+			 * colLength) allLines.addAll(extractBeams(startDetection, partNorm,
+			 * cols, colLength)); for (int cols = 0; cols < partRot.cols() -
+			 * colLength; cols += colLength)
+			 * allLines.addAll(extractBeams(startDetection, partRot, cols,
+			 * colLength)); }
+			 */
+			int cutLength = 30;
+			for (int cut = (int) startDetection.x; cut < part.cols()
+					- cutLength; cut += cutLength) {
+				for (int angle = 0; angle <= 0; angle += 5) {
+					Mat tmp = OurUtils.rotateMatrix(
+							part.clone().submat(s.yRange(part.rows()),
+									new Range(cut, cut + cutLength)), angle);
+					Mat proj = new Mat();
+					Core.reduce(tmp, proj, 1, Core.REDUCE_AVG, CvType.CV_32S);
+					if (cut >= 2400 && cut <= 2449
+							&& s.topLine().start().y > 1500
+							&& s.topLine().start().y < 1700) {
+						OurUtils.writeImage(proj,
+								OurUtils.getPath("output/proj.jpg"));
+						OurUtils.writeImage(tmp,
+								OurUtils.getPath("output/tmp.jpg"));
+					}
+					int lastValidStart = 0;
+					int minThickness = 4;
+					for (int i = 0; i < proj.rows(); i++) {
+						int[] v = new int[3];
+						proj.get(i, 0, v);
+						if (i >= lastValidStart + minThickness) {
+							Point start = new Point(cut, lastValidStart
+									+ minThickness / 2);
+							Point end = new Point(
+									cut + cutLength,
+									(lastValidStart + minThickness / 2 + cutLength
+											* Math.tan(angle)));
+							Log.d("Guillaume", "Added new line: " + start.x
+									+ "," + start.y + " / " + end.x + ","
+									+ end.y);
+							allLines.add(new Line(start, end));
+						}
+						if (v[0] < 128)
+							lastValidStart = i;
+						else
+							Log.d("Guillaume", "" + v[0]);
+					}
+				}
 			}
 		}
 		Collections.sort(allLines, new Comparator<Line>() {
 
 			@Override
 			public int compare(Line lhs, Line rhs) {
-				return (int) ((rhs.end().x - rhs.start().x) - (lhs.end().x - lhs
-						.start().x));
+				return (int) (Math.sqrt((Math.pow(rhs.end().x - rhs.start().x,
+						2) - Math.pow(rhs.end().y - rhs.start().y, 2))) - Math
+						.sqrt((Math.pow(lhs.end().x - lhs.start().x, 2) - Math
+								.pow(lhs.end().y - lhs.start().y, 2))));
 			}
 
 		});
 		for (int i = 0; i < allLines.size(); i++) {
 			Line l = allLines.get(i);
-			if (!OurUtils.isThereASimilarLine(beams, l))
+			Stave s = OurUtils.whichStaveDoesAPointBelongTo(l.start(), staves,
+					workingSheet.rows());
+			if (!OurUtils.isThereASimilarLine(beams, l)
+					&& OurUtils.isABeam(l, s)) {
 				beams.add(l);
+				for (int j = 0; j < s.notes().size(); j++) {
+					Note n = s.notes().get(j);
+					if (OurUtils.isOnBeamLine(n.center(), noteWidth, staveGap,
+							l)) {
+						notes.remove(n);
+						s.removeNote(n);
+						j--;
+					}
+				}
+			}
 		}
+		Log.d("Guillaume", "@potentialNotes, beams.size: " + beams.size());
+		for (int j = 0; j < potentialNotes.size(); j++) {
+			Note n = potentialNotes.get(j);
+			Log.d("Guillaume",
+					"Potential note: " + n.center().x + "," + n.center().y
+							+ "/total: " + potentialNotes.size() + ",");
+			Stave potentialStave = OurUtils.whichStaveDoesAPointBelongTo(
+					n.center(), staves, workingSheet.rows());
+			if (!OurUtils
+					.isThereANoteAtThisPosition(n.center(), potentialStave)
+					&& !OurUtils.isOnBeamLine(n.center(), noteWidth, staveGap,
+							beams)) {
+				potentialNotes.remove(n);
+				notes.add(n);
+				potentialStave.addNote(n);
+				j--;
+			}
+		}
+
+		for (Line l : beams) {
+			Stave s = OurUtils.whichStaveDoesAPointBelongTo(l.start(), staves,
+					workingSheet.rows());
+			for (Note n : s.notes()) {
+				if (n.center().x > l.start().x - beamLengthTolerance
+						&& n.center().x < l.end().x + beamLengthTolerance) {
+					n.setDuration(n.duration() / 2);
+				}
+			}
+		}
+	}
+
+	private List<Line> extractBeams(Point startDetection, Mat partNorm,
+			int cols, int colLength) {
+		List<Line> allLines = new LinkedList<Line>();
+		Mat lines = new Mat();
+		Imgproc.HoughLinesP(
+				partNorm.submat(0, partNorm.rows(), cols, cols + colLength)
+						.clone(), lines, 0.5, Math.PI / 180, 100);
+		for (int i = 0; i < lines.cols(); i++) {
+			double[] data = lines.get(0, i);
+			Point start = new Point(data[0] + startDetection.x + cols, data[1]
+					+ startDetection.y);
+			Point end = new Point(data[2] + startDetection.x + cols, data[3]
+					+ startDetection.y);
+			Line potentialLine = new Line(start, end);
+			Line correctedLine = OurUtils.correctLine(potentialLine, partNorm,
+					staveGap);
+			double lengthX = correctedLine.length;
+			if (/* lengthX > part.cols() / 30 && */lengthX < partNorm.cols() / 6)
+				allLines.add(correctedLine);
+		}
+		return allLines;
 	}
 
 	private void detectHalfNotes() {
@@ -482,13 +596,13 @@ public class MusicDetector {
 					trebleClef.rows(), potentialNote.center())
 					&& !OurUtils.isInAnyRectangle(fourFours, fourFour.cols(),
 							fourFour.rows(), potentialNote.center())
-					&& !OurUtils.isOnBeamLine(potentialNote.center(),
-							noteWidth, staveGap, beams)
-					&& !OurUtils.isThereANoteAtThisPosition(
-							potentialNote.center(), s)
 					&& potentialNote.center().x < s.topLine().end().x * 0.98) {
-				notes.add(potentialNote);
-				s.addNote(potentialNote);
+				if (!OurUtils.isThereANoteAtThisPosition(
+						potentialNote.center(), s)) {
+					notes.add(potentialNote);
+					s.addNote(potentialNote);
+				} else
+					potentialNotes.add(potentialNote);
 			}
 		}
 	}
@@ -555,15 +669,11 @@ public class MusicDetector {
 
 	private Mat rotateSheetOnStave(Stave s) {
 		Line l = s.topLine();
-		Point clef = s.originalClef();
-		double angleToRotate = (l.end().y - l.start().y)
-				/ (l.end().x - l.start().x);
-		int startY = Math.max(0, (int) (l.start().y - 4 * staveGap));
-		int endY = Math.min(workingSheet.rows(),
-				(int) (s.bottomLine().start().y + 4 * staveGap));
+		double angleToRotate = Math.atan((l.end().y - l.start().y)
+				/ (l.end().x - l.start().x));
 		Mat rotated = OurUtils.rotateMatrix(
-				workingSheet.submat(startY, endY, (int) clef.x,
-						workingSheet.cols()), angleToRotate);
+				workingSheet.clone().submat(s.yRange(workingSheet.rows()),
+						s.xRange()), angleToRotate);
 		return rotated;
 	}
 
@@ -594,6 +704,26 @@ public class MusicDetector {
 		printFlats(sheet);
 		printDots(sheet);
 		printBeams(sheet);
+		printScale(sheet);
+	}
+
+	private void printScale(Mat sheet) {
+		for (int i = 0; i < sheet.rows(); i += 100) {
+			Core.line(sheet, new Point(30, i), new Point((i % 1000 == 0) ? 60
+					: (i % 500 == 0) ? 50 : 40, i), new Scalar(0, 0, 255),
+					(i % 1000 == 0) ? 10 : (i % 500 == 0) ? 8 : 5);
+		}
+		for (int j = 0; j < sheet.cols(); j += 100) {
+			int rows = sheet.rows();
+			Core.line(sheet, new Point(j, 20), new Point(j,
+					(j % 1000 == 0) ? 60 : (j % 500 == 0) ? 50 : 40),
+					new Scalar(0, 0, 255), (j % 1000 == 0) ? 10
+							: (j % 500 == 0) ? 8 : 5);
+			Core.line(sheet, new Point(j, rows - 20), new Point(j, rows
+					- ((j % 1000 == 0) ? 60 : (j % 500 == 0) ? 50 : 40)),
+					new Scalar(0, 0, 255), (j % 1000 == 0) ? 10
+							: (j % 500 == 0) ? 8 : 5);
+		}
 	}
 
 	private void sortNotes() {
