@@ -85,6 +85,11 @@ public class MusicDetector {
 
 	private Mat preprocess(Mat input) throws NoMusicDetectedException {
 		Log.i("TEST",""+input.type());
+		
+		Mat output = input.clone();
+		Imgproc.cvtColor(output, output, Imgproc.COLOR_GRAY2BGR);
+		OurUtils.writeImage(output, OurUtils.getPath("output/initial.png"));
+		
 		// scale and threshold
 		OurUtils.thresholdImage(input);
 
@@ -99,6 +104,8 @@ public class MusicDetector {
 		for (SheetStrip strip : strips) {
 			lines.addAll(strip.FindLines());
 		}
+		
+		Log.i("PROC","detecting staves");
 		detectStaves(lines);
 
 		OurUtils.invertColors(input);
@@ -116,47 +123,67 @@ public class MusicDetector {
 		Log.v("Guillaume",
 				"Start time of detection: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
+		
+		Log.i("PROC","detecting clefs");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectTrebleClefs();
 		Log.v("Guillaume",
 				"Treble detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
+		
+		Log.i("PROC","detecting time sig");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectTime();
 		Log.v("Guillaume",
 				"Time detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
+		
+		Log.i("PROC","detecting notes");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectNotes();
 		Log.v("Guillaume",
 				"Note detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
+		
+		Log.i("PROC","detecting beams");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectBeams();
 		Log.v("Guillaume",
 				"Beam detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
+		
+		Log.i("PROC","detecting half notes");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectHalfNotes();
 		Log.v("Guillaume",
 				"Half-note detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
+		
+		Log.i("PROC","detecting whole notes");
 		detectWholeNotes();
 		sortNotes();
+		
+		Log.i("PROC","detecting flats");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectFlats();
 		Log.v("Guillaume",
 				"Flat detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
+		
+		Log.i("PROC","detecting dots");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectDots();
 		Log.v("Guillaume", "Dot detection time: "
 				+ (System.currentTimeMillis() - startTimeOfEachMethod));
+		
+		Log.i("PROC","detecting quavers");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectQuavers();
 		Log.v("Guillaume",
 				"Quavers detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
+		
+		Log.i("PROC","detection complete");
 		startTimeOfEachMethod = System.currentTimeMillis()
 				- SightReaderActivity.startTime;
 		Log.v("Guillaume",

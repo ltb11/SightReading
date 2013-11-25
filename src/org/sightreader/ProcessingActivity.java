@@ -11,6 +11,7 @@ import musicrepresentation.Piece;
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
 
 import utils.OurUtils;
 
@@ -69,8 +70,9 @@ public class ProcessingActivity extends Activity {
 	
 	private Mat loadImage() throws FileNotFoundException {
 		Bitmap bitmap = OurUtils.loadTempImage(imageNum);
-		Mat mat = new Mat(bitmap.getWidth(), bitmap.getHeight(), 0);
+		Mat mat = new Mat();
 		Utils.bitmapToMat(bitmap, mat);
+		Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGR2GRAY);
 		return mat;
 	}
 	
