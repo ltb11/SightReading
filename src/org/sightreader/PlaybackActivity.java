@@ -8,9 +8,12 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
 import playback.Playback;
+import utils.OurUtils;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 public class PlaybackActivity extends Activity {
 
@@ -22,24 +25,22 @@ public class PlaybackActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		Log.i(TAG, "playback creating");
 		super.onCreate(savedInstanceState);
-		String filePath = savedInstanceState.getString("FILEPATH");
-		FileInputStream inputStream = null;
-		try {
-			inputStream = new FileInputStream(filePath);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		BufferedReader bufferReader = new BufferedReader(new InputStreamReader(
-				inputStream, Charset.forName("UTF-8")));
-		String midiPath = null;
-		try {
-			midiPath = bufferReader.readLine();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		setContentView(R.layout.sight_reading_playback_view);
+		
+		initialiseButtons();
+		
+		Playback.playMidiFile("temp/", "output.midi");
+	}
 
-		Playback.playMidiFile(midiPath);
+	private void initialiseButtons() {
+		findViewById(R.id.playback_resetApp).setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				Intent i = new Intent(PlaybackActivity.this,
+						SightReaderActivity.class);
+				startActivity(i);
+			}
+		});
 	}
 }

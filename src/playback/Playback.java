@@ -19,27 +19,36 @@ import android.util.Log;
 public class Playback {
 
 	public static void playMidiFile(String fileName) {
-		String path = OurUtils.sdPath + "midi/";
+		playMidiFile("midi/",fileName);
+	}
+
+	public static void playMidiFile(String folder, String fileName) {
+		String path = OurUtils.getPath(folder);
 		File f = new File(path, fileName);
 
 		try {
 			FileInputStream fis = new FileInputStream(f);
 			FileDescriptor fd = fis.getFD();
-			fis.close();
 
 			MediaPlayer mediaPlayer = new MediaPlayer();
 			mediaPlayer.setDataSource(fd);
 			mediaPlayer.prepare();
 			mediaPlayer.start();
 			Log.i("Playback", "Playback started: " + fileName);
+			//fis.close();
 		} catch (Exception e) {
 			Log.e("Playback", e.toString());
 		}
 
 	}
-
+	
 	public static void saveMidiFile(MidiFile midi, String fileName) {
-		String path = OurUtils.sdPath + "midi/";
+		saveMidiFile(midi, "midi/", fileName);
+
+	}
+	
+	public static void saveMidiFile(MidiFile midi, String folder, String fileName) {
+		String path = OurUtils.getPath(folder);
 		File output = new File(path, fileName);
 		try {
 			midi.writeToFile(output);

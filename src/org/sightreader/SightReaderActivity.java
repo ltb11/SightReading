@@ -117,7 +117,7 @@ public class SightReaderActivity extends Activity {
 		findViewById(R.id.parse).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				String toTest = "Baabaa.jpg";
+				String toTest = "initial.png";
 				testImage(toTest, OurUtils.getDestImage(toTest),
 						OurUtils.getDestMid(toTest));
 				finish();
@@ -136,17 +136,17 @@ public class SightReaderActivity extends Activity {
 	}
 
 	private void testImage(String src, String dstImage, String destMid) {
-		String srcPath = OurUtils.getPath("input/" + src);
+		String srcPath = OurUtils.getPath("output/" + src);
 		Mat input = OurUtils.readImage(srcPath);
-		Mat scaledInput = OurUtils.resizeImage(input,
-				OurUtils.STANDARD_IMAGE_WIDTH);
 
-		Mat output = scaledInput.clone();
+		Log.d("Guillaume",
+				"Original image width after scaling: " + input.cols());
+		Mat output = input.clone();
 		Imgproc.cvtColor(output, output, Imgproc.COLOR_GRAY2BGR);
 
 		MusicDetector detector = null;
 		try {
-			detector = new MusicDetector(scaledInput);
+			detector = new MusicDetector(input);
 		} catch (NoMusicDetectedException e) {
 			e.printStackTrace();
 		}
@@ -177,7 +177,8 @@ public class SightReaderActivity extends Activity {
 			Mat dest = new Mat();
 			Core.bitwise_xor(ref, toTest, dest);
 			if (Core.norm(dest, Core.NORM_INF) != 0)
-				Log.d("Guillaume", s + " not fully parsed. Pixels not identical");
+				Log.d("Guillaume", s
+						+ " not fully parsed. Pixels not identical");
 			else
 				Log.v("Guillaume", s + " fully parsed");
 		}

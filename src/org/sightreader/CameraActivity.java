@@ -87,12 +87,18 @@ public class CameraActivity extends Activity implements OnTouchListener,
 		done.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				if (totalImages > 0) {
+					ProcessingActivity.SetPageNum(totalImages);
+					CameraActivity.reset();
 					Intent i = new Intent(CameraActivity.this,
 							ProcessingActivity.class);
 					startActivity(i);
 				}
 			}
 		});
+	}
+	
+	protected static void reset() {
+		totalImages = 0;
 	}
 
 	private void updateText() {
@@ -101,10 +107,13 @@ public class CameraActivity extends Activity implements OnTouchListener,
 	}
 
 	public static void savePage(Bitmap bitmap) {
-		// TODO: code for saving the page here
 		totalImages++;
 		String fName = "page"+ totalImages;
-		OurUtils.saveTempImage(bitmap,fName);
+		
+		// QUICK FIX
+		Bitmap rotated = OurUtils.RotateBitmap(bitmap, 360);
+		
+		OurUtils.saveTempImage(rotated,fName);
 	}
 
 	public CameraActivity() {

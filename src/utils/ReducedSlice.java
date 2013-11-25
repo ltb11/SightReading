@@ -142,7 +142,7 @@ public class ReducedSlice {
 			int topA = startY, bottomA = endY, 
 				topB = nextSection.startY, bottomB = nextSection.endY;
 			
-			int tol = 3;
+			int tol = 2;
 			return (topA >= topB-tol && topA <= bottomB+tol) ||
 					(bottomA >= topB-tol && bottomA <= bottomB+tol) ||
 					(topB >= topA-tol && topB <= bottomA+tol) ||
