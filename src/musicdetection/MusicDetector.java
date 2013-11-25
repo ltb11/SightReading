@@ -83,8 +83,11 @@ public class MusicDetector {
 		master_whole_notes.add(masterWhole_note_on);
 	}
 
-	private Mat preprocess(Mat input) throws NoMusicDetectedException {
-		Log.i("TEST",""+input.type());
+	private Mat preprocess(Mat rawInput) throws NoMusicDetectedException {
+		Log.i("TEST",""+rawInput.type());
+		Mat input = OurUtils.resizeImage(rawInput,
+				OurUtils.STANDARD_IMAGE_WIDTH);
+
 		
 		Mat output = input.clone();
 		Imgproc.cvtColor(output, output, Imgproc.COLOR_GRAY2BGR);

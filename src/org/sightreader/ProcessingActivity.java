@@ -69,10 +69,13 @@ public class ProcessingActivity extends Activity {
 	}
 	
 	private Mat loadImage() throws FileNotFoundException {
-		Bitmap bitmap = OurUtils.loadTempImage(imageNum);
+		/*Bitmap bitmap = OurUtils.loadTempImage(imageNum);
 		Mat mat = new Mat();
 		Utils.bitmapToMat(bitmap, mat);
-		Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGR2GRAY);
+		Imgproc.cvtColor(mat, mat, Imgproc.COLOR_BGR2GRAY);*/
+		
+		Mat mat = OurUtils.loadTempMat(imageNum);
+		
 		return mat;
 	}
 	

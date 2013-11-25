@@ -107,7 +107,11 @@ public class CameraActivity extends Activity implements OnTouchListener,
 	public static void savePage(Bitmap bitmap) {
 		totalImages++;
 		String fName = "page"+ totalImages;
-		OurUtils.saveTempImage(bitmap,fName);
+		
+		// QUICK FIX
+		Bitmap rotated = OurUtils.RotateBitmap(bitmap, 360);
+		
+		OurUtils.saveTempImage(rotated,fName);
 	}
 
 	public CameraActivity() {

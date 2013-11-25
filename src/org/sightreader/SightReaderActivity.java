@@ -117,7 +117,7 @@ public class SightReaderActivity extends Activity {
 		findViewById(R.id.parse).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				String toTest = "page1.png";
+				String toTest = "initial.png";
 				testImage(toTest, OurUtils.getDestImage(toTest),
 						OurUtils.getDestMid(toTest));
 				finish();
@@ -136,19 +136,17 @@ public class SightReaderActivity extends Activity {
 	}
 
 	private void testImage(String src, String dstImage, String destMid) {
-		String srcPath = OurUtils.getPath("input/" + src);
+		String srcPath = OurUtils.getPath("output/" + src);
 		Mat input = OurUtils.readImage(srcPath);
-		Mat scaledInput = OurUtils.resizeImage(input,
-				OurUtils.STANDARD_IMAGE_WIDTH);
 
 		Log.d("Guillaume",
-				"Original image width after scaling: " + scaledInput.cols());
-		Mat output = scaledInput.clone();
+				"Original image width after scaling: " + input.cols());
+		Mat output = input.clone();
 		Imgproc.cvtColor(output, output, Imgproc.COLOR_GRAY2BGR);
 
 		MusicDetector detector = null;
 		try {
-			detector = new MusicDetector(scaledInput);
+			detector = new MusicDetector(input);
 		} catch (NoMusicDetectedException e) {
 			e.printStackTrace();
 		}
