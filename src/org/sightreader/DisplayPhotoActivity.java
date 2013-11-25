@@ -67,5 +67,6 @@ public class DisplayPhotoActivity extends Activity implements OnTouchListener {
 		finish();
 	}
 	
+
 	
 }

@@ -398,7 +398,7 @@ public class OurUtils {
 		int lastPoint = 0;
 		boolean inGap = false;
 		for (int i = 0; i < mat.rows(); i++) {
-			int[] v = new int[3];
+			int[] v = new int[4];
 			mat.get(i, 0, v);
 
 			if (inGap) {
@@ -510,8 +510,9 @@ public class OurUtils {
 
 	}
 
-	public static Bitmap loadTempImage(String fName)
+	public static Bitmap loadTempImage(int imageNum)
 			throws FileNotFoundException {
+		String fName = "page"+(imageNum+1);
 		String pName = getPath("temp/");
 		return loadImage(pName, fName);
 

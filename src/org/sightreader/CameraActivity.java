@@ -95,13 +95,16 @@ public class CameraActivity extends Activity implements OnTouchListener,
 		});
 	}
 
+	public static int totalImagesCaptured() {
+		return totalImages;
+	}
+	
 	private void updateText() {
 		TextView text = (TextView) findViewById(R.id.savedPagesText);
 		text.setText("You have saved " + totalImages + " pages");
 	}
 
 	public static void savePage(Bitmap bitmap) {
-		// TODO: code for saving the page here
 		totalImages++;
 		String fName = "page"+ totalImages;
 		OurUtils.saveTempImage(bitmap,fName);

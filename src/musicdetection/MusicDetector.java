@@ -84,7 +84,7 @@ public class MusicDetector {
 	}
 
 	private Mat preprocess(Mat input) throws NoMusicDetectedException {
-
+		Log.i("TEST",""+input.type());
 		// scale and threshold
 		OurUtils.thresholdImage(input);
 

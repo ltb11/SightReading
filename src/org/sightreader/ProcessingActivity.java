@@ -1,5 +1,19 @@
 package org.sightreader;
 
+import java.io.FileNotFoundException;
+import java.util.LinkedList;
+import java.util.List;
+
+import musicdetection.MusicDetector;
+import musicdetection.NoMusicDetectedException;
+import musicrepresentation.Piece;
+
+import org.opencv.android.Utils;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+
+import utils.OurUtils;
+
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -12,7 +26,7 @@ public class ProcessingActivity extends Activity {
 	public static EditText currentFileName;
 	public final static long startTime = System.currentTimeMillis();
 
-	public static Bitmap image;
+	private static int imageNum = 0;
 	//private static int totalPages;
 
 	/** Called when the activity is first created. */
@@ -24,14 +38,50 @@ public class ProcessingActivity extends Activity {
 		
 		initialiseButtons();
 		
-		loadImages();
+		run();
 	}
 	
-	private void loadImages() {
-		//totalPages = CameraActivity.totalImages
+	private void run() {
+		List<Piece> pieces = new LinkedList<Piece>();
 		
+		while (nextImageExists()) {
+			Log.i("PROC","image proc");
+			
+			try {
+				Mat input = loadImage();
+				MusicDetector detector = new MusicDetector(input);
+				detector.detect();
+				Piece piece = detector.toPiece();
+				pieces.add(piece);
+				
+			} catch (NoMusicDetectedException e) {
+				e.printStackTrace();
+				
+			} catch (FileNotFoundException e) {
+				Log.e("PROC","page "+imageNum+" is missing");
+			}
+			
+			imageNum++;
+		}
+		
+		Piece finalPiece = concatPieces(pieces);
+	}
+	
+	private Mat loadImage() throws FileNotFoundException {
+		Bitmap bitmap = OurUtils.loadTempImage(imageNum);
+		Mat mat = new Mat(bitmap.getWidth(), bitmap.getHeight(), 0);
+		Utils.bitmapToMat(bitmap, mat);
+		return mat;
+	}
+	
+	private boolean nextImageExists() {
+		return imageNum < CameraActivity.totalImagesCaptured();
 	}
 
+	private Piece concatPieces(List<Piece> pieces) {
+		return null;
+	}
+	
 	private void initialiseButtons() {
 
 	}
