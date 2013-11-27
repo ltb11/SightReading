@@ -33,6 +33,7 @@ import org.opencv.imgproc.Moments;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.Environment;
 import android.util.Log;
 
@@ -283,6 +284,12 @@ public class OurUtils {
 	 ************* OTHER METHODS *************
 	 ****************************************/
 
+	public static Bitmap RotateBitmap(Bitmap source, float angle) {
+	      Matrix matrix = new Matrix();
+	      matrix.postRotate(angle);
+	      return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+	}
+	
 	public static List<Line> getHoughLinesFromMat(Mat linesMat) {
 		List<Line> lines = new LinkedList<Line>();
 		double dataa[];
@@ -398,7 +405,7 @@ public class OurUtils {
 		int lastPoint = 0;
 		boolean inGap = false;
 		for (int i = 0; i < mat.rows(); i++) {
-			int[] v = new int[3];
+			int[] v = new int[4];
 			mat.get(i, 0, v);
 
 			if (inGap) {
@@ -510,13 +517,24 @@ public class OurUtils {
 
 	}
 
-	public static Bitmap loadTempImage(String fName)
+	public static Bitmap loadTempImage(int imageNum)
 			throws FileNotFoundException {
+		String fName = "page"+(imageNum+1);
 		String pName = getPath("temp/");
 		return loadImage(pName, fName);
 
 	}
 
+	public static Mat loadTempMat(int imageNum)
+			throws FileNotFoundException {
+		String fName = "page"+(imageNum+1)+".png";
+		String pName = getPath("temp/");
+		Mat mat = readImage(pName + fName);
+		if (mat==null) throw new FileNotFoundException();
+		return mat;
+
+	}
+	
 	private static void saveImage(Bitmap bitmap, String pName, String fName) {
 		File dir = new File(pName);
 		if (!dir.exists())
