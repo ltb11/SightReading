@@ -150,6 +150,7 @@ public class SightReaderActivity extends Activity {
 		try {
 			detector = new MusicDetector(scaledInput);
 		} catch (NoMusicDetectedException e) {
+			Log.d("Guillaume", "No music detected here!");
 			e.printStackTrace();
 		}
 		detector.detect();

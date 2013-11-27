@@ -74,6 +74,9 @@ public class MusicDetector {
 	private List<Point> flats = new LinkedList<Point>();
 	private Map<Point, Note> dots = new HashMap<Point, Note>();
 	private List<Note> potentialNotes = new LinkedList<Note>();
+	private int beamXTolerance = 4;
+	private int beamYTolerance = 3;
+	private int beamMinLength = 25;
 
 	public MusicDetector(final Mat input) throws NoMusicDetectedException {
 		workingSheet = preprocess(input.clone());
@@ -84,13 +87,13 @@ public class MusicDetector {
 	}
 
 	private Mat preprocess(Mat input) throws NoMusicDetectedException {
-
 		// scale and threshold
 		OurUtils.thresholdImage(input);
 
 		// create projections
 		Mat projection = input.clone();
 		Mat proj = OurUtils.horizontalProjection(projection);
+		OurUtils.writeImage(proj, OurUtils.getPath("output/fullProj.jpg"));
 		LinkedList<Integer> divisions = OurUtils.detectDivisions(proj, 190);
 		List<SheetStrip> strips = OurUtils.sliceSheet(input, divisions);
 
@@ -357,6 +360,7 @@ public class MusicDetector {
 			 * OurUtils.writeImage(part.clone(),
 			 * OurUtils.getPath("output/erodedSW_" + s.startYRange()) + ".jpg");
 			 */
+
 			/*
 			 * for (int colLength = 1500; colLength > 0; colLength -= 400) { for
 			 * (int cols = 0; cols < partNorm.cols() - colLength; cols +=
@@ -366,48 +370,75 @@ public class MusicDetector {
 			 * allLines.addAll(extractBeams(startDetection, partRot, cols,
 			 * colLength)); }
 			 */
-			int cutLength = 30;
-			for (int cut = (int) startDetection.x; cut < part.cols()
-					- cutLength; cut += cutLength) {
-				for (int angle = 0; angle <= 0; angle += 5) {
-					Mat tmp = OurUtils.rotateMatrix(
-							part.clone().submat(s.yRange(part.rows()),
-									new Range(cut, cut + cutLength)), angle);
-					Mat proj = new Mat();
-					Core.reduce(tmp, proj, 1, Core.REDUCE_AVG, CvType.CV_32S);
-					if (cut >= 2400 && cut <= 2449
-							&& s.topLine().start().y > 1500
-							&& s.topLine().start().y < 1700) {
-						OurUtils.writeImage(proj,
-								OurUtils.getPath("output/proj.jpg"));
-						OurUtils.writeImage(tmp,
-								OurUtils.getPath("output/tmp.jpg"));
-					}
-					int lastValidStart = 0;
-					int minThickness = 4;
-					for (int i = 0; i < proj.rows(); i++) {
-						int[] v = new int[3];
-						proj.get(i, 0, v);
-						if (i >= lastValidStart + minThickness) {
-							Point start = new Point(cut, lastValidStart
-									+ minThickness / 2);
-							Point end = new Point(
-									cut + cutLength,
-									(lastValidStart + minThickness / 2 + cutLength
-											* Math.tan(angle)));
-							Log.d("Guillaume", "Added new line: " + start.x
-									+ "," + start.y + " / " + end.x + ","
-									+ end.y);
-							allLines.add(new Line(start, end));
-						}
-						if (v[0] < 128)
-							lastValidStart = i;
-						else
-							Log.d("Guillaume", "" + v[0]);
-					}
-				}
-			}
+
+			allLines.addAll(extractBeams(startDetection, partNorm, 0,
+					partNorm.cols()));
+			allLines.addAll(extractBeams(startDetection, partRot, 0,
+					partRot.cols()));
 		}
+
+		/*
+		 * int cutLength = 30; for (int angle = -20; angle <= 20; angle += 5) {
+		 * Log.d("Guillaume", "" + angle); for (int cut = (int)
+		 * startDetection.x; cut < s.xRange().end - cutLength; cut += cutLength)
+		 * { int height = s.yRange(part.rows()).size(); Mat tmp =
+		 * OurUtils.rotateMatrix( part.clone().submat(s.yRange(part.rows()), new
+		 * Range(0, (int) (Math.max(0, cutLength * Math.cos(angle)) +
+		 * Math.max(0, height * Math.sin(angle)))), angle); Mat proj = new
+		 * Mat(); Core.reduce(tmp, proj, 1, Core.REDUCE_AVG, CvType.CV_32S); if
+		 * (cut >= 1630 && cut < 1630 + cutLength && s.topLine().start().y >
+		 * 1500 && s.topLine().start().y < 1700 && angle == -20) {
+		 * Imgproc.cvtColor(tmp, tmp, Imgproc.COLOR_GRAY2BGR);
+		 * Core.rectangle(tmp, new Point(0, 0), new Point(tmp.cols() - 1,
+		 * tmp.rows() - 1), new Scalar(0, 0, 255)); OurUtils.writeImage(proj,
+		 * OurUtils.getPath("output/proj.jpg")); OurUtils.writeImage(tmp,
+		 * OurUtils.getPath("output/tmp.jpg")); OurUtils.writeImage(
+		 * workingSheet.clone().submat( s.yRange(part.rows()), new Range(cut,
+		 * cut + cutLength)), OurUtils.getPath("output/orig.jpg")); } int
+		 * lastValidStart = 0; int minThickness = 4; for (int i = 0; i <
+		 * proj.rows(); i++) { int[] v = new int[3]; proj.get(i, 0, v); if (i >=
+		 * lastValidStart + minThickness) { Point start = new Point(cut,
+		 * s.startYRange() + lastValidStart + minThickness / 2); Point end = new
+		 * Point(cut + cutLength - 1, (s.startYRange() + lastValidStart +
+		 * minThickness / 2 + cutLength Math.tan(angle))); Log.d("Guillaume",
+		 * "Added new line: " + start.x + "," + start.y + " / " + end.x + "," +
+		 * end.y); allLines.add(new Line(start.clone(), end.clone()));
+		 * lastValidStart = i; } if (v[0] < 240) lastValidStart = i; else if
+		 * (s.topLine().start().y > 1400 && s.topLine().start().y < 1800 && cut
+		 * >= 2400 && cut < 2430 && (i % 5) == 0) Log.d("Guillaume", "" + v[0]);
+		 * } } }
+		 * 
+		 * }
+		 */
+		Collections.sort(allLines, new Comparator<Line>() {
+
+			@Override
+			public int compare(Line lhs, Line rhs) {
+				return (int) (lhs.start().x - rhs.start().x);
+			}
+
+		});
+		List<Line> joinedLines = new LinkedList<Line>();
+		for (int i = 0; i < allLines.size(); i++) {
+			Line first = allLines.get(i);
+			for (int j = i + 1; j < allLines.size(); j++) {
+				Line second = allLines.get(j);
+				if (Math.abs(first.end().x - second.start().x) < beamXTolerance
+						&& Math.abs(first.end().y - second.start().y) < beamYTolerance) {
+					first = new Line(first.start(), second.end());
+					allLines.remove(j);
+				}
+				if (first.end().x + 10 < second.start().x)
+					break;
+			}
+			if (first.length > beamMinLength
+					&& first.length < workingSheet.cols() / 6)
+				joinedLines.add(first);
+			allLines.remove(i);
+			i--;
+		}
+		allLines = joinedLines;
+		Log.d("Guillaume", "@sort, allLines.size: " + allLines.size());
 		Collections.sort(allLines, new Comparator<Line>() {
 
 			@Override
@@ -424,7 +455,7 @@ public class MusicDetector {
 			Stave s = OurUtils.whichStaveDoesAPointBelongTo(l.start(), staves,
 					workingSheet.rows());
 			if (!OurUtils.isThereASimilarLine(beams, l)
-					&& OurUtils.isABeam(l, s)) {
+			/* && OurUtils.isABeam(l, s) */) {
 				beams.add(l);
 				for (int j = 0; j < s.notes().size(); j++) {
 					Note n = s.notes().get(j);
@@ -440,9 +471,6 @@ public class MusicDetector {
 		Log.d("Guillaume", "@potentialNotes, beams.size: " + beams.size());
 		for (int j = 0; j < potentialNotes.size(); j++) {
 			Note n = potentialNotes.get(j);
-			Log.d("Guillaume",
-					"Potential note: " + n.center().x + "," + n.center().y
-							+ "/total: " + potentialNotes.size() + ",");
 			Stave potentialStave = OurUtils.whichStaveDoesAPointBelongTo(
 					n.center(), staves, workingSheet.rows());
 			if (!OurUtils
@@ -468,13 +496,12 @@ public class MusicDetector {
 		}
 	}
 
-	private List<Line> extractBeams(Point startDetection, Mat partNorm,
-			int cols, int colLength) {
+	private List<Line> extractBeams(Point startDetection, Mat part, int cols,
+			int colLength) {
 		List<Line> allLines = new LinkedList<Line>();
 		Mat lines = new Mat();
-		Imgproc.HoughLinesP(
-				partNorm.submat(0, partNorm.rows(), cols, cols + colLength)
-						.clone(), lines, 0.5, Math.PI / 180, 100);
+		Imgproc.HoughLinesP(part.submat(0, part.rows(), cols, cols + colLength)
+				.clone(), lines, 0.5, Math.PI / 360, 100);
 		for (int i = 0; i < lines.cols(); i++) {
 			double[] data = lines.get(0, i);
 			Point start = new Point(data[0] + startDetection.x + cols, data[1]
@@ -482,10 +509,10 @@ public class MusicDetector {
 			Point end = new Point(data[2] + startDetection.x + cols, data[3]
 					+ startDetection.y);
 			Line potentialLine = new Line(start, end);
-			Line correctedLine = OurUtils.correctLine(potentialLine, partNorm,
+			Line correctedLine = OurUtils.correctLine(potentialLine, part,
 					staveGap);
 			double lengthX = correctedLine.length;
-			if (/* lengthX > part.cols() / 30 && */lengthX < partNorm.cols() / 6)
+			if (lengthX < part.cols() / 6)
 				allLines.add(correctedLine);
 		}
 		return allLines;
@@ -761,11 +788,13 @@ public class MusicDetector {
 					sheet,
 					n.center(),
 					(int) (staveGap / 2),
-					(n.duration() == 1. ? new Scalar(0, 0, 255)
-							: (n.duration() == 0.5 ? new Scalar(255, 0, 255)
-									: (n.duration() == 2.0) ? new Scalar(128,
-											128, 0) : new Scalar(0, 127, 255))),
-					-1);
+					n.duration() == 1. ? new Scalar(0, 0, 255)
+							: n.duration() == 0.5 ? new Scalar(255, 0, 255)
+									: n.duration() == 2.0 ? new Scalar(128,
+											128, 0)
+											: n.duration() == 0.25 ? new Scalar(
+													128, 0, 128) : new Scalar(
+													0, 127, 255), -1);
 	}
 
 	private void printFlats(Mat sheet) {

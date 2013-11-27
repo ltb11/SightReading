@@ -122,11 +122,11 @@ public class OurUtils {
 
 	public static Mat rotateMatrix(Mat mat, double angle) {
 		Mat result = mat.clone();
-		int length = Math.max(mat.cols(), mat.rows());
-		Point p = new Point(length / 2, length / 2);
+		//int length = Math.max(mat.cols(), mat.rows());
+		Point p = new Point(mat.cols() / 2, mat.rows() / 2);
 		Mat rotationMatrix = Imgproc.getRotationMatrix2D(p, angle, 1.0);
 		Imgproc.warpAffine(mat, result, rotationMatrix,
-				new Size(length, length));
+				new Size(mat.cols(), mat.rows()));
 		return result;
 	}
 
@@ -162,8 +162,8 @@ public class OurUtils {
 		return false;
 	}
 
-	public static boolean isThereASimilarLine(List<Line> quavers, Line l) {
-		for (Line line : quavers) {
+	public static boolean isThereASimilarLine(List<Line> beams, Line l) {
+		for (Line line : beams) {
 			double slope = (line.end().y - line.start().y)
 					/ (line.end().x - line.start().x);
 			if (Math.abs((line.start().y + slope
