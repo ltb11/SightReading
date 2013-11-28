@@ -447,7 +447,7 @@ public class OurUtils {
 		boolean in = false;
 		int lastEntry = 0;
 		for (int i = 0; i < verticalProj.cols(); i++) {
-			int[] v = new int[4];
+			verticalProj.get(0, i, v);
 			verticalProj.get(0, i, v);
 			if (in && (v[0] < MusicDetector.beamVerticalThresholdTolerance)) {
 				if (i - lastEntry > MusicDetector.beamMinLength) {

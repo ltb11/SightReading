@@ -765,8 +765,6 @@ public class MusicDetector {
 		Imgproc.erode(eroded, eroded,
 				 Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(8, 8)));
 		for (Note n : notes) {
-			if (n.duration() != 1)
-				continue;
 			OurUtils.makeColour(eroded, new Point(n.center().x - 2 * noteWidth,
 					n.center().y - staveGap), (int) (3 * noteWidth),
 					(int) (2 * staveGap), new Scalar(0, 0, 0));
