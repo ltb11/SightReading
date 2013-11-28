@@ -64,6 +64,11 @@ public class Stave {
 			startDetection = new Point(p.x + cols, this.startYRange());
 	}
 
+	public boolean isOnStaveLine(Line l) {
+		return (Math.abs(topLine().start().y - l.start().y) < staveGap / 3 && l.length > topLine().length / 10
+				|| Math.abs(bottomLine().start().y - l.start().y) < staveGap / 3 && l.length > bottomLine().length / 10);
+	}
+
 	public Point startDetection() {
 		return startDetection;
 	}

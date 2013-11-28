@@ -154,12 +154,12 @@ public class SightReaderActivity extends Activity {
 		try {
 			detector = new MusicDetector(input);
 		} catch (NoMusicDetectedException e) {
-			Log.e("Conrad", 
+			Log.d("Guillaume", "No music detected here!");
 			"no music detected");
 		}
 		Log.d("Conrad", srcPath);
 		detector.detect();
-		detector.print(output);
+		output = detector.print();
 
 		Piece piece = detector.toPiece();
 		MidiFile f = Converter.Convert(piece);
