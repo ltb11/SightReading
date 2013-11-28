@@ -79,8 +79,8 @@ public class MusicDetector {
 	private int beamXTolerance = 4;
 	private int beamYTolerance = 3;
 	public static int beamMinLength = 25;
-	public static int beamVerticalThresholdTolerance = 30;
-	public static int beamHorizontalThresholdTolerance = 20;
+	public static int beamVerticalThresholdTolerance = 10;
+	public static int beamHorizontalThresholdTolerance = 5;
 
 	public MusicDetector(final Mat input) throws NoMusicDetectedException {
 		workingSheet = preprocess(input.clone());
@@ -423,12 +423,13 @@ public class MusicDetector {
 		
 		for (Stave s : staves) {
 			Mat region = eroded.submat(s.yRange(workingSheet.rows()), s.xRange());
-			Mat verticalProj = OurUtils.verticalProjection(region);
-			List<BeamDivision> potentialLines = OurUtils.detectBeamDivisions(verticalProj, region);
+			List<BeamDivision> potentialLines = OurUtils.detectBeamDivisions(region);
 			for (BeamDivision b : potentialLines) {
-				allLines.add(new Line(b.startingPoint(), b.endPoint()));
+				allLines.add(b.toLine(s.startDetection().x, s.startYRange()));
 			}
 		}
+		
+		Log.d("Guillaume", "End of beam detection");
 
 		// allLines.addAll(extractBeams(startDetection, part));
 

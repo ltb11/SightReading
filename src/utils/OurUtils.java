@@ -441,16 +441,17 @@ public class OurUtils {
 		return divisions;
 	}
 
-	public static List<BeamDivision> detectBeamDivisions(Mat sheet,
-			Mat verticalProj) {
+	public static List<BeamDivision> detectBeamDivisions(Mat sheet) {
+		Mat verticalProj = verticalProjection(sheet);
 		List<BeamDivision> potentialBeams = new LinkedList<BeamDivision>();
-		int[] v = new int[4];
 		boolean in = false;
 		int lastEntry = 0;
 		for (int i = 0; i < verticalProj.cols(); i++) {
-			sheet.get(0, i, v);
+			int[] v = new int[4];
+			verticalProj.get(0, i, v);
 			if (in && (v[0] < MusicDetector.beamVerticalThresholdTolerance)) {
 				if (i - lastEntry > MusicDetector.beamMinLength) {
+					Log.d("Guillaume", "New line detected at x: " + lastEntry + "," + i);
 					Mat region = sheet.submat(new Range(0, sheet.rows()),
 							new Range(lastEntry, i));
 					Mat horizontalProj = horizontalProjection(region);
@@ -461,20 +462,17 @@ public class OurUtils {
 						int start = divs.get(j);
 						int end = divs.get(j + 1);
 						if (end - start > 10) {
-							int[] w = new int[4];
-							sheet.get(start, lastEntry, w);
-							if (w[0] == 255) {
+							if (sheet.get(start, lastEntry)[0] == 255) {
 								p1 = new Point(lastEntry, start);
 								p2 = new Point(i, end);
 								break;
 							}
-							sheet.get(end, lastEntry, w);
-							if (w[0] == 255) {
+							else if (sheet.get(end - 1, lastEntry)[0] == 255) {
 								p1 = new Point(lastEntry, end);
 								p2 = new Point(i, start);
 								break;
 							}
-							Log.d("Guillaume",
+							Log.e("Guillaume",
 									"Could not find a valid match for point @position: "
 											+ lastEntry + "," + start + "/" + i
 											+ "," + end);
