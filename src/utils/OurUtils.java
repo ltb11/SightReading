@@ -444,10 +444,10 @@ public class OurUtils {
 	public static List<BeamDivision> detectBeamDivisions(Mat sheet) {
 		Mat verticalProj = verticalProjection(sheet);
 		List<BeamDivision> potentialBeams = new LinkedList<BeamDivision>();
+		int[] v = new int[4];
 		boolean in = false;
 		int lastEntry = 0;
 		for (int i = 0; i < verticalProj.cols(); i++) {
-			verticalProj.get(0, i, v);
 			verticalProj.get(0, i, v);
 			if (in && (v[0] < MusicDetector.beamVerticalThresholdTolerance)) {
 				if (i - lastEntry > MusicDetector.beamMinLength) {
