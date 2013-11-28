@@ -3,9 +3,12 @@ package musicrepresentation;
 import java.util.Iterator;
 import java.util.List;
 
+import musicdetection.Time;
+
 public class Piece implements Iterable<Bar> {
  
     private final String title;
+    private final Enum<Time> time_signature;
     private final List<Bar> bars;
     private int bpm;
     
@@ -13,6 +16,7 @@ public class Piece implements Iterable<Bar> {
         this.bars = bars;
         this.bpm = 120;
         this.title = "FantasieImpromptu";
+        this.time_signature = Time.FourFour;
     }
 
     public String getTitle(){
