@@ -12,7 +12,6 @@ import musicrepresentation.Bar;
 import musicrepresentation.Piece;
 
 import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
@@ -24,6 +23,7 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 import org.sightreader.SightReaderActivity;
 
+import utils.BeamDivision;
 import utils.OurUtils;
 import utils.SheetStrip;
 import android.util.Log;
@@ -51,6 +51,7 @@ public class MusicDetector {
 	private final List<Mat> master_whole_notes = new LinkedList<Mat>();
 
 	public static final int beamLengthTolerance = 30;
+	public static final int noteMinDistance = 25;
 
 	private Mat trebleClef;
 	private Mat fourFour;
@@ -63,6 +64,7 @@ public class MusicDetector {
 	private int dotHeight;
 
 	private final Mat workingSheet;
+	private Mat output;
 	private final double staveLengthTolerance = 0.1;
 	private double staveGap;
 	private double noteWidth;
@@ -74,6 +76,11 @@ public class MusicDetector {
 	private List<Point> flats = new LinkedList<Point>();
 	private Map<Point, Note> dots = new HashMap<Point, Note>();
 	private List<Note> potentialNotes = new LinkedList<Note>();
+	private int beamXTolerance = 4;
+	private int beamYTolerance = 3;
+	public static int beamMinLength = 25;
+	public static int beamVerticalThresholdTolerance = 30;
+	public static int beamHorizontalThresholdTolerance = 20;
 
 	public MusicDetector(final Mat input) throws NoMusicDetectedException {
 		workingSheet = preprocess(input.clone());
@@ -84,21 +91,20 @@ public class MusicDetector {
 	}
 
 	private Mat preprocess(Mat rawInput) throws NoMusicDetectedException {
-		Log.i("TEST",""+rawInput.type());
+		Log.i("TEST", "" + rawInput.type());
 		Mat input = OurUtils.resizeImage(rawInput,
 				OurUtils.STANDARD_IMAGE_WIDTH);
 
-		
-		Mat output = input.clone();
+		output = input.clone();
 		Imgproc.cvtColor(output, output, Imgproc.COLOR_GRAY2BGR);
-		OurUtils.writeImage(output, OurUtils.getPath("output/initial.png"));
-		
+
 		// scale and threshold
 		OurUtils.thresholdImage(input);
 
 		// create projections
 		Mat projection = input.clone();
 		Mat proj = OurUtils.horizontalProjection(projection);
+		OurUtils.writeImage(proj, OurUtils.getPath("output/fullProj.jpg"));
 		LinkedList<Integer> divisions = OurUtils.detectDivisions(proj, 190);
 		List<SheetStrip> strips = OurUtils.sliceSheet(input, divisions);
 
@@ -107,8 +113,8 @@ public class MusicDetector {
 		for (SheetStrip strip : strips) {
 			lines.addAll(strip.FindLines());
 		}
-		
-		Log.i("PROC","detecting staves");
+
+		Log.i("PROC", "detecting staves");
 		detectStaves(lines);
 
 		OurUtils.invertColors(input);
@@ -121,72 +127,72 @@ public class MusicDetector {
 	 * detectFlats detectQuavers
 	 */
 	public void detect() {
-		long startTimeOfEachMethod = SightReaderActivity.startTime;
+		long startTimeOfEachMethod = System.currentTimeMillis();
 		long startTime = startTimeOfEachMethod;
 		Log.v("Guillaume",
 				"Start time of detection: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
-		
-		Log.i("PROC","detecting clefs");
+
+		Log.i("PROC", "detecting clefs");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectTrebleClefs();
 		Log.v("Guillaume",
 				"Treble detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
-		
-		Log.i("PROC","detecting time sig");
+
+		Log.i("PROC", "detecting time sig");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectTime();
 		Log.v("Guillaume",
 				"Time detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
-		
-		Log.i("PROC","detecting notes");
+
+		Log.i("PROC", "detecting notes");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectNotes();
 		Log.v("Guillaume",
 				"Note detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
-		
-		Log.i("PROC","detecting beams");
+
+		Log.i("PROC", "detecting beams");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectBeams();
 		Log.v("Guillaume",
 				"Beam detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
-		
-		Log.i("PROC","detecting half notes");
+
+		Log.i("PROC", "detecting half notes");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectHalfNotes();
 		Log.v("Guillaume",
 				"Half-note detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
-		
-		Log.i("PROC","detecting whole notes");
+
+		Log.i("PROC", "detecting whole notes");
 		detectWholeNotes();
 		sortNotes();
-		
-		Log.i("PROC","detecting flats");
+
+		Log.i("PROC", "detecting flats");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectFlats();
 		Log.v("Guillaume",
 				"Flat detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
-		
-		Log.i("PROC","detecting dots");
+
+		Log.i("PROC", "detecting dots");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectDots();
 		Log.v("Guillaume", "Dot detection time: "
 				+ (System.currentTimeMillis() - startTimeOfEachMethod));
-		
-		Log.i("PROC","detecting quavers");
+
+		Log.i("PROC", "detecting quavers");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectQuavers();
 		Log.v("Guillaume",
 				"Quavers detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
-		
-		Log.i("PROC","detection complete");
+
+		Log.i("PROC", "detection complete");
 		startTimeOfEachMethod = System.currentTimeMillis()
 				- SightReaderActivity.startTime;
 		Log.v("Guillaume",
@@ -373,71 +379,120 @@ public class MusicDetector {
 	private void detectBeams() {
 		Log.d("Guillaume", "staveGap: " + staveGap);
 		List<Line> allLines = new LinkedList<Line>();
-		Mat part = workingSheet.clone();
-		Imgproc.erode(part, part, Imgproc.getStructuringElement(
-				Imgproc.MORPH_RECT, new Size(8, 8)));
+		/*
+		 * Mat part = workingSheet.clone(); Imgproc.erode(part, part,
+		 * Imgproc.getStructuringElement( Imgproc.MORPH_RECT, new Size(8, 8)));
+		 * for (Stave s : staves) { Mat partRot = rotateSheetOnStave(s);
+		 * Imgproc.erode(partRot, partRot, Imgproc.getStructuringElement(
+		 * Imgproc.MORPH_RECT, new Size(6, 6))); Point startDetection =
+		 * s.startDetection(); Mat partNorm =
+		 * part.submat((s.yRange(workingSheet.rows())), s.xRange()); /*
+		 * OurUtils.writeImage(part.clone(), OurUtils.getPath("output/erodedSW_"
+		 * + s.startYRange()) + ".jpg");
+		 */
+
+		/*
+		 * for (int colLength = 1500; colLength > 0; colLength -= 400) { for
+		 * (int cols = 0; cols < partNorm.cols() - colLength; cols += colLength)
+		 * allLines.addAll(extractBeams(startDetection, partNorm, cols,
+		 * colLength)); for (int cols = 0; cols < partRot.cols() - colLength;
+		 * cols += colLength) allLines.addAll(extractBeams(startDetection,
+		 * partRot, cols, colLength)); }
+		 * 
+		 * 
+		 * // allLines.addAll(extractBeams(startDetection, partNorm)); //
+		 * allLines.addAll(extractBeams(startDetection, partRot)); }
+		 */
+
+		// TODO: Have the sharp + natural detection working // Take them out as
+		// well // Run vertical projection to get and
+		// idea on where to look for beams
+
+		Mat eroded = workingSheet.clone();
+		Imgproc.erode(eroded, eroded,
+				 Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(8, 8)));
+		for (Note n : notes) {
+			if (n.duration() != 1)
+				continue;
+			OurUtils.makeColour(eroded, new Point(n.center().x - 2 * noteWidth,
+					n.center().y - staveGap), (int) (3 * noteWidth),
+					(int) (2 * staveGap), new Scalar(0, 0, 0));
+		}
+
+		OurUtils.writeImage(eroded, OurUtils.getPath("output/eroded.jpg"));
+		
 		for (Stave s : staves) {
-			Mat partRot = rotateSheetOnStave(s);
-			Imgproc.erode(partRot, partRot, Imgproc.getStructuringElement(
-					Imgproc.MORPH_RECT, new Size(6, 6)));
-			Point startDetection = s.startDetection();
-			Mat partNorm = part.submat((s.yRange(workingSheet.rows())),
-					s.xRange());
-			/*
-			 * OurUtils.writeImage(part.clone(),
-			 * OurUtils.getPath("output/erodedSW_" + s.startYRange()) + ".jpg");
-			 */
-			/*
-			 * for (int colLength = 1500; colLength > 0; colLength -= 400) { for
-			 * (int cols = 0; cols < partNorm.cols() - colLength; cols +=
-			 * colLength) allLines.addAll(extractBeams(startDetection, partNorm,
-			 * cols, colLength)); for (int cols = 0; cols < partRot.cols() -
-			 * colLength; cols += colLength)
-			 * allLines.addAll(extractBeams(startDetection, partRot, cols,
-			 * colLength)); }
-			 */
-			int cutLength = 30;
-			for (int cut = (int) startDetection.x; cut < part.cols()
-					- cutLength; cut += cutLength) {
-				for (int angle = 0; angle <= 0; angle += 5) {
-					Mat tmp = OurUtils.rotateMatrix(
-							part.clone().submat(s.yRange(part.rows()),
-									new Range(cut, cut + cutLength)), angle);
-					Mat proj = new Mat();
-					Core.reduce(tmp, proj, 1, Core.REDUCE_AVG, CvType.CV_32S);
-					if (cut >= 2400 && cut <= 2449
-							&& s.topLine().start().y > 1500
-							&& s.topLine().start().y < 1700) {
-						OurUtils.writeImage(proj,
-								OurUtils.getPath("output/proj.jpg"));
-						OurUtils.writeImage(tmp,
-								OurUtils.getPath("output/tmp.jpg"));
-					}
-					int lastValidStart = 0;
-					int minThickness = 4;
-					for (int i = 0; i < proj.rows(); i++) {
-						int[] v = new int[3];
-						proj.get(i, 0, v);
-						if (i >= lastValidStart + minThickness) {
-							Point start = new Point(cut, lastValidStart
-									+ minThickness / 2);
-							Point end = new Point(
-									cut + cutLength,
-									(lastValidStart + minThickness / 2 + cutLength
-											* Math.tan(angle)));
-							Log.d("Guillaume", "Added new line: " + start.x
-									+ "," + start.y + " / " + end.x + ","
-									+ end.y);
-							allLines.add(new Line(start, end));
-						}
-						if (v[0] < 128)
-							lastValidStart = i;
-						else
-							Log.d("Guillaume", "" + v[0]);
-					}
-				}
+			Mat region = eroded.submat(s.yRange(workingSheet.rows()), s.xRange());
+			List<BeamDivision> potentialLines = OurUtils.detectBeamDivisions(region);
+			for (BeamDivision b : potentialLines) {
+				allLines.add(new Line(b.startingPoint(), b.endPoint()));
 			}
 		}
+
+		// allLines.addAll(extractBeams(startDetection, part));
+
+		/*
+		 * int cutLength = 30; for (int angle = -20; angle <= 20; angle += 5) {
+		 * Log.d("Guillaume", "" + angle); for (int cut = (int)
+		 * startDetection.x; cut < s.xRange().end - cutLength; cut += cutLength)
+		 * { int height = s.yRange(part.rows()).size(); Mat tmp =
+		 * OurUtils.rotateMatrix( part.clone().submat(s.yRange(part.rows()), new
+		 * Range(0, (int) (Math.max(0, cutLength * Math.cos(angle)) +
+		 * Math.max(0, height * Math.sin(angle)))), angle); Mat proj = new
+		 * Mat(); Core.reduce(tmp, proj, 1, Core.REDUCE_AVG, CvType.CV_32S); if
+		 * (cut >= 1630 && cut < 1630 + cutLength && s.topLine().start().y >
+		 * 1500 && s.topLine().start().y < 1700 && angle == -20) {
+		 * Imgproc.cvtColor(tmp, tmp, Imgproc.COLOR_GRAY2BGR);
+		 * Core.rectangle(tmp, new Point(0, 0), new Point(tmp.cols() - 1,
+		 * tmp.rows() - 1), new Scalar(0, 0, 255)); OurUtils.writeImage(proj,
+		 * OurUtils.getPath("output/proj.jpg")); OurUtils.writeImage(tmp,
+		 * OurUtils.getPath("output/tmp.jpg")); OurUtils.writeImage(
+		 * workingSheet.clone().submat( s.yRange(part.rows()), new Range(cut,
+		 * cut + cutLength)), OurUtils.getPath("output/orig.jpg")); } int
+		 * lastValidStart = 0; int minThickness = 4; for (int i = 0; i <
+		 * proj.rows(); i++) { int[] v = new int[3]; proj.get(i, 0, v); if (i >=
+		 * lastValidStart + minThickness) { Point start = new Point(cut,
+		 * s.startYRange() + lastValidStart + minThickness / 2); Point end = new
+		 * Point(cut + cutLength - 1, (s.startYRange() + lastValidStart +
+		 * minThickness / 2 + cutLength Math.tan(angle))); Log.d("Guillaume",
+		 * "Added new line: " + start.x + "," + start.y + " / " + end.x + "," +
+		 * end.y); allLines.add(new Line(start.clone(), end.clone()));
+		 * lastValidStart = i; } if (v[0] < 240) lastValidStart = i; else if
+		 * (s.topLine().start().y > 1400 && s.topLine().start().y < 1800 && cut
+		 * >= 2400 && cut < 2430 && (i % 5) == 0) Log.d("Guillaume", "" + v[0]);
+		 * } } }
+		 * 
+		 * }
+		 */
+		Collections.sort(allLines, new Comparator<Line>() {
+
+			@Override
+			public int compare(Line lhs, Line rhs) {
+				return (int) (lhs.start().x - rhs.start().x);
+			}
+
+		});
+		List<Line> joinedLines = new LinkedList<Line>();
+		for (int i = 0; i < allLines.size(); i++) {
+			Line first = allLines.get(i);
+			for (int j = i + 1; j < allLines.size(); j++) {
+				Line second = allLines.get(j);
+				if (Math.abs(first.end().x - second.start().x) < beamXTolerance
+						&& Math.abs(first.end().y - second.start().y) < beamYTolerance) {
+					first = new Line(first.start(), second.end());
+					allLines.remove(j);
+				}
+				if (first.end().x + 10 < second.start().x)
+					break;
+			}
+			if (first.length > beamMinLength
+					&& first.length < workingSheet.cols() / 6)
+				joinedLines.add(first);
+			allLines.remove(i);
+			i--;
+		}
+		allLines = joinedLines;
+		Log.d("Guillaume", "@sort, allLines.size: " + allLines.size());
 		Collections.sort(allLines, new Comparator<Line>() {
 
 			@Override
@@ -456,35 +511,24 @@ public class MusicDetector {
 			if (!OurUtils.isThereASimilarLine(beams, l)
 					&& OurUtils.isABeam(l, s)) {
 				beams.add(l);
-				for (int j = 0; j < s.notes().size(); j++) {
-					Note n = s.notes().get(j);
-					if (OurUtils.isOnBeamLine(n.center(), noteWidth, staveGap,
-							l)) {
-						notes.remove(n);
-						s.removeNote(n);
-						j--;
-					}
-				}
+				/*
+				 * for (int j = 0; j < s.notes().size(); j++) { Note n =
+				 * s.notes().get(j); if (OurUtils.isOnBeamLine(n.center(),
+				 * noteWidth, staveGap, l)) { notes.remove(n); s.removeNote(n);
+				 * j--; } }
+				 */
 			}
-		}
-		Log.d("Guillaume", "@potentialNotes, beams.size: " + beams.size());
-		for (int j = 0; j < potentialNotes.size(); j++) {
-			Note n = potentialNotes.get(j);
-			Log.d("Guillaume",
-					"Potential note: " + n.center().x + "," + n.center().y
-							+ "/total: " + potentialNotes.size() + ",");
-			Stave potentialStave = OurUtils.whichStaveDoesAPointBelongTo(
-					n.center(), staves, workingSheet.rows());
-			if (!OurUtils
-					.isThereANoteAtThisPosition(n.center(), potentialStave)
-					&& !OurUtils.isOnBeamLine(n.center(), noteWidth, staveGap,
-							beams)) {
-				potentialNotes.remove(n);
-				notes.add(n);
-				potentialStave.addNote(n);
-				j--;
-			}
-		}
+		}/*
+		 * Log.d("Guillaume", "@potentialNotes, beams.size: " + beams.size());
+		 * for (int j = 0; j < potentialNotes.size(); j++) { Note n =
+		 * potentialNotes.get(j); Stave potentialStave =
+		 * OurUtils.whichStaveDoesAPointBelongTo( n.center(), staves,
+		 * workingSheet.rows()); if (!OurUtils
+		 * .isThereANoteAtThisPosition(n.center(), potentialStave) &&
+		 * !OurUtils.isOnBeamLine(n.center(), noteWidth, staveGap, beams)) {
+		 * potentialNotes.remove(n); notes.add(n); potentialStave.addNote(n);
+		 * j--; } }
+		 */
 
 		for (Line l : beams) {
 			Stave s = OurUtils.whichStaveDoesAPointBelongTo(l.start(), staves,
@@ -498,24 +542,24 @@ public class MusicDetector {
 		}
 	}
 
-	private List<Line> extractBeams(Point startDetection, Mat partNorm,
-			int cols, int colLength) {
+	private List<Line> extractBeams(Point startDetection, Mat part) {
 		List<Line> allLines = new LinkedList<Line>();
 		Mat lines = new Mat();
+		int resizingCoeff = 2;
 		Imgproc.HoughLinesP(
-				partNorm.submat(0, partNorm.rows(), cols, cols + colLength)
-						.clone(), lines, 0.5, Math.PI / 180, 100);
+				OurUtils.resizeImage(part, part.rows() / resizingCoeff), lines,
+				1, Math.PI / 360, 100);
 		for (int i = 0; i < lines.cols(); i++) {
 			double[] data = lines.get(0, i);
-			Point start = new Point(data[0] + startDetection.x + cols, data[1]
-					+ startDetection.y);
-			Point end = new Point(data[2] + startDetection.x + cols, data[3]
-					+ startDetection.y);
+			Point start = new Point(data[0] * resizingCoeff + startDetection.x,
+					data[1] * resizingCoeff + startDetection.y);
+			Point end = new Point(data[2] * resizingCoeff + startDetection.x,
+					data[3] * resizingCoeff + startDetection.y);
 			Line potentialLine = new Line(start, end);
-			Line correctedLine = OurUtils.correctLine(potentialLine, partNorm,
+			Line correctedLine = OurUtils.correctLine(potentialLine, part,
 					staveGap);
 			double lengthX = correctedLine.length;
-			if (/* lengthX > part.cols() / 30 && */lengthX < partNorm.cols() / 6)
+			if (lengthX < part.cols() / 6)
 				allLines.add(correctedLine);
 		}
 		return allLines;
@@ -618,9 +662,10 @@ public class MusicDetector {
 				potentialNote = new Note(new Point(x, y), 1);
 			} else {
 				Rect r = Imgproc.boundingRect(contours.get(i));
-				potentialNote = new Note(new Point(r.x + r.width / 2
-						+ s.startDetection().x, r.y + r.height / 2
-						+ s.startYRange()), 1);
+				if (r.width < noteWidth * 1.3)
+					potentialNote = new Note(new Point(r.x + r.width / 2
+							+ s.startDetection().x, r.y + r.height / 2
+							+ s.startYRange()), 1);
 			}
 			if (!OurUtils.isInAnyRectangle(trebleClefs, trebleClef.cols(),
 					trebleClef.rows(), potentialNote.center())
@@ -726,15 +771,16 @@ public class MusicDetector {
 		}
 	}
 
-	public void print(Mat sheet) {
-		printStaves(sheet);
-		printFourFour(sheet);
-		printTreble(sheet);
-		printNotes(sheet);
-		printFlats(sheet);
-		printDots(sheet);
-		printBeams(sheet);
-		printScale(sheet);
+	public Mat print() {
+		printStaves(output);
+		printFourFour(output);
+		printTreble(output);
+		printNotes(output);
+		printFlats(output);
+		printDots(output);
+		printBeams(output);
+		printScale(output);
+		return output;
 	}
 
 	private void printScale(Mat sheet) {
@@ -791,11 +837,13 @@ public class MusicDetector {
 					sheet,
 					n.center(),
 					(int) (staveGap / 2),
-					(n.duration() == 1. ? new Scalar(0, 0, 255)
-							: (n.duration() == 0.5 ? new Scalar(255, 0, 255)
-									: (n.duration() == 2.0) ? new Scalar(128,
-											128, 0) : new Scalar(0, 127, 255))),
-					-1);
+					n.duration() == 1. ? new Scalar(0, 0, 255)
+							: n.duration() == 0.5 ? new Scalar(255, 0, 255)
+									: n.duration() == 2.0 ? new Scalar(128,
+											128, 0)
+											: n.duration() == 0.25 ? new Scalar(
+													128, 0, 128) : new Scalar(
+													0, 127, 255), -1);
 	}
 
 	private void printFlats(Mat sheet) {

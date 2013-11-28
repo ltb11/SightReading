@@ -26,6 +26,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Range;
 import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
@@ -111,6 +112,14 @@ public class OurUtils {
 		}
 	}
 
+	public static void makeColour(Mat sheet, Point topLeft, int width,
+			int height, Scalar s) {
+		Rect selectedArea = new Rect((int) topLeft.x, (int) topLeft.y, width,
+				height);
+		Mat colour = new Mat(new Size(width, height), sheet.type(), s);
+		colour.copyTo(sheet.submat(selectedArea));
+	}
+
 	public static Mat verticalProjection(Mat mat) {
 		Mat result = mat.clone();
 		Core.reduce(mat, result, 0, Core.REDUCE_AVG, CvType.CV_32S);
@@ -125,11 +134,11 @@ public class OurUtils {
 
 	public static Mat rotateMatrix(Mat mat, double angle) {
 		Mat result = mat.clone();
-		int length = Math.max(mat.cols(), mat.rows());
-		Point p = new Point(length / 2, length / 2);
+		// int length = Math.max(mat.cols(), mat.rows());
+		Point p = new Point(mat.cols() / 2, mat.rows() / 2);
 		Mat rotationMatrix = Imgproc.getRotationMatrix2D(p, angle, 1.0);
-		Imgproc.warpAffine(mat, result, rotationMatrix,
-				new Size(length, length));
+		Imgproc.warpAffine(mat, result, rotationMatrix, new Size(mat.cols(),
+				mat.rows()));
 		return result;
 	}
 
@@ -140,7 +149,7 @@ public class OurUtils {
 	public static boolean isThereANoteAtThisPosition(Point toCheck,
 			Stave currentStave) {
 		for (Note n : currentStave.notes()) {
-			if (Math.abs(n.center().x - toCheck.x) < 35)
+			if (Math.abs(n.center().x - toCheck.x) < MusicDetector.noteMinDistance)
 				return true;
 		}
 		return false;
@@ -165,8 +174,8 @@ public class OurUtils {
 		return false;
 	}
 
-	public static boolean isThereASimilarLine(List<Line> quavers, Line l) {
-		for (Line line : quavers) {
+	public static boolean isThereASimilarLine(List<Line> beams, Line l) {
+		for (Line line : beams) {
 			double slope = (line.end().y - line.start().y)
 					/ (line.end().x - line.start().x);
 			if (Math.abs((line.start().y + slope
@@ -287,11 +296,12 @@ public class OurUtils {
 	 ****************************************/
 
 	public static Bitmap RotateBitmap(Bitmap source, float angle) {
-	      Matrix matrix = new Matrix();
-	      matrix.postRotate(angle);
-	      return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+		Matrix matrix = new Matrix();
+		matrix.postRotate(angle);
+		return Bitmap.createBitmap(source, 0, 0, source.getWidth(),
+				source.getHeight(), matrix, true);
 	}
-	
+
 	public static List<Line> getHoughLinesFromMat(Mat linesMat) {
 		List<Line> lines = new LinkedList<Line>();
 		double dataa[];
@@ -433,6 +443,58 @@ public class OurUtils {
 		return divisions;
 	}
 
+	public static List<BeamDivision> detectBeamDivisions(Mat sheet) {
+		Mat verticalProj = verticalProjection(sheet);
+		List<BeamDivision> potentialBeams = new LinkedList<BeamDivision>();
+		int[] v = new int[4];
+		boolean in = false;
+		int lastEntry = 0;
+		for (int i = 0; i < verticalProj.cols(); i++) {
+			verticalProj.get(0, i, v);
+			if (in && (v[0] < MusicDetector.beamVerticalThresholdTolerance)) {
+				if (i - lastEntry > MusicDetector.beamMinLength) {
+					Log.d("Guillaume", "New line detected at x: " + lastEntry + "," + i);
+					Mat region = sheet.submat(new Range(0, sheet.rows()),
+							new Range(lastEntry, i));
+					Mat horizontalProj = horizontalProjection(region);
+					List<Integer> divs = detectDivisions(horizontalProj,
+							MusicDetector.beamHorizontalThresholdTolerance);
+					Point p1 = null, p2 = null;
+					for (int j = 0; j < divs.size() - 1; j++) {
+						int start = divs.get(j);
+						int end = divs.get(j + 1);
+						if (end - start > 10) {
+							if (sheet.get(start, lastEntry)[0] == 255) {
+								p1 = new Point(lastEntry, start);
+								p2 = new Point(i, end);
+								break;
+							}
+							else if (sheet.get(end - 1, lastEntry)[0] == 255) {
+								p1 = new Point(lastEntry, end);
+								p2 = new Point(i, start);
+								break;
+							}
+							Log.e("Guillaume",
+									"Could not find a valid match for point @position: "
+											+ lastEntry + "," + start + "/" + i
+											+ "," + end);
+						}
+					}
+					List<Point> toBeam = new LinkedList<Point>();
+					toBeam.add(p1);
+					toBeam.add(p2);
+					potentialBeams.add(new BeamDivision(toBeam));
+				}
+				in = false;
+			} else if (!in
+					&& (v[0] > MusicDetector.beamVerticalThresholdTolerance)) {
+				in = true;
+				lastEntry = i;
+			}
+		}
+		return potentialBeams;
+	}
+
 	public static Point findNearestNeighbour(Point centre, Mat ref, int width,
 			int height) {
 		List<MatOfPoint> contours = new LinkedList<MatOfPoint>();
@@ -521,22 +583,22 @@ public class OurUtils {
 
 	public static Bitmap loadTempImage(int imageNum)
 			throws FileNotFoundException {
-		String fName = "page"+(imageNum+1);
+		String fName = "page" + (imageNum + 1);
 		String pName = getPath("temp/");
 		return loadImage(pName, fName);
 
 	}
 
-	public static Mat loadTempMat(int imageNum)
-			throws FileNotFoundException {
-		String fName = "page"+(imageNum+1)+".png";
+	public static Mat loadTempMat(int imageNum) throws FileNotFoundException {
+		String fName = "page" + (imageNum + 1) + ".png";
 		String pName = getPath("temp/");
 		Mat mat = readImage(pName + fName);
-		if (mat==null) throw new FileNotFoundException();
+		if (mat == null)
+			throw new FileNotFoundException();
 		return mat;
 
 	}
-	
+
 	private static void saveImage(Bitmap bitmap, String pName, String fName) {
 		File dir = new File(pName);
 		if (!dir.exists())
