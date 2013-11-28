@@ -11,6 +11,7 @@ import playback.Playback;
 import utils.OurUtils;
 import android.app.Activity;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -19,7 +20,9 @@ public class PlaybackActivity extends Activity {
 
 	public static final String TAG = "SRPlaybackActivity";
 	public final static long startTime = System.currentTimeMillis();
-
+	private MediaPlayer player;
+	private boolean playing = false;
+	
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -29,12 +32,26 @@ public class PlaybackActivity extends Activity {
 		
 		initialiseButtons();
 		
-		Playback.playMidiFile("temp/", "output.midi");
+		player = Playback.getMidiFile("temp/", "output.midi");
 	}
 
 	private void initialiseButtons() {
+		findViewById(R.id.playbackButton).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				if (playing) {
+					playing=false;
+					player.stop();
+					findViewById(R.id.playbackButton).setBackgroundResource(R.drawable.media_play);
+				} else {
+					playing=true;
+					player.start();
+					findViewById(R.id.playbackButton).setBackgroundResource(R.drawable.media_pause);
+				}
+			}
+		});
+		
 		findViewById(R.id.playback_resetApp).setOnClickListener(new View.OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				Intent i = new Intent(PlaybackActivity.this,

@@ -103,7 +103,7 @@ public class CameraActivity extends Activity implements OnTouchListener,
 
 	private void updateText() {
 		TextView text = (TextView) findViewById(R.id.savedPagesText);
-		text.setText("You have saved " + totalImages + " pages");
+		text.setText("  You have saved " + totalImages + " pages");
 	}
 
 	public static void savePage(Bitmap bitmap) {

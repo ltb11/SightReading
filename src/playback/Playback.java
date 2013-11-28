@@ -22,7 +22,7 @@ public class Playback {
 		playMidiFile("midi/",fileName);
 	}
 
-	public static void playMidiFile(String folder, String fileName) {
+	public static MediaPlayer getMidiFile(String folder, String fileName) {
 		String path = OurUtils.getPath(folder);
 		File f = new File(path, fileName);
 
@@ -33,12 +33,19 @@ public class Playback {
 			MediaPlayer mediaPlayer = new MediaPlayer();
 			mediaPlayer.setDataSource(fd);
 			mediaPlayer.prepare();
-			mediaPlayer.start();
-			Log.i("Playback", "Playback started: " + fileName);
+			return mediaPlayer;
 			//fis.close();
 		} catch (Exception e) {
 			Log.e("Playback", e.toString());
+			return null;
 		}
+
+	}
+	
+	public static void playMidiFile(String folder, String fileName) {
+		MediaPlayer player = getMidiFile(folder,fileName);
+		player.start();
+		Log.i("Playback", "Playback started: " + fileName);
 
 	}
 	
