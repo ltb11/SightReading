@@ -2,8 +2,10 @@ package org.sightreader;
 
 import java.io.File;
 
+import midiconversion.Converter;
 import musicdetection.MusicDetector;
 import musicdetection.NoMusicDetectedException;
+import musicrepresentation.Piece;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
@@ -11,6 +13,8 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
+
+import playback.Playback;
 
 import utils.OurUtils;
 import android.app.Activity;
@@ -23,6 +27,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import com.lamerman.FileDialog;
 import com.lamerman.SelectionMode;
+import com.leff.midi.MidiFile;
 
 public class SightReaderActivity extends Activity {
 	public static final String TAG = "SightReaderActivity";
@@ -118,8 +123,8 @@ public class SightReaderActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				String toTest = "StarWars.jpg";
-				testImage(toTest, OurUtils.getDestImage(toTest),
-						OurUtils.getDestMid(toTest));
+				String midi = "StarWars.midi";
+				testImage(toTest, OurUtils.getDestImage(toTest), midi);
 				finish();
 			}
 		});
@@ -128,7 +133,9 @@ public class SightReaderActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				testProg();
+				String[] tests = {"Distorted.jpg", "Baabaa.jpg",
+						"Baabaa 13-11-13 2.jpg"};
+				testProg(tests);
 			}
 		});
 
@@ -138,7 +145,6 @@ public class SightReaderActivity extends Activity {
 	private void testImage(String src, String dstImage, String destMid) {
 		String srcPath = OurUtils.getPath("input/" + src);
 		Mat input = OurUtils.readImage(srcPath);
-
 		Log.d("Guillaume",
 				"Original image width after scaling: " + input.cols());
 		Mat output = input.clone();
@@ -149,24 +155,22 @@ public class SightReaderActivity extends Activity {
 			detector = new MusicDetector(input);
 		} catch (NoMusicDetectedException e) {
 			Log.d("Guillaume", "No music detected here!");
-			e.printStackTrace();
+			"no music detected");
 		}
+		Log.d("Conrad", srcPath);
 		detector.detect();
 		output = detector.print();
 
-		// Piece piece = detector.toPiece();
-		// MidiFile f = Converter.Convert(piece);
-
-		// Playback.saveMidiFile(f, destMid);
+		Piece piece = detector.toPiece();
+		MidiFile f = Converter.Convert(piece);
+		Playback.saveMidiFile(f, destMid);
 
 		// Playback.playMidiFile("test.mid");
 
 		OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));
 	}
 
-	public void testProg() {
-		String[] tests = new String[] { "Distorted.jpg", "Baabaa.jpg",
-				"Baabaa 13-11-13 2.jpg" };
+	public void testProg(String[] tests) {
 		for (String s : tests) {
 			String dstImage = OurUtils.getDestImage(s);
 			testImage(s, dstImage, OurUtils.getDestMid(s));
