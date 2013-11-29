@@ -1,6 +1,8 @@
 package org.sightreader;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
@@ -24,6 +26,7 @@ import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class CameraActivity extends Activity implements OnTouchListener,
 		CvCameraViewListener2 {
@@ -184,23 +187,9 @@ public class CameraActivity extends Activity implements OnTouchListener,
 
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
-
-		/*
-		 * SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-		 * String currentDateandTime = sdf.format(new Date()); String fileName =
-		 * Utils.getPath("") + "/captured/" + currentDateandTime + ".jpg";
-		 * mOpenCvCameraView.takePicture(fileName);
-		 * 
-		 * Toast.makeText(this, fileName + " saved", Toast.LENGTH_SHORT).show();
-		 */
-		Bitmap image = Bitmap.createBitmap(mRgba.width(), mRgba.height(),
-				Bitmap.Config.ARGB_8888);
-		Utils.matToBitmap(mRgba, image);
-
-		Intent i = new Intent(CameraActivity.this, DisplayPhotoActivity.class);
-		DisplayPhotoActivity.image = image;
-		startActivity(i);
-
+		mOpenCvCameraView.setCallback(this);
+		mOpenCvCameraView.takePicture("page"+(totalImages+1)+".jpg");
 		return false;
 	}
+
 }
