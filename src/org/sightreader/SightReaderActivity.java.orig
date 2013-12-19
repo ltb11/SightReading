@@ -122,9 +122,15 @@ public class SightReaderActivity extends Activity {
 		findViewById(R.id.parse).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				String toTest = "Distorted.jpg";
-				String midi = "baaBaa.midi";
+<<<<<<< HEAD
+				String toTest = "page1.png";
+				testImage(toTest, OurUtils.getDestImage(toTest),
+						OurUtils.getDestMid(toTest));
+=======
+				String toTest = "StarWars.jpg";
+				String midi = "StarWars.midi";
 				testImage(toTest, OurUtils.getDestImage(toTest), midi);
+>>>>>>> 5be968aef5cd8ffc4e59dcfb64088b76c9fbbef3
 				finish();
 			}
 		});
@@ -146,7 +152,7 @@ public class SightReaderActivity extends Activity {
 		String srcPath = OurUtils.getPath("input/" + src);
 		Mat input = OurUtils.readImage(srcPath);
 		Log.d("Guillaume",
-				"Original image width before scaling: " + input.cols());
+				"Original image width after scaling: " + input.cols());
 		Mat output = input.clone();
 		Imgproc.cvtColor(output, output, Imgproc.COLOR_GRAY2BGR);
 

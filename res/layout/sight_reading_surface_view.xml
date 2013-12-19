@@ -2,9 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/DarkGrey"
-    android:orientation="vertical" 
-    >
+    android:orientation="vertical" >
 
     <LinearLayout
         android:baselineAligned="false"
@@ -31,57 +29,57 @@
                 android:gravity="center_vertical"
                 android:orientation="vertical" >
 
-                <Button
-                    android:id="@+id/test"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" >
+
+                    <Button
+                        android:id="@+id/test"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Test" />
+
+                    <Button
+                        android:id="@+id/parse"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Parse" />
+
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/imageView1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Test" />
-
-                <Button
-                    android:id="@+id/parse"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Parse" />
-
-                <TextView
-                    android:id="@+id/SightReader"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:fontFamily="normal"
-                    android:text="@string/SR"
-                    android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="@color/Red"
-                    android:textSize="50sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/scan_play_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.2"
-                android:gravity="center_horizontal"
-                android:orientation="vertical" >
+                    android:layout_weight="0.5"
+                    android:src="@drawable/sightreaderlogo" />
 
                 <Button
                     android:id="@+id/scan"
-                    android:layout_width="200dp"
-                    android:layout_height="80dp"
-                    android:background="@drawable/curvededgesbutton"
-                    android:text="@string/scan"
-                    android:textColor="@color/Blue"
-                    android:textSize="40sp" />
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Scan" />
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.5" >
+
+                </FrameLayout>
 
                 <Button
                     android:id="@+id/play"
-                    android:layout_width="200dp"
-                    android:layout_height="80dp"
-                    android:layout_marginTop="50dp"
-                    android:background="@drawable/curvededgesbutton"
-                    android:text="@string/play"
-                    android:textColor="@color/Blue"
-                    android:textSize="40sp" />
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Play" />
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" >
+                </FrameLayout>
 
             </LinearLayout>
 

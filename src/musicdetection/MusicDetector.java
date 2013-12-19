@@ -83,7 +83,7 @@ public class MusicDetector {
 	public static int beamHorizontalThresholdTolerance = 10;
 
 	public MusicDetector(final Mat input) throws NoMusicDetectedException {
-		workingSheet = preprocess(input.clone());
+		workingSheet = preprocess(input);
 		master_half_notes.add(masterHalf_note);
 		master_half_notes.add(masterHalf_note_on);
 		master_whole_notes.add(masterWhole_note);
@@ -667,17 +667,19 @@ public class MusicDetector {
 							+ s.startDetection().x, r.y + r.height / 2
 							+ s.startYRange()), 1);
 			}
-			if (!OurUtils.isInAnyRectangle(trebleClefs, trebleClef.cols(),
-					trebleClef.rows(), potentialNote.center())
-					&& !OurUtils.isInAnyRectangle(fourFours, fourFour.cols(),
-							fourFour.rows(), potentialNote.center())
-					&& potentialNote.center().x < s.topLine().end().x * 0.98) {
-				if (!OurUtils.isThereANoteAtThisPosition(
-						potentialNote.center(), s)) {
-					notes.add(potentialNote);
-					s.addNote(potentialNote);
-				} else
-					potentialNotes.add(potentialNote);
+			if (potentialNote != null) {
+				if (!OurUtils.isInAnyRectangle(trebleClefs, trebleClef.cols(),
+						trebleClef.rows(), potentialNote.center())
+						&& !OurUtils.isInAnyRectangle(fourFours, fourFour.cols(),
+								fourFour.rows(), potentialNote.center())
+								&& potentialNote.center().x < s.topLine().end().x * 0.98) {
+					if (!OurUtils.isThereANoteAtThisPosition(
+							potentialNote.center(), s)) {
+						notes.add(potentialNote);
+						s.addNote(potentialNote);
+					} else
+						potentialNotes.add(potentialNote);
+				}
 			}
 		}
 	}
@@ -692,7 +694,7 @@ public class MusicDetector {
 						- line0.toLine().length()));
 			}
 		});
-
+		Log.i("PROC",""+lines.size());
 		int outside, inside;
 		for (outside = 0; outside < lines.size(); outside++) {
 			Line start = lines.get(outside).toLine();

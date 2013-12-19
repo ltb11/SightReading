@@ -89,6 +89,8 @@ public class OurUtils {
 		double newWidth = newHeight * image.cols() / image.rows();
 		Size newSize = new Size(newWidth, newHeight);
 
+		assert(newHeight>0 && newWidth>0);
+		
 		Mat newImage = new Mat(newSize, image.type());
 		Imgproc.resize(image, newImage, newSize);
 

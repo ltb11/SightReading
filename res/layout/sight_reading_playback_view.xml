@@ -16,6 +16,13 @@
         android:layout_height="wrap_content"
         android:layout_weight="1" >
 
+        <ImageButton
+            android:id="@+id/playbackButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@android:drawable/ic_media_play" />
+
     </FrameLayout>
 
     <Button

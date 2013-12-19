@@ -1,11 +1,14 @@
 package org.sightreader;
 
-import java.io.FileOutputStream;
 import java.util.List;
 
 import org.opencv.android.JavaCameraView;
 
+import utils.OurUtils;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.Size;
@@ -16,7 +19,8 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 
 	private static final String TAG = "SRCameraView";
 	private String mPictureFileName;
-
+	private CameraActivity callback;
+	
 	public SRCameraView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
@@ -75,9 +79,20 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		mCamera.startPreview();
 		mCamera.setPreviewCallback(this);
 
+		Bitmap bitmap = BitmapFactory.decodeByteArray(data , 0, data .length);
+		OurUtils.saveTempImage(bitmap, "test");
+		
+		DisplayPhotoActivity.image=bitmap;
+		
+		if (callback!=null) {
+			Intent i = new Intent(callback,
+					DisplayPhotoActivity.class);
+			callback.startActivity(i);
+		}
+		
 		// Write the image in a file (in jpeg format)
-		try {
-			FileOutputStream fos = new FileOutputStream(mPictureFileName);
+		/*try {
+			FileOutputStream fos = new FileOutputStream(OurUtils.getPath("output/")+mPictureFileName);
 
 			fos.write(data);
 			fos.close();
@@ -85,6 +100,12 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		} catch (java.io.IOException e) {
 			Log.e("PictureDemo", "Exception in photoCallback", e);
 		}
+		
+		Log.i("PROC", "saved");*/
+		
+	}
 
+	public void setCallback(CameraActivity cameraActivity) {
+		this.callback = cameraActivity;
 	}
 }

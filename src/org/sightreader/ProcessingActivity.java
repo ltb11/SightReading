@@ -9,27 +9,20 @@ import musicdetection.MusicDetector;
 import musicdetection.NoMusicDetectedException;
 import musicrepresentation.Piece;
 
-import org.opencv.android.Utils;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc;
 
 import playback.Playback;
-
-import com.leff.midi.MidiFile;
-
 import utils.OurUtils;
-
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
+
+import com.leff.midi.MidiFile;
 
 public class ProcessingActivity extends Activity {
 
@@ -86,12 +79,16 @@ public class ProcessingActivity extends Activity {
 		@Override
 		protected String doInBackground(String... arg0) {
     		List<Piece> pieces = new LinkedList<Piece>();
-    		Log.i("PROC","start processing");
+    		Log.i("PROC","start processing "+pageNum+" pages");
+    		
+    		
     		while (nextImageExists()) {
     			Log.i("PROC","next image");
     			
     			try {
     				Mat input = loadImage();
+    				//OurUtils.writeImage(input,OurUtils.getPath("output/")+"test.png");
+    				
     				MusicDetector detector = new MusicDetector(input);
     				detector.detect();
     				Piece piece = detector.toPiece();
