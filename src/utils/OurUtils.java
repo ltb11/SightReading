@@ -449,11 +449,13 @@ public class OurUtils {
 		int lastEntry = 0;
 		for (int i = 0; i < verticalProj.cols(); i++) {
 			verticalProj.get(0, i, v);
+			if (in) Log.d("Guillaume", "in: " + in);
 			if (in && (v[0] < MusicDetector.beamVerticalThresholdTolerance)) {
 				if (i - lastEntry > MusicDetector.beamMinLength) {
 					Log.d("Guillaume", "New line detected at x: " + lastEntry + "," + i);
 					Mat region = sheet.submat(new Range(0, sheet.rows()),
 							new Range(lastEntry, i));
+					writeImage(region, getPath("output/proj" + i + ".jpg"));
 					Mat horizontalProj = horizontalProjection(region);
 					List<Integer> divs = detectDivisions(horizontalProj,
 							MusicDetector.beamHorizontalThresholdTolerance);
