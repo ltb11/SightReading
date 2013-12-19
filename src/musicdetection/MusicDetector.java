@@ -79,8 +79,8 @@ public class MusicDetector {
 	private int beamXTolerance = 4;
 	private int beamYTolerance = 3;
 	public static int beamMinLength = 25;
-	public static int beamVerticalThresholdTolerance = 30;
-	public static int beamHorizontalThresholdTolerance = 20;
+	public static int beamVerticalThresholdTolerance = 10;
+	public static int beamHorizontalThresholdTolerance = 10;
 
 	public MusicDetector(final Mat input) throws NoMusicDetectedException {
 		workingSheet = preprocess(input);
