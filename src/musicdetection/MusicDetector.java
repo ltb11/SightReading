@@ -23,7 +23,7 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 import org.sightreader.SightReaderActivity;
 
-import utils.BeamDivision;
+import utils.Interval;
 import utils.OurUtils;
 import utils.SheetStrip;
 import android.util.Log;
@@ -377,40 +377,9 @@ public class MusicDetector {
 	// TODO: Get the previous rotateOnSheet algorithm and combine both of them
 	// TODO: Create big lines from consecutive small lines
 	private void detectBeams() {
-		Log.d("Guillaume", "staveGap: " + staveGap);
-		List<Line> allLines = new LinkedList<Line>();
-		/*
-		 * Mat part = workingSheet.clone(); Imgproc.erode(part, part,
-		 * Imgproc.getStructuringElement( Imgproc.MORPH_RECT, new Size(8, 8)));
-		 * for (Stave s : staves) { Mat partRot = rotateSheetOnStave(s);
-		 * Imgproc.erode(partRot, partRot, Imgproc.getStructuringElement(
-		 * Imgproc.MORPH_RECT, new Size(6, 6))); Point startDetection =
-		 * s.startDetection(); Mat partNorm =
-		 * part.submat((s.yRange(workingSheet.rows())), s.xRange()); /*
-		 * OurUtils.writeImage(part.clone(), OurUtils.getPath("output/erodedSW_"
-		 * + s.startYRange()) + ".jpg");
-		 */
-
-		/*
-		 * for (int colLength = 1500; colLength > 0; colLength -= 400) { for
-		 * (int cols = 0; cols < partNorm.cols() - colLength; cols += colLength)
-		 * allLines.addAll(extractBeams(startDetection, partNorm, cols,
-		 * colLength)); for (int cols = 0; cols < partRot.cols() - colLength;
-		 * cols += colLength) allLines.addAll(extractBeams(startDetection,
-		 * partRot, cols, colLength)); }
-		 * 
-		 * 
-		 * // allLines.addAll(extractBeams(startDetection, partNorm)); //
-		 * allLines.addAll(extractBeams(startDetection, partRot)); }
-		 */
-
-		// TODO: Have the sharp + natural detection working // Take them out as
-		// well // Run vertical projection to get and
-		// idea on where to look for beams
-
 		Mat eroded = workingSheet.clone();
-		Imgproc.erode(eroded, eroded,
-				 Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(8, 8)));
+		Imgproc.erode(eroded, eroded, Imgproc.getStructuringElement(
+				Imgproc.MORPH_RECT, new Size(staveGap / 2, staveGap / 2)));
 		for (Note n : notes) {
 			if (n.duration() != 1)
 				continue;
@@ -418,151 +387,51 @@ public class MusicDetector {
 					n.center().y - staveGap), (int) (3 * noteWidth),
 					(int) (2 * staveGap), new Scalar(0, 0, 0));
 		}
-
-		OurUtils.writeImage(eroded, OurUtils.getPath("output/eroded.jpg"));
-		
 		for (Stave s : staves) {
-			Mat region = eroded.submat(s.yRange(workingSheet.rows()), s.xRange());
-			List<BeamDivision> potentialLines = OurUtils.detectBeamDivisions(region);
-			for (BeamDivision b : potentialLines) {
-				allLines.add(new Line(b.startingPoint(), b.endPoint()));
-			}
-		}
-
-		// allLines.addAll(extractBeams(startDetection, part));
-
-		/*
-		 * int cutLength = 30; for (int angle = -20; angle <= 20; angle += 5) {
-		 * Log.d("Guillaume", "" + angle); for (int cut = (int)
-		 * startDetection.x; cut < s.xRange().end - cutLength; cut += cutLength)
-		 * { int height = s.yRange(part.rows()).size(); Mat tmp =
-		 * OurUtils.rotateMatrix( part.clone().submat(s.yRange(part.rows()), new
-		 * Range(0, (int) (Math.max(0, cutLength * Math.cos(angle)) +
-		 * Math.max(0, height * Math.sin(angle)))), angle); Mat proj = new
-		 * Mat(); Core.reduce(tmp, proj, 1, Core.REDUCE_AVG, CvType.CV_32S); if
-		 * (cut >= 1630 && cut < 1630 + cutLength && s.topLine().start().y >
-		 * 1500 && s.topLine().start().y < 1700 && angle == -20) {
-		 * Imgproc.cvtColor(tmp, tmp, Imgproc.COLOR_GRAY2BGR);
-		 * Core.rectangle(tmp, new Point(0, 0), new Point(tmp.cols() - 1,
-		 * tmp.rows() - 1), new Scalar(0, 0, 255)); OurUtils.writeImage(proj,
-		 * OurUtils.getPath("output/proj.jpg")); OurUtils.writeImage(tmp,
-		 * OurUtils.getPath("output/tmp.jpg")); OurUtils.writeImage(
-		 * workingSheet.clone().submat( s.yRange(part.rows()), new Range(cut,
-		 * cut + cutLength)), OurUtils.getPath("output/orig.jpg")); } int
-		 * lastValidStart = 0; int minThickness = 4; for (int i = 0; i <
-		 * proj.rows(); i++) { int[] v = new int[3]; proj.get(i, 0, v); if (i >=
-		 * lastValidStart + minThickness) { Point start = new Point(cut,
-		 * s.startYRange() + lastValidStart + minThickness / 2); Point end = new
-		 * Point(cut + cutLength - 1, (s.startYRange() + lastValidStart +
-		 * minThickness / 2 + cutLength Math.tan(angle))); Log.d("Guillaume",
-		 * "Added new line: " + start.x + "," + start.y + " / " + end.x + "," +
-		 * end.y); allLines.add(new Line(start.clone(), end.clone()));
-		 * lastValidStart = i; } if (v[0] < 240) lastValidStart = i; else if
-		 * (s.topLine().start().y > 1400 && s.topLine().start().y < 1800 && cut
-		 * >= 2400 && cut < 2430 && (i % 5) == 0) Log.d("Guillaume", "" + v[0]);
-		 * } } }
-		 * 
-		 * }
-		 */
-		Collections.sort(allLines, new Comparator<Line>() {
-
-			@Override
-			public int compare(Line lhs, Line rhs) {
-				return (int) (lhs.start().x - rhs.start().x);
-			}
-
-		});
-		List<Line> joinedLines = new LinkedList<Line>();
-		for (int i = 0; i < allLines.size(); i++) {
-			Line first = allLines.get(i);
-			for (int j = i + 1; j < allLines.size(); j++) {
-				Line second = allLines.get(j);
-				if (Math.abs(first.end().x - second.start().x) < beamXTolerance
-						&& Math.abs(first.end().y - second.start().y) < beamYTolerance) {
-					first = new Line(first.start(), second.end());
-					allLines.remove(j);
+			Mat part = eroded.clone().submat(s.yRange(workingSheet.rows()),
+					s.xRange());
+			Mat verticalProj = OurUtils.verticalProjection(part);
+			List<Interval> potentialBeams = new LinkedList<Interval>();
+			final int startDetectionX = (int) s.startDetection().x;
+			int start = startDetectionX;
+			boolean in = false;
+			for (int col = 0; col < verticalProj.cols(); col++) {
+				if (!in && verticalProj.get(0, col)[0] >= 1) {
+					in = true;
+					start = startDetectionX + col;
+				} else if (in && verticalProj.get(0, col)[0] < 1) {
+					in = false;
+					int end = startDetectionX + col;
+					if (end - start > 10)
+						potentialBeams.add(new Interval(start, end));
 				}
-				if (first.end().x + 10 < second.start().x)
-					break;
 			}
-			if (first.length > beamMinLength
-					&& first.length < workingSheet.cols() / 6)
-				joinedLines.add(first);
-			allLines.remove(i);
-			i--;
-		}
-		allLines = joinedLines;
-		Log.d("Guillaume", "@sort, allLines.size: " + allLines.size());
-		Collections.sort(allLines, new Comparator<Line>() {
-
-			@Override
-			public int compare(Line lhs, Line rhs) {
-				return (int) (Math.sqrt((Math.pow(rhs.end().x - rhs.start().x,
-						2) - Math.pow(rhs.end().y - rhs.start().y, 2))) - Math
-						.sqrt((Math.pow(lhs.end().x - lhs.start().x, 2) - Math
-								.pow(lhs.end().y - lhs.start().y, 2))));
-			}
-
-		});
-		for (int i = 0; i < allLines.size(); i++) {
-			Line l = allLines.get(i);
-			Stave s = OurUtils.whichStaveDoesAPointBelongTo(l.start(), staves,
-					workingSheet.rows());
-			if (!OurUtils.isThereASimilarLine(beams, l)
-					&& OurUtils.isABeam(l, s)) {
-				beams.add(l);
-				/*
-				 * for (int j = 0; j < s.notes().size(); j++) { Note n =
-				 * s.notes().get(j); if (OurUtils.isOnBeamLine(n.center(),
-				 * noteWidth, staveGap, l)) { notes.remove(n); s.removeNote(n);
-				 * j--; } }
-				 */
-			}
-		}/*
-		 * Log.d("Guillaume", "@potentialNotes, beams.size: " + beams.size());
-		 * for (int j = 0; j < potentialNotes.size(); j++) { Note n =
-		 * potentialNotes.get(j); Stave potentialStave =
-		 * OurUtils.whichStaveDoesAPointBelongTo( n.center(), staves,
-		 * workingSheet.rows()); if (!OurUtils
-		 * .isThereANoteAtThisPosition(n.center(), potentialStave) &&
-		 * !OurUtils.isOnBeamLine(n.center(), noteWidth, staveGap, beams)) {
-		 * potentialNotes.remove(n); notes.add(n); potentialStave.addNote(n);
-		 * j--; } }
-		 */
-
-		for (Line l : beams) {
-			Stave s = OurUtils.whichStaveDoesAPointBelongTo(l.start(), staves,
-					workingSheet.rows());
-			for (Note n : s.notes()) {
-				if (n.center().x > l.start().x - beamLengthTolerance
-						&& n.center().x < l.end().x + beamLengthTolerance) {
-					n.setDuration(n.duration() / 2);
+			for (Interval interval : potentialBeams) {
+				part = eroded.clone().submat(s.yRange(workingSheet.rows()),
+						interval.toRange());
+				Mat horizontalProj = OurUtils.horizontalProjection(part);
+				int startDetectionY = (int) s.startDetection().y;
+				start = startDetectionY;
+				in = false;
+				for (int row = 0; row < horizontalProj.rows(); row++) {
+					if (!in && horizontalProj.get(row, 0)[0] > 3) {
+						in = true;
+						start = startDetectionY + row;
+					} else if (in && horizontalProj.get(row, 0)[0] < 3) {
+						in = false;
+						int end = startDetectionY + row;
+						if (part.get(row, 0)[0] > part.get(start - startDetectionY, 0)[0])
+							beams.add(new Line(
+									new Point(interval.min(), start),
+									new Point(interval.max(), end)));
+						else
+							beams.add(new Line(
+									new Point(interval.min(), end),
+									new Point(interval.max(), start)));
+					}
 				}
 			}
 		}
-	}
-
-	private List<Line> extractBeams(Point startDetection, Mat part) {
-		List<Line> allLines = new LinkedList<Line>();
-		Mat lines = new Mat();
-		int resizingCoeff = 2;
-		Imgproc.HoughLinesP(
-				OurUtils.resizeImage(part, part.rows() / resizingCoeff), lines,
-				1, Math.PI / 360, 100);
-		for (int i = 0; i < lines.cols(); i++) {
-			double[] data = lines.get(0, i);
-			Point start = new Point(data[0] * resizingCoeff + startDetection.x,
-					data[1] * resizingCoeff + startDetection.y);
-			Point end = new Point(data[2] * resizingCoeff + startDetection.x,
-					data[3] * resizingCoeff + startDetection.y);
-			Line potentialLine = new Line(start, end);
-			Line correctedLine = OurUtils.correctLine(potentialLine, part,
-					staveGap);
-			double lengthX = correctedLine.length;
-			if (lengthX < part.cols() / 6)
-				allLines.add(correctedLine);
-		}
-		return allLines;
 	}
 
 	private void detectHalfNotes() {
@@ -625,6 +494,10 @@ public class MusicDetector {
 		}
 	}
 
+	/*
+	 * Need to run 2 detections and get the intersection of them because of
+	 * noise created by the beams during the eroding
+	 */
 	private void detectNotes() {
 		Mat eroded = workingSheet.clone();
 		Imgproc.erode(eroded, eroded, Imgproc.getStructuringElement(
@@ -632,12 +505,31 @@ public class MusicDetector {
 				new Size(3 * staveGap / 4, 3 * staveGap / 4)));
 		OurUtils.writeImage(eroded, OurUtils.getPath("output/eroded.png"));
 		noteWidth = staveGap * 7 / 6;
+		List<Note> allNotesOne = new LinkedList<Note>();
 		for (Stave s : staves)
-			detectNoteOnPart(eroded, s);
+			allNotesOne.addAll(detectNoteOnPart(eroded, s));
+		eroded = workingSheet.clone();
+		Imgproc.erode(eroded, eroded, Imgproc.getStructuringElement(
+				Imgproc.MORPH_RECT, new Size(staveGap / 2, staveGap / 2)));
+		OurUtils.writeImage(eroded, OurUtils.getPath("output/eroded.png"));
+		noteWidth = staveGap * 7 / 6;
+		List<Note> allNotesTwo = new LinkedList<Note>();
+		for (Stave s : staves)
+			allNotesTwo.addAll(detectNoteOnPart(eroded, s));
+		for (Note n1 : allNotesOne) {
+			for (Note n2 : allNotesTwo) {
+				if (OurUtils.distanceBetweenTwoPoints(n1.center(), n2.center()) < 3) {
+					notes.add(n1);
+					OurUtils.whichStaveDoesAPointBelongTo(n1.center(), staves,
+							workingSheet.rows()).addNote(n1);
+				}
+			}
+		}
 	}
 
-	private void detectNoteOnPart(Mat ref, Stave s) {
+	private List<Note> detectNoteOnPart(Mat ref, Stave s) {
 		List<MatOfPoint> contours = new LinkedList<MatOfPoint>();
+		List<Note> result = new LinkedList<Note>();
 		Imgproc.findContours(
 				ref.submat(s.yRange(workingSheet.rows()), s.xRange()),
 				contours, new Mat(), Imgproc.RETR_LIST,
@@ -648,7 +540,7 @@ public class MusicDetector {
 			public int compare(MatOfPoint lhs, MatOfPoint rhs) {
 				Rect r1 = Imgproc.boundingRect(lhs);
 				Rect r2 = Imgproc.boundingRect(rhs);
-				return (r2.width - r1.width);
+				return (int) (r2.area() - r1.area());
 			}
 		});
 		List<Moments> mu = new ArrayList<Moments>(contours.size());
@@ -662,7 +554,7 @@ public class MusicDetector {
 				potentialNote = new Note(new Point(x, y), 1);
 			} else {
 				Rect r = Imgproc.boundingRect(contours.get(i));
-				if (r.width < noteWidth * 1.3)
+				if (r.width <= noteWidth)
 					potentialNote = new Note(new Point(r.x + r.width / 2
 							+ s.startDetection().x, r.y + r.height / 2
 							+ s.startYRange()), 1);
@@ -670,18 +562,20 @@ public class MusicDetector {
 			if (potentialNote != null) {
 				if (!OurUtils.isInAnyRectangle(trebleClefs, trebleClef.cols(),
 						trebleClef.rows(), potentialNote.center())
-						&& !OurUtils.isInAnyRectangle(fourFours, fourFour.cols(),
-								fourFour.rows(), potentialNote.center())
-								&& potentialNote.center().x < s.topLine().end().x * 0.98) {
+						&& !OurUtils.isInAnyRectangle(fourFours,
+								fourFour.cols(), fourFour.rows(),
+								potentialNote.center())
+						&& potentialNote.center().x < s.topLine().end().x * 0.98) {
 					if (!OurUtils.isThereANoteAtThisPosition(
 							potentialNote.center(), s)) {
-						notes.add(potentialNote);
-						s.addNote(potentialNote);
+						result.add(potentialNote);
+						// s.addNote(potentialNote);
 					} else
 						potentialNotes.add(potentialNote);
 				}
 			}
 		}
+		return result;
 	}
 
 	private void detectStaves(List<StaveLine> lines)
@@ -694,7 +588,7 @@ public class MusicDetector {
 						- line0.toLine().length()));
 			}
 		});
-		Log.i("PROC",""+lines.size());
+		Log.i("PROC", "" + lines.size());
 		int outside, inside;
 		for (outside = 0; outside < lines.size(); outside++) {
 			Line start = lines.get(outside).toLine();
@@ -744,34 +638,22 @@ public class MusicDetector {
 		staveGap = staves.get(0).staveGap();
 	}
 
-	private Mat rotateSheetOnStave(Stave s) {
-		Line l = s.topLine();
-		double angleToRotate = Math.atan((l.end().y - l.start().y)
-				/ (l.end().x - l.start().x));
-		Mat rotated = OurUtils.rotateMatrix(
-				workingSheet.clone().submat(s.yRange(workingSheet.rows()),
-						s.xRange()), angleToRotate);
-		return rotated;
-	}
-
-	private void correctBeams() {
-		for (int i = 0; i < beams.size(); i++) {
-			Stave stave = OurUtils.whichStaveDoesAPointBelongTo(beams.get(i)
-					.start(), staves, workingSheet.rows());
-			if (!OurUtils.isABeam(beams.get(i), stave)) {
-				beams.remove(i);
-				i--;
-			} else {
-				for (Note n : stave.notes()) {
-					if (n.center().x > beams.get(i).start().x
-							- beamLengthTolerance
-							&& n.center().x < beams.get(i).end().x
-									+ beamLengthTolerance)
-						n.setDuration(n.duration() / 2);
-				}
-			}
-		}
-	}
+	/*
+	 * private Mat rotateSheetOnStave(Stave s) { Line l = s.topLine(); double
+	 * angleToRotate = Math.atan((l.end().y - l.start().y) / (l.end().x -
+	 * l.start().x)); Mat rotated = OurUtils.rotateMatrix(
+	 * workingSheet.clone().submat(s.yRange(workingSheet.rows()), s.xRange()),
+	 * angleToRotate); return rotated; }
+	 * 
+	 * 
+	 * private void correctBeams() { for (int i = 0; i < beams.size(); i++) {
+	 * Stave stave = OurUtils.whichStaveDoesAPointBelongTo(beams.get(i)
+	 * .start(), staves, workingSheet.rows()); if
+	 * (!OurUtils.isABeam(beams.get(i), stave)) { beams.remove(i); i--; } else {
+	 * for (Note n : stave.notes()) { if (n.center().x > beams.get(i).start().x
+	 * - beamLengthTolerance && n.center().x < beams.get(i).end().x +
+	 * beamLengthTolerance) n.setDuration(n.duration() / 2); } } } }
+	 */
 
 	public Mat print() {
 		printStaves(output);

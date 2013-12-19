@@ -190,15 +190,16 @@ public class OurUtils {
 		return false;
 	}
 
-	public static boolean isABeam(Line line, Stave s) {
+	public static boolean isABeam(Line line, Stave s, double staveGap) {
 		boolean beginning = false;
 		boolean end = false;
+		boolean actual = false;
 		for (Note n : s.notes()) {
 			if (Math.abs(n.center().x - line.start().x) < MusicDetector.beamLengthTolerance)
 				beginning = true;
 			else if (Math.abs(n.center().x - line.end().x) < MusicDetector.beamLengthTolerance)
 				end = true;
-			if (beginning && end)
+			if (beginning && end && actual)
 				return true;
 		}
 		return false;
@@ -630,6 +631,10 @@ public class OurUtils {
 
 	public static Line correctLine(Line potentialLine, Mat part, double staveGap) {
 		return potentialLine;
+	}
+	
+	public static double distanceBetweenTwoPoints(Point p1, Point p2) {
+		return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
 	}
 
 	/** Use this to save midi images ad .sr connector when files are generated */

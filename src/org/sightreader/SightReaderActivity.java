@@ -122,7 +122,7 @@ public class SightReaderActivity extends Activity {
 		findViewById(R.id.parse).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				String toTest = "Distorted.jpg";
+				String toTest = "StarWars.jpg";
 				String midi = "baaBaa.midi";
 				testImage(toTest, OurUtils.getDestImage(toTest), midi);
 				finish();
@@ -156,17 +156,16 @@ public class SightReaderActivity extends Activity {
 		} catch (NoMusicDetectedException e) {
 			Log.d("Guillaume", "No music detected here!");
 		}
-		Log.d("Conrad", srcPath);
 		detector.detect();
 		output = detector.print();
+		OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));
 
-		Piece piece = detector.toPiece();
-		MidiFile f = Converter.Convert(piece);
-		Playback.saveMidiFile(f, destMid);
+		//Piece piece = detector.toPiece();
+		//MidiFile f = Converter.Convert(piece);
+		//Playback.saveMidiFile(f, destMid);
 
 		// Playback.playMidiFile("test.mid");
 
-		OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));
 	}
 
 	public void testProg(String[] tests) {

@@ -1,5 +1,7 @@
 package musicrepresentation;
 
+import android.util.Log;
+
 public abstract class AbstractNote {
    private final Duration duration;
    private final int dots;
@@ -25,6 +27,7 @@ public abstract class AbstractNote {
     
     private int value(Duration duration){
         int value = 32 * 512; //smallest possible division of a note is 1/512, ain't nobody got time for fractions...
+        Log.d("Guillaume", ""+duration);
         int ord = duration.ordinal();
         while(ord > 0){
             value /= 2;
