@@ -154,6 +154,13 @@ public class MusicDetector {
 				"Note detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
 
+		Log.i("PROC", "detecting flats");
+		startTimeOfEachMethod = System.currentTimeMillis();
+		detectFlats();
+		Log.v("Guillaume",
+				"Flat detection time: "
+						+ (System.currentTimeMillis() - startTimeOfEachMethod));
+
 		Log.i("PROC", "detecting beams");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectBeams();
@@ -171,13 +178,6 @@ public class MusicDetector {
 		Log.i("PROC", "detecting whole notes");
 		detectWholeNotes();
 		sortNotes();
-
-		Log.i("PROC", "detecting flats");
-		startTimeOfEachMethod = System.currentTimeMillis();
-		detectFlats();
-		Log.v("Guillaume",
-				"Flat detection time: "
-						+ (System.currentTimeMillis() - startTimeOfEachMethod));
 
 		Log.i("PROC", "detecting dots");
 		startTimeOfEachMethod = System.currentTimeMillis();
@@ -383,9 +383,11 @@ public class MusicDetector {
 		for (Note n : notes) {
 			if (n.duration() != 1)
 				continue;
-			OurUtils.makeColour(eroded, new Point(n.center().x - 2 * noteWidth,
-					n.center().y - staveGap), (int) (3 * noteWidth),
-					(int) (2 * staveGap), new Scalar(0, 0, 0));
+			OurUtils.makeColour(
+					eroded,
+					new Point(n.center().x - 1.5 * noteWidth, n.center().y - staveGap),
+					(int) (3 * noteWidth), (int) (2 * staveGap), new Scalar(0,
+							0, 0));
 		}
 		for (Stave s : staves) {
 			Mat part = eroded.clone().submat(s.yRange(workingSheet.rows()),
@@ -420,13 +422,13 @@ public class MusicDetector {
 					} else if (in && horizontalProj.get(row, 0)[0] < 3) {
 						in = false;
 						int end = startDetectionY + row;
-						if (part.get(row, 0)[0] > part.get(start - startDetectionY, 0)[0])
+						if (part.get(row, 0)[0] > part.get(start
+								- startDetectionY, 0)[0])
 							beams.add(new Line(
 									new Point(interval.min(), start),
 									new Point(interval.max(), end)));
 						else
-							beams.add(new Line(
-									new Point(interval.min(), end),
+							beams.add(new Line(new Point(interval.min(), end),
 									new Point(interval.max(), start)));
 					}
 				}
@@ -511,8 +513,7 @@ public class MusicDetector {
 		eroded = workingSheet.clone();
 		Imgproc.erode(eroded, eroded, Imgproc.getStructuringElement(
 				Imgproc.MORPH_RECT, new Size(staveGap / 2, staveGap / 2)));
-		OurUtils.writeImage(eroded, OurUtils.getPath("output/eroded.png"));
-		noteWidth = staveGap * 7 / 6;
+		OurUtils.writeImage(eroded, OurUtils.getPath("output/eroded2.png"));
 		List<Note> allNotesTwo = new LinkedList<Note>();
 		for (Stave s : staves)
 			allNotesTwo.addAll(detectNoteOnPart(eroded, s));
@@ -545,19 +546,21 @@ public class MusicDetector {
 		});
 		List<Moments> mu = new ArrayList<Moments>(contours.size());
 		for (int i = 0; i < contours.size(); i++) {
+			Rect r = Imgproc.boundingRect(contours.get(i));
 			mu.add(i, Imgproc.moments(contours.get(i), false));
 			Moments m = mu.get(i);
 			Note potentialNote = null;
-			if (m.get_m00() != 0) {
-				double x = (m.get_m10() / m.get_m00()) + s.startDetection().x;
-				double y = (m.get_m01() / m.get_m00()) + s.startYRange();
-				potentialNote = new Note(new Point(x, y), 1);
-			} else {
-				Rect r = Imgproc.boundingRect(contours.get(i));
-				if (r.width <= noteWidth)
+			if (r.width <= noteWidth) {
+				if (m.get_m00() != 0) {
+					double x = (m.get_m10() / m.get_m00())
+							+ s.startDetection().x;
+					double y = (m.get_m01() / m.get_m00()) + s.startYRange();
+					potentialNote = new Note(new Point(x, y), 1);
+				} else {
 					potentialNote = new Note(new Point(r.x + r.width / 2
 							+ s.startDetection().x, r.y + r.height / 2
 							+ s.startYRange()), 1);
+				}
 			}
 			if (potentialNote != null) {
 				if (!OurUtils.isInAnyRectangle(trebleClefs, trebleClef.cols(),
@@ -569,7 +572,6 @@ public class MusicDetector {
 					if (!OurUtils.isThereANoteAtThisPosition(
 							potentialNote.center(), s)) {
 						result.add(potentialNote);
-						// s.addNote(potentialNote);
 					} else
 						potentialNotes.add(potentialNote);
 				}
