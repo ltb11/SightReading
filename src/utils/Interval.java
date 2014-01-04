@@ -32,4 +32,8 @@ public class Interval {
 		return new Range(min, max);
 	}
 	
+	public int division() {
+		return 0;
+	}
+	
 }
