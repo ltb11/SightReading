@@ -444,7 +444,7 @@ public class OurUtils {
 		return divisions;
 	}
 
-	public static List<BeamDivision> detectBeamDivisions(Mat sheet) {
+	/*public static List<BeamDivision> detectBeamDivisions(Mat sheet) {
 		Mat verticalProj = verticalProjection(sheet);
 		List<BeamDivision> potentialBeams = new LinkedList<BeamDivision>();
 		int[] v = new int[4];
@@ -496,7 +496,7 @@ public class OurUtils {
 			}
 		}
 		return potentialBeams;
-	}
+	}*/
 
 	public static Point findNearestNeighbour(Point centre, Mat ref, int width,
 			int height) {
