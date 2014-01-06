@@ -58,12 +58,13 @@ public class OurUtils {
 		Core.bitwise_not(mat, mat);
 	}
 
+	/**
+	 * Divides the image into 250x250 pixel sections as much as possible,
+	 * then for each section it takes the mean pixel intensity, and
+	 * thresholds the section based on that value.
+	 **/
 	public static void thresholdImage(Mat sheet) {
-		/*
-		 * divides the image into 250x250 pixel sections as much as possible,
-		 * then for each section it takes the man pixel intensity, and
-		 * thresholds the section based on that value.
-		 */
+	
 		int width = sheet.cols();
 		int height = sheet.rows();
 		int sep = 250;
@@ -145,7 +146,13 @@ public class OurUtils {
 	/***************************************
 	 ************ CHECK METHODS ************
 	 **************************************/
-
+	
+	/**
+	 * 
+	 * @param toCheck
+	 * @param currentStave
+	 * @return
+	 */
 	public static boolean isThereANoteAtThisPosition(Point toCheck,
 			Stave currentStave) {
 		for (Note n : currentStave.notes()) {

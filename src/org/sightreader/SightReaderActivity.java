@@ -141,7 +141,7 @@ public class SightReaderActivity extends Activity {
 
 		// TODO: there is a button in the view that is not set up here!
 	}
-
+/**Prints debug information on the given image, and saves a MIDI file of the piece**/
 	private void testImage(String src, String dstImage, String destMid) {
 		String srcPath = OurUtils.getPath("input/" + src);
 		Mat input = OurUtils.readImage(srcPath);
