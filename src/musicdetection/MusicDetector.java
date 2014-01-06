@@ -625,8 +625,8 @@ public class MusicDetector {
 					Point p = new Point(s.startDetection().x + minLoc.x
 							+ half_note.cols() / 2, minLoc.y + s.startYRange()
 							+ half_note.rows() / 2);
-					if (!OurUtils.isThereANoteAtThisPosition(p, s)
-							/*&& OurUtils.isAHalfNote(p, eroded, (int) staveGap)*/) {
+					if (/*!OurUtils.isThereANoteAtThisPosition(p, s)
+							&& */OurUtils.isAHalfNote(p, eroded, (int) staveGap)) {
 						Note n = new Note(p, 2);
 						notes.add(n);
 						s.addNote(n);
