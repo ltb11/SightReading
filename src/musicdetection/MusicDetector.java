@@ -60,9 +60,10 @@ public class MusicDetector {
 	public static final int beamLengthTolerance = 30;
 	public static final int noteMinDistance = 25;
 
-	private static final int beamToNoteTolerance = 20;
-	private static final int doubleBeamThreshold = 5;
-	private static final int beamJoinTolerance = 6;
+	private static final int beamToNoteTolerance = 25;
+	private static final int doubleBeamThreshold = 4;
+	private static final int beamJoinTolerance = 8;
+	private static final int beamHorizontalThresholdTolerance = 6;
 
 	private Mat trebleClef;
 	private Mat fourFour;
@@ -95,8 +96,6 @@ public class MusicDetector {
 	private int beamXTolerance = 4;
 	private int beamYTolerance = 3;
 	public static int beamMinLength = 25;
-	public static int beamVerticalThresholdTolerance = 10;
-	public static int beamHorizontalThresholdTolerance = 10;
 	
 /**Initialises music detector object and throws error if the preprocessing of the image fails**/
 	public MusicDetector(final Mat input) throws NoMusicDetectedException {
@@ -438,6 +437,8 @@ public class MusicDetector {
 
 	private void detectBeams() {
 		Mat eroded = workingSheet.clone();
+		for (Stave s : staves)
+			s.drawDetailed(eroded, new Scalar(255, 255, 255));
 		Imgproc.erode(eroded, eroded, Imgproc.getStructuringElement(
 				Imgproc.MORPH_RECT, new Size(staveGap / 2, staveGap / 2)));
 		for (Note n : notes) {
@@ -448,6 +449,32 @@ public class MusicDetector {
 					(int) (3 * noteWidth), (int) (2 * staveGap), new Scalar(0,
 							0, 0));
 		}
+		OurUtils.writeImage(eroded, OurUtils.getPath("output/beamEroded.jpg"));
+		boolean foundOne = false;
+		do {
+			for (Line l : beams) {
+				Core.line(eroded, l.start(), l.end(), new Scalar(0, 0, 0), (int) (2 * staveGap / 3));
+			}
+			foundOne = extractBeams(eroded);
+		} while (foundOne);
+		for (Line l : beams) {
+			Stave s = OurUtils.whichStaveDoesAPointBelongTo(l.start(), staves,
+					workingSheet.rows());
+			List<Note> notes = s.notes();
+			int i = 0;
+			while (notes.get(i).center().x <= l.start().x - beamToNoteTolerance
+					&& i < notes.size() - 1)
+				i++;
+			while (notes.get(i).center().x <= l.end().x + beamToNoteTolerance
+					&& i < notes.size() - 1) {
+				notes.get(i).halveDuration();
+				i++;
+			}
+		}
+	}
+
+	private boolean extractBeams(Mat eroded) {
+		boolean foundOne = false;
 		for (Stave s : staves) {
 			Mat part = eroded.clone().submat(s.yRange(workingSheet.rows()),
 					s.xRange());
@@ -456,61 +483,28 @@ public class MusicDetector {
 			final int startDetectionX = (int) s.startDetection().x;
 			int start = startDetectionX;
 			boolean in = false;
-			boolean twoBeams = false;
 			for (int col = 0; col < verticalProj.cols(); col++) {
-				if (!in && verticalProj.get(0, col)[0] > 1) {
+				if (!in && verticalProj.get(0, col)[0] >= 2) {
 					in = true;
 					start = startDetectionX + col;
-					if (verticalProj.get(0, col)[0] >= doubleBeamThreshold) {
-						twoBeams = true;
-					}
-				} else if (twoBeams && verticalProj.get(0, col)[0] <= 3) {
-					int end = startDetectionX + col;
-					potentialBeams.add(new Interval(start, end));
-					start = startDetectionX + col;
-					twoBeams = false;
-				} else if (!twoBeams && in
-						&& verticalProj.get(0, col)[0] >= doubleBeamThreshold) {
-					int end = startDetectionX + col;
-					potentialBeams.add(new Interval(start, end));
-					start = startDetectionX + col;
-					twoBeams = true;
 				} else if (in && verticalProj.get(0, col)[0] < 1) {
 					in = false;
-					twoBeams = false;
 					int end = startDetectionX + col;
 					if (end - start > 10)
 						potentialBeams.add(new Interval(start, end));
 				}
-				/*
-				 * if (s.topLine().start().y < 1000) Log.d("Guillaume", "x: " +
-				 * (startDetectionX + col) + ": " + verticalProj.get(0,
-				 * col)[0]);
-				 */
 			}
 			for (Interval interval : potentialBeams) {
-				getBeams(
+				if (getBeams(
 						eroded.clone().submat(s.yRange(workingSheet.rows()),
-								interval.toRange()), s, interval);
+								interval.toRange()), s, interval))
+					foundOne = true;
 			}
 			// for (Note n : s.notes())
 			// n.display();
 		}
 		joinBeams();
-		for (Line l : beams) {
-			Stave s = OurUtils.whichStaveDoesAPointBelongTo(l.start(), staves,
-					workingSheet.rows());
-			List<Note> notes = s.notes();
-			int i = 0;
-			while (notes.get(i).center().x < l.start().x - beamToNoteTolerance
-					&& i < notes.size() - 1)
-				i++;
-			while (notes.get(i).center().x < l.end().x + beamToNoteTolerance
-					&& i < notes.size() - 1) {
-				notes.get(i).halveDuration();
-				i++;
-			}
-		}
+		return foundOne;
 	}
 
 	private void joinBeams() {
@@ -523,54 +517,80 @@ public class MusicDetector {
 					beams.add(new Line(beamI.start(), beamJ.end()));
 					beams.remove(beamI);
 					beams.remove(beamJ);
-					i--; break;
+					i--;
+					break;
 				} else if (OurUtils.distanceBetweenTwoPoints(beamJ.end(),
 						beamI.start()) < beamJoinTolerance) {
 					beams.add(new Line(beamJ.start(), beamI.end()));
 					beams.remove(beamI);
 					beams.remove(beamJ);
-					i--; break;
+					i--;
+					break;
 				}
 			}
 		}
 	}
 
-	private void getBeams(Mat part, Stave s, Interval interval) {
+	private boolean getBeams(Mat part, Stave s, Interval interval) {
 		Mat horizontalProj = OurUtils.horizontalProjection(part);
 		int startDetectionY = (int) s.startDetection().y;
 		int start = startDetectionY;
 		boolean in = false;
-		for (int row = 0; row < horizontalProj.rows(); row++) {
-			if (!in && horizontalProj.get(row, 0)[0] > 3) {
+		List<Note> notes = s.notes();
+		int i = 0;
+		Note n = notes.get(i);
+		while (n.center().x <= interval.min() - beamToNoteTolerance
+				&& i < notes.size() - 1) {
+			i++;
+			n = notes.get(i);
+		}
+		if (i < notes.size() - 1)
+			i++;
+		Note next = notes.get(i);
+		int noteY = (int) n.center().y - startDetectionY;
+		boolean foundOne = false;
+		for (int row = 0; row < noteY; row++) {
+			if (!in
+					&& horizontalProj.get(row, 0)[0] >= beamHorizontalThresholdTolerance) {
 				in = true;
 				start = startDetectionY + row;
-			} else if (in && horizontalProj.get(row, 0)[0] < 3) {
+			} else if (in
+					&& horizontalProj.get(row, 0)[0] < beamHorizontalThresholdTolerance) {
 				in = false;
 				int end = startDetectionY + row;
-				List<Note> notes = s.notes();
-				int i = 0;
-				Note n = notes.get(i);
-				while (n.center().x < interval.min() - 10
-						&& i < notes.size() - 1) {
-					i++;
-					n = notes.get(i);
-				}
-				if (i < notes.size() - 1)
-					i++;
-				/*
-				 * Log.d("Guillaume", "x: " + n.center().x + ", y: " +
-				 * n.center().y + "/x: " + notes.get(i).center().x + ", y: " +
-				 * notes.get(i).center().y);
-				 */
-				boolean descending = n.center().y < notes.get(i).center().y;
+				boolean descending = n.center().y < next.center().y;
+				foundOne = true;
 				if (descending)
 					beams.add(new Line(new Point(interval.min(), start),
 							new Point(interval.max(), end)));
 				else
 					beams.add(new Line(new Point(interval.min(), end),
 							new Point(interval.max(), start)));
+				break;
 			}
 		}
+		for (int row = horizontalProj.rows() - 1; row > noteY; row--) {
+			if (foundOne)
+				break;
+			if (!in
+					&& horizontalProj.get(row, 0)[0] >= beamHorizontalThresholdTolerance) {
+				in = true;
+				start = startDetectionY + row;
+			} else if (in
+					&& horizontalProj.get(row, 0)[0] < beamHorizontalThresholdTolerance) {
+				in = false;
+				int end = startDetectionY + row;
+				boolean descending = n.center().y < next.center().y;
+				if (descending)
+					beams.add(new Line(new Point(interval.min(), end),
+							new Point(interval.max(), start)));
+				else
+					beams.add(new Line(new Point(interval.min(), start),
+							new Point(interval.max(), end)));
+				break;
+			}
+		}
+		return foundOne;
 	}
 
 	private void detectHalfNotes() {
@@ -832,7 +852,7 @@ public class MusicDetector {
 
 	private void printStaves(Mat sheet) {
 		for (Stave s : staves) {
-			s.drawDetailed(sheet);
+			s.drawDetailed(sheet, new Scalar(128, 0, 0));
 		}
 	}
 

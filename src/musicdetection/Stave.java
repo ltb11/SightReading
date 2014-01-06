@@ -86,9 +86,7 @@ public class Stave {
 		}
 	}
 
-	public void drawDetailed(Mat image) {
-		Scalar col = new Scalar(128, 0, 0);
-
+	public void drawDetailed(Mat image, Scalar col) {
 		for (int i = 0; i < 5; i++) {
 			for (Line l : lines.get(i).getLines()) {
 				Core.line(image, l.start(), l.end(), col, 3);
