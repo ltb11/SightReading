@@ -646,6 +646,31 @@ public class OurUtils {
 		return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
 	}
 
+	public static boolean isAHalfNote(Point p, Mat eroded, int staveGap) {
+		int centerX = (int) p.x;
+		int centerY = (int) p.y;
+		Mat sub = eroded.submat(centerY - 2 * staveGap, centerY - staveGap / 2, centerX, centerX + staveGap);
+		Mat horizontalProj = horizontalProjection(sub);
+		boolean allWhite = true;
+		for (int i = 0; i < horizontalProj.rows(); i++) {
+			if (horizontalProj.get(i, 0)[0] < 10) {
+				allWhite = false;
+				break;
+			}
+		}
+		if (allWhite)
+			return true;
+		sub = eroded.submat(centerY + staveGap / 2, centerY + 2 * staveGap, centerX - staveGap, centerX);
+		horizontalProj = horizontalProjection(sub);
+		allWhite = true;
+		for (int i = 0; i < horizontalProj.rows(); i++) {
+			if (horizontalProj.get(i, 0)[0] < 10) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	/** Use this to save midi images ad .sr connector when files are generated */
 	/*
 	 * public static void saveSRFiles(MidiFile midi, List<Bitmap> images, String
