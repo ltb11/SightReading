@@ -53,6 +53,8 @@ public class MusicDetector {
 			.getPath("assets/whole_note_on.png"));
 	public static final Mat masterWhole_note = OurUtils.readImage(OurUtils
 			.getPath("assets/whole_note.png"));
+	private static final Mat masterQuaverRest = OurUtils.readImage(OurUtils
+			.getPath("assets/quaver_rest.png"));
 
 	private final List<Mat> master_half_notes = new LinkedList<Mat>();
 	private final List<Mat> master_whole_notes = new LinkedList<Mat>();
@@ -72,6 +74,7 @@ public class MusicDetector {
 	private Mat sharp;
 	private Mat natural_on;
 	private Mat half_note;
+	private Mat quaverRest;
 
 	// For printing purposes only
 	private int dotWidth;
@@ -90,8 +93,9 @@ public class MusicDetector {
 	private List<Point> flats = new LinkedList<Point>();
 	private List<Point> sharps = new LinkedList<Point>();
 	private List<Point> naturals = new LinkedList<Point>();
-
+	private List<Point> quaverRests = new LinkedList<Point>();
 	private Map<Point, Note> dots = new HashMap<Point, Note>();
+
 
 	/**
 	 * Initialises music detector object and throws error if the preprocessing
@@ -207,7 +211,7 @@ public class MusicDetector {
 				"Quavers detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
 		startTimeOfEachMethod = System.currentTimeMillis();
-		//detectQuaverRests();
+		detectQuaverRests();
 		Log.v("Guillaume",
 				"Quaver Rests detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
@@ -715,21 +719,22 @@ public class MusicDetector {
 	private void detectQuaverRests(){
 		for (Stave s : staves) {
 			Mat result = new Mat();
-			trebleClef = OurUtils.resizeImage(masterTrebleClef,
-					s.staveGap() * 8);
-			Imgproc.matchTemplate(workingSheet.submat(
+			quaverRest = OurUtils.resizeImage(masterQuaverRest,
+					s.staveGap()*2);
+			OurUtils.writeImage(quaverRest, OurUtils.getPath("output/quaverRest.png"));
+			Mat quaverArea = workingSheet.submat(
 					s.yRange(workingSheet.rows()),
-					new Range(0, workingSheet.cols())), trebleClef, result,
+					new Range(0, workingSheet.cols()));
+			Imgproc.matchTemplate(quaverArea, quaverRest, result,
 					Imgproc.TM_CCOEFF);
 			Point minLoc = Core.minMaxLoc(result).minLoc;
 			double minVal = Core.minMaxLoc(result).minVal;
 			double minAllowed = minVal * 0.9;
 			while (minVal < minAllowed) {
 				Point p = new Point(minLoc.x, s.startYRange() + minLoc.y);
-				trebleClefs.add(p);
-				s.addClef(Clef.Treble, p, trebleClef.cols());
-				OurUtils.zeroInMatrix(result, minLoc, (int) trebleClef.cols(),
-						(int) trebleClef.rows());
+				quaverRests.add(p);
+				OurUtils.zeroInMatrix(result, minLoc, (int) quaverRest.cols(),
+						(int) quaverRest.rows());
 				minLoc = Core.minMaxLoc(result).minLoc;
 				minVal = Core.minMaxLoc(result).minVal;
 			}
@@ -877,6 +882,7 @@ public class MusicDetector {
 		printDots(output);
 		printBeams(output);
 		printScale(output);
+		printQuaverRests(output);
 		return output;
 	}
 
@@ -908,6 +914,12 @@ public class MusicDetector {
 		for (Stave s : staves) {
 			s.drawDetailed(sheet, new Scalar(128, 0, 0));
 		}
+	}
+	
+	private void printQuaverRests(Mat sheet){
+		for (Point qr : quaverRests)
+			Core.rectangle(sheet, qr, new Point(qr.x + quaverRest.cols(), qr.y
+					+ quaverRest.rows()), new Scalar(255, 0, 127), 4);
 	}
 
 	private void printBeams(Mat sheet) {
