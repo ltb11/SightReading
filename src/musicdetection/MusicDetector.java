@@ -245,17 +245,17 @@ public class MusicDetector {
 					new Range(0, workingSheet.cols()/4)), trebleClef, result,
 					Imgproc.TM_CCOEFF);
 			Point minLoc = Core.minMaxLoc(result).minLoc;
-			double minVal = Core.minMaxLoc(result).minVal;
+			/*double minVal = Core.minMaxLoc(result).minVal;
 			double minAllowed = minVal * 0.9;
-			while (minVal < minAllowed) {
+			while (minVal < minAllowed) {*/
 				Point p = new Point(minLoc.x, s.startYRange() + minLoc.y);
 				trebleClefs.add(p);
 				s.addClef(Clef.Treble, p, trebleClef.cols());
-				OurUtils.zeroInMatrix(result, minLoc, (int) trebleClef.cols(),
+				/*OurUtils.zeroInMatrix(result, minLoc, (int) trebleClef.cols(),
 						(int) trebleClef.rows());
 				minLoc = Core.minMaxLoc(result).minLoc;
 				minVal = Core.minMaxLoc(result).minVal;
-			}
+			}*/
 		}
 	}
 
@@ -336,7 +336,6 @@ public class MusicDetector {
 		Mat timeArea = workingSheet.submat(
 				s.yRange(workingSheet.rows()),
 				new Range((int) clef.x + 70, (int) clef.x + 250));
-		OurUtils.writeImage(timeArea, OurUtils.getPath("output/timeArea.jpg"));
 		Imgproc.matchTemplate(timeArea, fourFour, result,
 				Imgproc.TM_CCOEFF);
 		Point minLoc;
@@ -344,7 +343,7 @@ public class MusicDetector {
 		minAllowed = minVal * 0.95;
 		while (minVal < minAllowed) {
 			minLoc = Core.minMaxLoc(result).minLoc;
-			points.add(new Point(minLoc.x + clef.x + 10, s.startYRange() + minLoc.y));
+			points.add(new Point(minLoc.x + clef.x + 70, s.startYRange() + minLoc.y));
 			values.add(minVal);
 			OurUtils.zeroInMatrix(result, minLoc, (int) fourFour.cols(),
 					(int) fourFour.rows());
