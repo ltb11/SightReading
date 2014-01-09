@@ -106,6 +106,11 @@ public class Stave {
 		return new Range((int) Math.max(0, topLine().start().y - 4 * staveGap),
 				(int) Math.min(maxRows, bottomLine().start().y + 4 * staveGap));
 	}
+	
+	public Range closeYRange(int maxRows){
+		return new Range((int) Math.max(0, topLine().start().y),
+				(int) Math.min(maxRows, bottomLine().start().y));
+	}
 
 	public Range xRange() {
 		return new Range((int) startDetection.x, (int) lines.get(0).toLine()
