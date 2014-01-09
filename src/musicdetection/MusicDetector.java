@@ -206,7 +206,12 @@ public class MusicDetector {
 		Log.v("Guillaume",
 				"Quavers detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
-
+		startTimeOfEachMethod = System.currentTimeMillis();
+		//detectQuaverRests();
+		Log.v("Guillaume",
+				"Quaver Rests detection time: "
+						+ (System.currentTimeMillis() - startTimeOfEachMethod));
+		
 		Log.i("PROC", "detection complete");
 		startTimeOfEachMethod = System.currentTimeMillis()
 				- SightReaderActivity.startTime;
@@ -237,7 +242,7 @@ public class MusicDetector {
 					s.staveGap() * 8);
 			Imgproc.matchTemplate(workingSheet.submat(
 					s.yRange(workingSheet.rows()),
-					new Range(0, workingSheet.cols())), trebleClef, result,
+					new Range(0, workingSheet.cols()/4)), trebleClef, result,
 					Imgproc.TM_CCOEFF);
 			Point minLoc = Core.minMaxLoc(result).minLoc;
 			double minVal = Core.minMaxLoc(result).minVal;
@@ -326,22 +331,24 @@ public class MusicDetector {
 		List<Point> points = new ArrayList<Point>();
 		List<Double> values = new ArrayList<Double>();
 		double minAllowed;
-		for (Stave s : staves) {
-			Imgproc.matchTemplate(workingSheet.submat(
-					s.yRange(workingSheet.rows()),
-					new Range(0, workingSheet.cols())), fourFour, result,
-					Imgproc.TM_CCOEFF);
-			Point minLoc;
-			double minVal = Core.minMaxLoc(result).minVal;
-			minAllowed = minVal * 0.95;
-			while (minVal < minAllowed) {
-				minLoc = Core.minMaxLoc(result).minLoc;
-				points.add(new Point(minLoc.x, s.startYRange() + minLoc.y));
-				values.add(minVal);
-				OurUtils.zeroInMatrix(result, minLoc, (int) fourFour.cols(),
-						(int) fourFour.rows());
-				minVal = Core.minMaxLoc(result).minVal;
-			}
+		Stave s = staves.get(0);
+		Point clef = trebleClefs.get(0);
+		Mat timeArea = workingSheet.submat(
+				s.yRange(workingSheet.rows()),
+				new Range((int) clef.x + 70, (int) clef.x + 250));
+		OurUtils.writeImage(timeArea, OurUtils.getPath("output/timeArea.jpg"));
+		Imgproc.matchTemplate(timeArea, fourFour, result,
+				Imgproc.TM_CCOEFF);
+		Point minLoc;
+		double minVal = Core.minMaxLoc(result).minVal;
+		minAllowed = minVal * 0.95;
+		while (minVal < minAllowed) {
+			minLoc = Core.minMaxLoc(result).minLoc;
+			points.add(new Point(minLoc.x + clef.x + 10, s.startYRange() + minLoc.y));
+			values.add(minVal);
+			OurUtils.zeroInMatrix(result, minLoc, (int) fourFour.cols(),
+					(int) fourFour.rows());
+			minVal = Core.minMaxLoc(result).minVal;
 		}
 		minAllowed = Collections.min(values) * 0.95;
 		for (int i = 0; i < points.size(); i++) {
@@ -698,6 +705,30 @@ public class MusicDetector {
 					allNotesTwo.remove(n2);
 					break;
 				}
+			}
+		}
+	}
+	
+	private void detectQuaverRests(){
+		for (Stave s : staves) {
+			Mat result = new Mat();
+			trebleClef = OurUtils.resizeImage(masterTrebleClef,
+					s.staveGap() * 8);
+			Imgproc.matchTemplate(workingSheet.submat(
+					s.yRange(workingSheet.rows()),
+					new Range(0, workingSheet.cols())), trebleClef, result,
+					Imgproc.TM_CCOEFF);
+			Point minLoc = Core.minMaxLoc(result).minLoc;
+			double minVal = Core.minMaxLoc(result).minVal;
+			double minAllowed = minVal * 0.9;
+			while (minVal < minAllowed) {
+				Point p = new Point(minLoc.x, s.startYRange() + minLoc.y);
+				trebleClefs.add(p);
+				s.addClef(Clef.Treble, p, trebleClef.cols());
+				OurUtils.zeroInMatrix(result, minLoc, (int) trebleClef.cols(),
+						(int) trebleClef.rows());
+				minLoc = Core.minMaxLoc(result).minLoc;
+				minVal = Core.minMaxLoc(result).minVal;
 			}
 		}
 	}
