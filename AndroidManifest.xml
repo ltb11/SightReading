@@ -39,6 +39,7 @@
         </activity>
         <activity
             android:name="CameraActivity"
+            android:configChanges="keyboardHidden|orientation"
             android:label="CameraActivity" >
         </activity>
         <activity
