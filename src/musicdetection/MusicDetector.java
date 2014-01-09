@@ -236,13 +236,17 @@ public class MusicDetector {
 	}
 
 	private void detectTrebleClefs() {
+		/*
+		 * commented code in this method allows for the detection of multiple clefs per line
+		 */
 		for (Stave s : staves) {
 			Mat result = new Mat();
 			trebleClef = OurUtils.resizeImage(masterTrebleClef,
 					s.staveGap() * 8);
-			Imgproc.matchTemplate(workingSheet.submat(
+			Mat clefArea = workingSheet.submat(
 					s.yRange(workingSheet.rows()),
-					new Range(0, workingSheet.cols()/4)), trebleClef, result,
+					new Range(0, workingSheet.cols()/5));
+			Imgproc.matchTemplate(clefArea, trebleClef, result,
 					Imgproc.TM_CCOEFF);
 			Point minLoc = Core.minMaxLoc(result).minLoc;
 			/*double minVal = Core.minMaxLoc(result).minVal;
