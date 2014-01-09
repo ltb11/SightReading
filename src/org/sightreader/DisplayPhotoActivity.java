@@ -12,22 +12,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-public class DisplayPhotoActivity extends Activity implements OnTouchListener {
+public class DisplayPhotoActivity extends Activity {
 
-	public static final String TAG = "SRCameraActivity";
+	public static final String TAG = "DisplayPhotoActivity";
 	public static EditText currentFileName;
-	public final static long startTime = System.currentTimeMillis();
+	// public final static long startTime = System.currentTimeMillis();
 
 	private Button accept;
 	private Button discard;
-	
-	public static Bitmap image;
 
-	@Override
-	public boolean onTouch(View arg0, MotionEvent arg1) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+	public static Bitmap image;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -35,14 +29,14 @@ public class DisplayPhotoActivity extends Activity implements OnTouchListener {
 		Log.i(TAG, "called onCamCreate");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.sight_reading_image_view);
-		
+
 		BitmapDrawable drawable = new BitmapDrawable(this.getResources(), image);
 		ImageView layout = (ImageView) findViewById(R.id.imagePreview);
 		layout.setImageDrawable(drawable);
-		
+
 		initialiseButtons();
 	}
-	
+
 	private void initialiseButtons() {
 		accept = (Button) findViewById(R.id.buttonCameraKeepImage);
 		accept.setOnClickListener(new View.OnClickListener() {
@@ -58,7 +52,7 @@ public class DisplayPhotoActivity extends Activity implements OnTouchListener {
 		});
 	}
 
-	private  void discardImage() {
+	private void discardImage() {
 		finish();
 	}
 
@@ -66,7 +60,5 @@ public class DisplayPhotoActivity extends Activity implements OnTouchListener {
 		CameraActivity.savePage(image);
 		finish();
 	}
-	
 
-	
 }
