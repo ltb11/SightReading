@@ -93,27 +93,6 @@ public class CameraActivity extends Activity implements OnTouchListener,
 					ProcessingActivity.SetPageNum(totalImages);
 					CameraActivity.reset();
 
-					// Piece piece = null;
-					// try {
-					// Mat input = OurUtils.loadTempMat(1); // TODO
-					//
-					// MusicDetector detector = new MusicDetector(input);
-					// detector.detect();
-					// piece = detector.toPiece();
-					//
-					// } catch (FileNotFoundException e) {
-					// Log.e("PROC", "page is missing");
-					//
-					// } catch (NoMusicDetectedException e) {
-					// e.printStackTrace();
-					// }
-					// if (piece != null) {
-					// MidiFile midi = Converter.Convert(piece);
-					// Playback.saveMidiFile(midi, "temp/", "output.midi");
-					// } else {
-					// Log.e("PROC", "piece is null");
-					// }
-
 					Intent i = new Intent(CameraActivity.this,
 							ProcessingActivity.class);
 					startActivity(i);
