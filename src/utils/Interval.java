@@ -20,4 +20,20 @@ public class Interval {
 		return number <= max && number >= min;
 	}
 	
+	public int min() {
+		return min;
+	}
+	
+	public int max() {
+		return max;
+	}
+	
+	public Range toRange() {
+		return new Range(min, max);
+	}
+	
+	public int division() {
+		return 0;
+	}
+	
 }

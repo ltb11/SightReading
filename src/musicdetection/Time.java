@@ -1,5 +1,5 @@
 package musicdetection;
 
 public enum Time {
-	FourFour, ThreeFour, TwoFour, SixEight, ThreeEight;
+	FourFour, ThreeFour, TwoFour, SixEight, NineEight, TwelveEight, CommonTime, CutCommonTime, ThreeEight;
 }

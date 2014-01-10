@@ -26,7 +26,7 @@
     <application
         android:icon="@drawable/icon"
         android:label="@string/app_name"
-        android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        android:theme="@style/MyAppTheme">
         <activity
             android:name="SightReaderActivity"
             android:configChanges="keyboardHidden|orientation"
@@ -39,6 +39,7 @@
         </activity>
         <activity
             android:name="CameraActivity"
+            android:configChanges="keyboardHidden|orientation"
             android:label="CameraActivity" >
         </activity>
         <activity
@@ -53,6 +54,10 @@
             android:name="FileDialogActivity"
             android:label="FileDialogActivity" >
         </activity>
-    </application>
+        <activity
+            android:name="PlaybackActivity"
+            android:label="PlaybackActivity" >
+        </activity>
+        </application>
 
 </manifest>

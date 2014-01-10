@@ -2,8 +2,10 @@ package org.sightreader;
 
 import java.io.File;
 
+import midiconversion.Converter;
 import musicdetection.MusicDetector;
 import musicdetection.NoMusicDetectedException;
+import musicrepresentation.Piece;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
@@ -11,6 +13,8 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
+
+import playback.Playback;
 
 import utils.OurUtils;
 import android.app.Activity;
@@ -23,6 +27,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import com.lamerman.FileDialog;
 import com.lamerman.SelectionMode;
+import com.leff.midi.MidiFile;
 
 public class SightReaderActivity extends Activity {
 	public static final String TAG = "SightReaderActivity";
@@ -118,8 +123,8 @@ public class SightReaderActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				String toTest = "StarWars.jpg";
-				testImage(toTest, OurUtils.getDestImage(toTest),
-						OurUtils.getDestMid(toTest));
+				String midi = "baaBaa.midi";
+				testImage(toTest, OurUtils.getDestImage(toTest), midi);
 				finish();
 			}
 		});
@@ -128,46 +133,41 @@ public class SightReaderActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				testProg();
+				String[] tests = {"Distorted.jpg", "Baabaa.jpg",
+						"Baabaa 13-11-13 2.jpg"};
+				testProg(tests);
 			}
 		});
 
-		// TODO: there is a button in the view that is not set up here!
 	}
-
+/**Prints debug information on the given image, and saves a MIDI file of the piece**/
 	private void testImage(String src, String dstImage, String destMid) {
 		String srcPath = OurUtils.getPath("input/" + src);
 		Mat input = OurUtils.readImage(srcPath);
-		Mat scaledInput = OurUtils.resizeImage(input,
-				OurUtils.STANDARD_IMAGE_WIDTH);
-
 		Log.d("Guillaume",
-				"Original image width after scaling: " + scaledInput.cols());
-		Mat output = scaledInput.clone();
+				"Original image width before scaling: " + input.cols());
+		Mat output = input.clone();
 		Imgproc.cvtColor(output, output, Imgproc.COLOR_GRAY2BGR);
 
 		MusicDetector detector = null;
 		try {
-			detector = new MusicDetector(scaledInput);
+			detector = new MusicDetector(input);
 		} catch (NoMusicDetectedException e) {
-			e.printStackTrace();
+			Log.d("Guillaume", "No music detected here!");
 		}
 		detector.detect();
-		detector.print(output);
+		output = detector.print();
+		OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));
 
-		// Piece piece = detector.toPiece();
-		// MidiFile f = Converter.Convert(piece);
-
-		// Playback.saveMidiFile(f, destMid);
+		//Piece piece = detector.toPiece();
+		//MidiFile f = Converter.Convert(piece);
+		//Playback.saveMidiFile(f, destMid);
 
 		// Playback.playMidiFile("test.mid");
 
-		OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));
 	}
 
-	public void testProg() {
-		String[] tests = new String[] { "Distorted.jpg", "Baabaa.jpg",
-				"Baabaa 13-11-13 2.jpg" };
+	public void testProg(String[] tests) {
 		for (String s : tests) {
 			String dstImage = OurUtils.getDestImage(s);
 			testImage(s, dstImage, OurUtils.getDestMid(s));
