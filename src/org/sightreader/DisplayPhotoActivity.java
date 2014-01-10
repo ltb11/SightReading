@@ -1,7 +1,6 @@
-package org.sightreading;
+package org.sightreader;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;

@@ -19,7 +19,7 @@
         android:gravity="top"
         android:orientation="vertical" >
 
-        <org.sightreading.SRCameraView
+        <org.sightreader.SRCameraView
             android:id="@+id/sight_reading_camera_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
