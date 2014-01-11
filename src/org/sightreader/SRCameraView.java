@@ -130,7 +130,7 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		case Surface.ROTATION_0:
 			Mat mRgbaT = tmp.t();
 			Core.flip(tmp.t(), mRgbaT, 1);
-			Imgproc.resize(mRgbaT, mRgbaT, tmp.size());
+			//Imgproc.resize(mRgbaT, mRgbaT, tmp.size());
 			tmp = mRgbaT;
 			break;
 		case Surface.ROTATION_90:
@@ -138,14 +138,14 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		case Surface.ROTATION_180:
 			Mat mRgbaT1 = tmp.t();
 			Core.flip(tmp.t(), mRgbaT1, 0);
-			Imgproc.resize(mRgbaT1, mRgbaT1, tmp.size());
+			//Imgproc.resize(mRgbaT1, mRgbaT1, tmp.size());
 			tmp = mRgbaT1;
 			break;
 		case Surface.ROTATION_270:
 			Mat mRgbaT11 = tmp;
 			Core.flip(tmp, mRgbaT11, 1);
 			Core.flip(mRgbaT11, mRgbaT11, 0);
-			Imgproc.resize(mRgbaT11, mRgbaT11, tmp.size());
+			//Imgproc.resize(mRgbaT11, mRgbaT11, tmp.size());
 			tmp = mRgbaT11;
 			break;
 		}
