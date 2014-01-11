@@ -122,7 +122,7 @@ public class SightReaderActivity extends Activity {
 		findViewById(R.id.parse).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				String toTest = "INPUT.png";
+				String toTest = "StarWars.jpg";
 				String midi = "baaBaa.midi";
 				testImage(toTest, OurUtils.getDestImage(toTest), midi);
 				finish();
@@ -159,11 +159,11 @@ public class SightReaderActivity extends Activity {
 		output = detector.print();
 		OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));                                                                                                                                                                                                                                                                                          
 
-		//Piece piece = detector.toPiece();
-		//MidiFile f = Converter.Convert(piece);
-		//Playback.saveMidiFile(f, destMid);
+		/*Piece piece = detector.toPiece();
+		MidiFile f = Converter.Convert(piece);
+		Playback.saveMidiFile(f, destMid);
 
-		// Playback.playMidiFile("test.mid");
+		Playback.playMidiFile("test.mid");*/
 
 	}
 
