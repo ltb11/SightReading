@@ -53,7 +53,7 @@ repositories {
 }
 
 dependencies {
-//    compile 'org.opencv:opencv-android:2.4.6'
+    compile 'org.opencv:opencv-android:2.4.6'
     compile fileTree(dir: 'libs', include:'*.jar')
 }
 

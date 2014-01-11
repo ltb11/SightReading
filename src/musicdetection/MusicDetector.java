@@ -123,6 +123,9 @@ public class MusicDetector {
 		// scale and threshold
 		OurUtils.thresholdImage(input);
 
+		// prepped image
+		OurUtils.writeImage(input, OurUtils.getPath("temp/PREPROC.png"));
+		
 		// create projections
 		Mat projection = input.clone();
 		Mat proj = OurUtils.horizontalProjection(projection);
