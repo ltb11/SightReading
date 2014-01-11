@@ -280,6 +280,7 @@ public class MusicDetector {
 		Mat eroded = workingSheet.clone();
 		Imgproc.erode(eroded, eroded, Imgproc.getStructuringElement(
 				Imgproc.MORPH_RECT, new Size(4, 4)));
+		OurUtils.writeImage(eroded, OurUtils.getPath("output/dotsEroding.jpg"));
 		for (Stave s : staves) {
 			List<Note> notes = s.notes();
 			for (int j = 0; j < notes.size(); j++) {
@@ -294,6 +295,9 @@ public class MusicDetector {
 						Imgproc.CHAIN_APPROX_SIMPLE);
 				List<Moments> mu = new ArrayList<Moments>(contours.size());
 				for (int i = 0; i < contours.size(); i++) {
+					Rect r = Imgproc.boundingRect(contours.get(i));
+					if (r.height > staveGap / 2)
+						break;
 					mu.add(i, Imgproc.moments(contours.get(i), false));
 					Moments m = mu.get(i);
 					double x = (m.get_m10() / m.get_m00());
@@ -327,7 +331,7 @@ public class MusicDetector {
 										quaverRest.height(), p)
 								&& !OurUtils.isInAnyRectangle(sharps,
 										sharp.width(), sharp.height(), p)) {
-							Rect r = Imgproc.boundingRect(contours.get(i));
+							//Rect r = Imgproc.boundingRect(contours.get(i));
 							dotWidth = r.width;
 							dotHeight = r.height;
 							dots.put(p, n);
@@ -350,19 +354,23 @@ public class MusicDetector {
 				if (n.duration() != 1)
 					continue;
 				Mat region = eroded
-						.submat(new Range((int) Math.max(0, n.center().y - 4
-								* staveGap), (int) Math.max(0, n.center().y - 2
+						.submat(new Range((int) Math.max(0, n.center().y - 3
+								* staveGap), (int) Math.max(0, n.center().y - 1
 								* staveGap)),
 								new Range((int) Math.min(eroded.cols(),
-										n.center().x + noteWidth / 2),
+										n.center().x + noteWidth),
 										(int) Math.min(eroded.cols(),
 												n.center().x + 3 * noteWidth
 														/ 2)));
+				if (n.center().x < 300 && n.center().y < 1000)
+					OurUtils.writeImage(region, OurUtils.getPath("output/quaverSection.jpg"));
+				if (n.center().x > 1650 && n.center().y < 1300 && n.center().y > 1000)
+					OurUtils.writeImage(region, OurUtils.getPath("output/quaverSectionOK.jpg"));
 				List<MatOfPoint> contours = new LinkedList<MatOfPoint>();
 				Imgproc.findContours(region, contours, new Mat(),
 						Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 				for (int i = 0; i < contours.size(); i++) {
-					if (contours.get(i).rows() > 2 * staveGap / 3)
+					if (contours.get(i).rows() > staveGap / 2)
 						n.setDuration(n.duration() / 2);
 				}
 			}
