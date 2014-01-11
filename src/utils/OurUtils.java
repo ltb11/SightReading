@@ -645,6 +645,24 @@ public class OurUtils {
 	public static double distanceBetweenTwoPoints(Point p1, Point p2) {
 		return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
 	}
+	
+	public static List<Point> pointListSubtraction(List<Point> ps1, List<Point> ps2, double threshholdDistance){
+		List<Point> output = ps1;
+		for (Point x : ps1){
+			if (containsPoint(ps2, x, threshholdDistance)!=null){
+				output.remove(x);
+			}
+		}
+		return output;
+	}
+	public static Point containsPoint(List<Point> ps, Point p, double threshholdDistance){
+		for (Point x : ps){
+			if (distanceBetweenTwoPoints(p, x) < threshholdDistance){
+				return x;
+			}
+		}
+		return null;
+	}
 
 	public static boolean isAHalfNote(Point p, Mat eroded, int staveGap) {
 		int centerX = (int) p.x;

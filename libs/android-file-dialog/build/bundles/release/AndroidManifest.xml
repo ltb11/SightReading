@@ -1,0 +1,15 @@
+<!-- From: file:/home/wrd11/documents/SightReading/libs/android-file-dialog/AndroidManifest.xml --><manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="com.lamerman">
+      <uses-sdk android:minSdkVersion="3" android:targetSdkVersion="17"/>
+    <application android:icon="@drawable/icon" android:label="@string/app_name">
+        <activity android:label="@string/app_name" android:name="com.lamerman.FileDialog">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+    
+</application>
+
+
+</manifest>

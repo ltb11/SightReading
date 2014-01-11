@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger>
+
+    <dataSet config="main" >
+        <source path="/home/wrd11/documents/SightReading/libs/android-file-dialog/src/main/res" />
+        <source path="/home/wrd11/documents/SightReading/libs/android-file-dialog/res" >
+            <file
+                path="/home/wrd11/documents/SightReading/libs/android-file-dialog/res/values-ru/strings.xml"
+                qualifiers="ru" >
+                <string name="cant_read_folder" >нельзя открыть директорию!
+                </string>
+                <string name="location" >Путь
+                </string>
+                <string name="cancel" >Отмена
+                </string>
+                <string name="select" >Выбрать
+                </string>
+                <string name="err" >Ошибка
+                </string>
+
+                <color name="gray" >#ffff0000
+                </color>
+
+                <string name="no_data" >Нет данных
+                </string>
+                <string name="file_name" >Имя файла:
+                </string>
+                <string name="create" >Сохранить
+                </string>
+                <string name="app_name" >File dialog
+                </string>
+                <string name="nnew" >Новый
+                </string>
+            </file>
+            <file
+                name="file_dialog_main"
+                path="/home/wrd11/documents/SightReading/libs/android-file-dialog/res/layout/file_dialog_main.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="file_dialog_row"
+                path="/home/wrd11/documents/SightReading/libs/android-file-dialog/res/layout/file_dialog_row.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                path="/home/wrd11/documents/SightReading/libs/android-file-dialog/res/values/strings.xml"
+                qualifiers="" >
+                <string name="cancel" >Cancel
+                </string>
+                <string name="select" >Select
+                </string>
+                <string name="create" >Save
+                </string>
+                <string name="file_name" >File name:
+                </string>
+                <string name="nnew" >New
+                </string>
+                <string name="no_data" >No Data
+                </string>
+                <string name="app_name" >File dialog
+                </string>
+                <string name="err" >Error
+                </string>
+
+                <color name="gray" >#ffff0000
+                </color>
+
+                <string name="location" >Location
+                </string>
+                <string name="cant_read_folder" >folder can\'t be read!
+                </string>
+            </file>
+            <file
+                name="file"
+                path="/home/wrd11/documents/SightReading/libs/android-file-dialog/res/drawable/file.png"
+                qualifiers=""
+                type="drawable" />
+            <file
+                name="icon"
+                path="/home/wrd11/documents/SightReading/libs/android-file-dialog/res/drawable/icon.png"
+                qualifiers=""
+                type="drawable" />
+            <file
+                name="folder"
+                path="/home/wrd11/documents/SightReading/libs/android-file-dialog/res/drawable/folder.png"
+                qualifiers=""
+                type="drawable" />
+        </source>
+        <source path="/home/wrd11/documents/SightReading/libs/android-file-dialog/build/res/rs/release" />
+    </dataSet>
+    <dataSet config="release" >
+        <source path="/home/wrd11/documents/SightReading/libs/android-file-dialog/src/release/res" />
+    </dataSet>
+
+</merger>

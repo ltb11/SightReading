@@ -10,10 +10,10 @@ buildscript{
 
 }
 
-apply plugin: 'android'
+apply plugin: 'android-library'
 
 android {
-    compileSdkVersion 18
+    compileSdkVersion 17
     buildToolsVersion "18.1.1"
 
     sourceSets{
@@ -42,19 +42,7 @@ android {
         instrumentTest.setRoot('tests')
     }
     defaultConfig{
-        targetSdkVersion 18
+        targetSdkVersion 17
     }
-}
-
-repositories {
-    maven {
-        url 'https://raw.github.com/vRallev/mvn-repo/master/'
-    }
-}
-
-dependencies {
-    compile 'org.opencv:opencv-android:2.4.6'
-    compile fileTree(dir: 'libs', include:'*.jar')
-    compile project(':libs:android-file-dialog')
 }
 
