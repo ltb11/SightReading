@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
+import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.Size;
 import android.util.AttributeSet;
@@ -20,6 +21,7 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 	private static final String TAG = "SRCameraView";
 	private String mPictureFileName;
 	private CameraActivity callback;
+	private boolean configured = false;
 	
 	public SRCameraView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -69,7 +71,32 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		mCamera.setPreviewCallback(null);
 
 		// PictureCallback is implemented by the current class
+		if (!configured) {
+			configure();
+		}
+		
+		Size size = mCamera.getParameters().getPictureSize();
+		Log.i("TEST_CAMERA_SIZE",size.width+"  "+size.height);
+		
 		mCamera.takePicture(null, null, this);
+	}
+
+	private void configure() {
+		configured=true;
+		Parameters params = mCamera.getParameters();
+		Size pictureSize = getBestPictureSize(params);
+		
+		params.setPictureSize(pictureSize.width,
+                pictureSize.height);
+		params.setPreviewSize(pictureSize.width,
+                pictureSize.height);
+		
+		Size test = params.getPictureSize();
+		
+		Log.i("FINAL_SIZE",pictureSize.width+"  "+pictureSize.height);
+		Log.i("ACTUAL_SIZE",test.width+"  "+test.height);
+		
+		mCamera.setParameters(params);
 	}
 
 	@Override
@@ -79,8 +106,14 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		mCamera.startPreview();
 		mCamera.setPreviewCallback(this);
 
-		Bitmap bitmap = BitmapFactory.decodeByteArray(data , 0, data .length);
+		Bitmap bitmap = BitmapFactory.decodeByteArray(data , 0, data.length);
 		OurUtils.saveTempImage(bitmap, "test");
+		
+		Size size = camera.getParameters().getPictureSize();
+		
+		//Log.i("CAM",""+camera.equals(mCamera));
+		Log.i("FINAL_CAMERA_SIZE",size.width+"  "+size.height);
+		Log.i("BITMAP_SIZE",bitmap.getWidth()+"  "+bitmap.getHeight());
 		
 		DisplayPhotoActivity.image=bitmap;
 		
@@ -108,4 +141,28 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 	public void setCallback(CameraActivity cameraActivity) {
 		this.callback = cameraActivity;
 	}
+	
+	
+	  private Camera.Size getBestPictureSize(Camera.Parameters parameters) {
+	    Camera.Size result=null;
+
+	    for (Camera.Size size : parameters.getSupportedPictureSizes()) {
+	      Log.i("SIZE",""+size.width+"  "+size.height);
+	      if (result == null) {
+	        result=size;
+	      }
+	      else {
+	        int resultArea=result.width * result.height;
+	        int newArea=size.width * size.height;
+
+	        if (newArea > resultArea) {
+	          result=size;
+	        }
+	        
+	        if (size.width>1500) break;
+	      }
+	    }
+
+	    return(result);
+	 }
 }
