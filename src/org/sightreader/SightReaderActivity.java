@@ -159,11 +159,11 @@ public class SightReaderActivity extends Activity {
 		output = detector.print();
 		OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));                                                                                                                                                                                                                                                                                          
 
-		Piece piece = detector.toPiece();
+		/*Piece piece = detector.toPiece();
 		MidiFile f = Converter.Convert(piece);
 		Playback.saveMidiFile(f, destMid);
 
-		Playback.playMidiFile("test.mid");
+		Playback.playMidiFile("test.mid");*/
 
 	}
 
