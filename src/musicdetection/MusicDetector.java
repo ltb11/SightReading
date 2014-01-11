@@ -163,7 +163,7 @@ public class MusicDetector {
 				"Start time of detection: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
 
-		/*Log.i("PROC", "detecting clefs");
+		Log.i("PROC", "detecting clefs");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectTrebleClefs();
 		Log.v("Guillaume",
@@ -229,7 +229,7 @@ public class MusicDetector {
 		Log.v("Guillaume",
 				"Total time for detection: "
 						+ (System.currentTimeMillis() - startTime));
-						*/
+						
 	}
 
 	public Piece toPiece() {
