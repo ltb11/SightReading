@@ -23,7 +23,6 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 import org.sightreader.SightReaderActivity;
 
-import utils.ComposedBeamInterval;
 import utils.Interval;
 import utils.OurUtils;
 import utils.SheetStrip;
@@ -95,7 +94,6 @@ public class MusicDetector {
 	private List<Point> naturals = new LinkedList<Point>();
 	private List<Point> quaverRests = new LinkedList<Point>();
 	private Map<Point, Note> dots = new HashMap<Point, Note>();
-
 
 	/**
 	 * Initialises music detector object and throws error if the preprocessing
@@ -178,7 +176,7 @@ public class MusicDetector {
 
 		Log.i("PROC", "detecting flats");
 		startTimeOfEachMethod = System.currentTimeMillis();
-		// detectAccidentals();
+		detectAccidentals();
 		Log.v("Guillaume",
 				"Accidental detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
@@ -198,12 +196,6 @@ public class MusicDetector {
 		Log.v("Guillaume",
 				"Half-note detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
-		Log.i("PROC", "detecting dots");
-		startTimeOfEachMethod = System.currentTimeMillis();
-		detectDots();
-		Log.v("Guillaume", "Dot detection time: "
-				+ (System.currentTimeMillis() - startTimeOfEachMethod));
-
 		Log.i("PROC", "detecting quavers");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectQuavers();
@@ -215,7 +207,13 @@ public class MusicDetector {
 		Log.v("Guillaume",
 				"Quaver Rests detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
-		
+		sortNotes();
+		Log.i("PROC", "detecting dots");
+		startTimeOfEachMethod = System.currentTimeMillis();
+		detectDots();
+		Log.v("Guillaume", "Dot detection time: "
+				+ (System.currentTimeMillis() - startTimeOfEachMethod));
+
 		Log.i("PROC", "detection complete");
 		startTimeOfEachMethod = System.currentTimeMillis()
 				- SightReaderActivity.startTime;
@@ -241,29 +239,30 @@ public class MusicDetector {
 
 	private void detectTrebleClefs() {
 		/*
-		 * commented code in this method allows for the detection of multiple clefs per line
+		 * commented code in this method allows for the detection of multiple
+		 * clefs per line
 		 */
 		for (Stave s : staves) {
 			Mat result = new Mat();
 			trebleClef = OurUtils.resizeImage(masterTrebleClef,
 					s.staveGap() * 8);
-			Mat clefArea = workingSheet.submat(
-					s.yRange(workingSheet.rows()),
-					new Range(0, workingSheet.cols()/5));
+			Mat clefArea = workingSheet.submat(s.yRange(workingSheet.rows()),
+					new Range(0, workingSheet.cols() / 5));
 			Imgproc.matchTemplate(clefArea, trebleClef, result,
 					Imgproc.TM_CCOEFF);
 			Point minLoc = Core.minMaxLoc(result).minLoc;
-			/*double minVal = Core.minMaxLoc(result).minVal;
-			double minAllowed = minVal * 0.9;
-			while (minVal < minAllowed) {*/
-				Point p = new Point(minLoc.x, s.startYRange() + minLoc.y);
-				trebleClefs.add(p);
-				s.addClef(Clef.Treble, p, trebleClef.cols());
-				/*OurUtils.zeroInMatrix(result, minLoc, (int) trebleClef.cols(),
-						(int) trebleClef.rows());
-				minLoc = Core.minMaxLoc(result).minLoc;
-				minVal = Core.minMaxLoc(result).minVal;
-			}*/
+			/*
+			 * double minVal = Core.minMaxLoc(result).minVal; double minAllowed
+			 * = minVal * 0.9; while (minVal < minAllowed) {
+			 */
+			Point p = new Point(minLoc.x, s.startYRange() + minLoc.y);
+			trebleClefs.add(p);
+			s.addClef(Clef.Treble, p, trebleClef.cols());
+			/*
+			 * OurUtils.zeroInMatrix(result, minLoc, (int) trebleClef.cols(),
+			 * (int) trebleClef.rows()); minLoc = Core.minMaxLoc(result).minLoc;
+			 * minVal = Core.minMaxLoc(result).minVal; }
+			 */
 		}
 	}
 
@@ -272,7 +271,9 @@ public class MusicDetector {
 		Imgproc.erode(eroded, eroded, Imgproc.getStructuringElement(
 				Imgproc.MORPH_RECT, new Size(4, 4)));
 		for (Stave s : staves) {
-			for (Note n : s.notes()) {
+			List<Note> notes = s.notes();
+			for (int j = 0; j < notes.size(); j++) {
+				Note n = notes.get(j);
 				List<MatOfPoint> contours = new LinkedList<MatOfPoint>();
 				Imgproc.findContours(eroded.submat((int) Math.max(0,
 						n.center().y - staveGap), Math.min(eroded.rows(),
@@ -294,11 +295,37 @@ public class MusicDetector {
 					difference -= s.staveGapAtPos(p) / 2;
 					difference = Math.abs(difference);
 					if (difference < 3) {
-						Rect r = Imgproc.boundingRect(contours.get(i));
-						dotWidth = r.width;
-						dotHeight = r.height;
-						dots.put(p, n);
-						break;
+						Note next = null;
+						boolean truePositive = true;
+						while (next != null) {
+							int count = j + 1;
+							if (count < notes.size())
+								next = notes.get(count);
+							if (next != null) {
+								do {
+									next = notes.get(count);
+									if (Math.abs(next.center().x - p.x) < 30)
+										truePositive = false;
+									count++;
+								} while (count < notes.size()
+										&& Math.abs(next.center().x
+												- n.center().x) < 100);
+							}
+						}
+						if (truePositive
+								&& !OurUtils.isInAnyRectangle(flats,
+										flat_on.width(), flat_on.height(), p)
+								&& !OurUtils.isInAnyRectangle(quaverRests,
+										quaverRest.width(),
+										quaverRest.height(), p)
+								&& !OurUtils.isInAnyRectangle(sharps,
+										sharp.width(), sharp.height(), p)) {
+							Rect r = Imgproc.boundingRect(contours.get(i));
+							dotWidth = r.width;
+							dotHeight = r.height;
+							dots.put(p, n);
+							break;
+						}
 					}
 				}
 			}
@@ -341,17 +368,16 @@ public class MusicDetector {
 		double minAllowed;
 		Stave s = staves.get(0);
 		Point clef = trebleClefs.get(0);
-		Mat timeArea = workingSheet.submat(
-				s.yRange(workingSheet.rows()),
+		Mat timeArea = workingSheet.submat(s.yRange(workingSheet.rows()),
 				new Range((int) clef.x + 70, (int) clef.x + 250));
-		Imgproc.matchTemplate(timeArea, fourFour, result,
-				Imgproc.TM_CCOEFF);
+		Imgproc.matchTemplate(timeArea, fourFour, result, Imgproc.TM_CCOEFF);
 		Point minLoc;
 		double minVal = Core.minMaxLoc(result).minVal;
 		minAllowed = minVal * 0.95;
 		while (minVal < minAllowed) {
 			minLoc = Core.minMaxLoc(result).minLoc;
-			points.add(new Point(minLoc.x + clef.x + 70, s.startYRange() + minLoc.y));
+			points.add(new Point(minLoc.x + clef.x + 70, s.startYRange()
+					+ minLoc.y));
 			values.add(minVal);
 			OurUtils.zeroInMatrix(result, minLoc, (int) fourFour.cols(),
 					(int) fourFour.rows());
@@ -485,14 +511,17 @@ public class MusicDetector {
 					workingSheet.rows());
 			List<Note> notes = s.notes();
 			int i = 0;
-			while (notes.get(i).center().x <= l.start().x - beamToNoteTolerance
+			while (notes.get(i).center().x <= l.start().x
+					- (l.length > 30 ? beamToNoteTolerance
+							: beamToNoteTolerance / 2)
 					&& i < notes.size() - 1)
 				i++;
-			while (notes.get(i).center().x <= l.end().x + beamToNoteTolerance
-					&& i < notes.size() - 1) {
+			while (notes.get(i).center().x <= l.end().x + beamToNoteTolerance) {
 				if (notes.get(i).duration() <= 1)
 					notes.get(i).halveDuration();
 				i++;
+				if (i >= notes.size())
+					break;
 			}
 		}
 	}
@@ -639,8 +668,9 @@ public class MusicDetector {
 					Point p = new Point(s.startDetection().x + minLoc.x
 							+ half_note.cols() / 2, minLoc.y + s.startYRange()
 							+ half_note.rows() / 2);
-					if (/*!OurUtils.isThereANoteAtThisPosition(p, s)
-							&& */OurUtils.isAHalfNote(p, eroded, (int) staveGap)) {
+					if (/*
+						 * !OurUtils.isThereANoteAtThisPosition(p, s) &&
+						 */OurUtils.isAHalfNote(p, eroded, (int) staveGap)) {
 						Note n = new Note(p, 2);
 						notes.add(n);
 						s.addNote(n);
@@ -715,23 +745,24 @@ public class MusicDetector {
 			}
 		}
 	}
-	
-	private void detectQuaverRests(){
+
+	private void detectQuaverRests() {
 		for (Stave s : staves) {
 			Mat result = new Mat();
 			quaverRest = OurUtils.resizeImage(masterQuaverRest,
-					s.staveGap()*2);
-			Mat quaverArea = workingSheet.submat(
-					s.closeYRange(workingSheet.rows()),
-					new Range(0, workingSheet.cols()));
-			OurUtils.writeImage(quaverArea, OurUtils.getPath("output/quaverArea.png"));
+					s.staveGap() * 2);
+			Mat quaverArea = workingSheet.submat(s.closeYRange(workingSheet
+					.rows()), new Range(0, workingSheet.cols()));
+			OurUtils.writeImage(quaverArea,
+					OurUtils.getPath("output/quaverArea.png"));
 			Imgproc.matchTemplate(quaverArea, quaverRest, result,
 					Imgproc.TM_CCOEFF);
 			Point minLoc = Core.minMaxLoc(result).minLoc;
 			double minVal = Core.minMaxLoc(result).minVal;
 			double minAllowed = minVal * 0.9;
 			while (minVal < minAllowed) {
-				Point p = new Point(minLoc.x, s.startYRange() + minLoc.y);
+				Point p = new Point(minLoc.x, s.startYRange() + 4
+						* s.staveGap() + minLoc.y);
 				quaverRests.add(p);
 				OurUtils.zeroInMatrix(result, minLoc, (int) quaverRest.cols(),
 						(int) quaverRest.rows());
@@ -915,8 +946,8 @@ public class MusicDetector {
 			s.drawDetailed(sheet, new Scalar(128, 0, 0));
 		}
 	}
-	
-	private void printQuaverRests(Mat sheet){
+
+	private void printQuaverRests(Mat sheet) {
 		for (Point qr : quaverRests)
 			Core.rectangle(sheet, qr, new Point(qr.x + quaverRest.cols(), qr.y
 					+ quaverRest.rows()), new Scalar(255, 0, 127), 4);
@@ -951,8 +982,12 @@ public class MusicDetector {
 									: n.duration() == 2.0 ? new Scalar(128,
 											128, 0)
 											: n.duration() == 0.25 ? new Scalar(
-													128, 0, 128) : new Scalar(
-													0, 127, 255), -1);
+													128, 0, 128)
+													: n.duration() == 4.0 ? new Scalar(
+															0, 255, 255)
+															: new Scalar(0,
+																	127, 255),
+					-1);
 	}
 
 	private void printFlats(Mat sheet) {
