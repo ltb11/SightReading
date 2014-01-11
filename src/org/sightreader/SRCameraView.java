@@ -118,7 +118,7 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		Mat tmp = new Mat(bitmap.getWidth(), bitmap.getHeight(), CvType.CV_8UC1);
 
 		Utils.bitmapToMat(bitmap, tmp);
-		// OurUtils.saveTempImage(bitmap, "INPUT");
+		OurUtils.saveTempImage(bitmap, "INPUT");
 		Log.i(TAG, "after bitmat to map "
 				+ (System.currentTimeMillis() - startTime));
 		// Log.i("CAM",""+camera.equals(mCamera));
@@ -161,6 +161,9 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		}
 		Log.i(TAG, "after mat to bitmap "
 				+ (System.currentTimeMillis() - startTime));
+		
+		OurUtils.saveTempImage(bitmap, "INPUTROT");
+		
 		if (callback != null) {
 			Intent i = new Intent(callback, DisplayPhotoActivity.class);
 			callback.startActivity(i);

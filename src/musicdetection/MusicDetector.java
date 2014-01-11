@@ -756,12 +756,14 @@ public class MusicDetector {
 			allNotesTwo.addAll(detectNoteOnPart(eroded, s));
 		for (Note n1 : allNotesOne) {
 			for (Note n2 : allNotesTwo) {
-				if (OurUtils.distanceBetweenTwoPoints(n1.center(), n2.center()) < 3) {
+				if (OurUtils.distanceBetweenTwoPoints(n1.center(), n2.center()) < 5) {
 					notes.add(n1);
 					OurUtils.whichStaveDoesAPointBelongTo(n1.center(), staves,
 							workingSheet.rows()).addNote(n1);
 					allNotesTwo.remove(n2);
+					
 					break;
+					
 				}
 			}
 		}
