@@ -7,10 +7,8 @@ import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc;
 
 import utils.OurUtils;
-
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -113,15 +111,19 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		mCamera.startPreview();
 		mCamera.setPreviewCallback(this);
 
+		long startTime = System.currentTimeMillis();
+		Log.i(TAG, "before decode " + (System.currentTimeMillis() - startTime));
 		Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+		Log.i(TAG, "after decode " + (System.currentTimeMillis() - startTime));
 		Mat tmp = new Mat(bitmap.getWidth(), bitmap.getHeight(), CvType.CV_8UC1);
 
-		Utils.bitmapToMat(bitmap, tmp);
-		OurUtils.saveTempImage(bitmap, "INPUT");
 
+		Utils.bitmapToMat(bitmap, tmp);
+		// OurUtils.saveTempImage(bitmap, "INPUT");
+		Log.i(TAG, "after bitmat to map " + (System.currentTimeMillis() - startTime));
 		// Log.i("CAM",""+camera.equals(mCamera));
 		// Log.i("FINAL_CAMERA_SIZE",size.width+"  "+size.height);
-		Log.i("BITMAP_SIZE", bitmap.getWidth() + "  " + bitmap.getHeight());
+		// Log.i("BITMAP_SIZE", bitmap.getWidth() + "  " + bitmap.getHeight());
 
 		Mat mRgbaT;
 
@@ -145,7 +147,7 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		default:
 			mRgbaT = tmp;
 		}
-
+		Log.i(TAG, "after rotation decode " + (System.currentTimeMillis() - startTime));
 		if (mRotation == Surface.ROTATION_0
 				|| mRotation == Surface.ROTATION_180) {
 			Bitmap bitmap2 = Bitmap.createBitmap(bitmap.getHeight(),
@@ -156,7 +158,7 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 			Utils.matToBitmap(mRgbaT, bitmap);
 			DisplayPhotoActivity.image = bitmap;
 		}
-
+		Log.i(TAG, "after mat to bitmap " + (System.currentTimeMillis() - startTime));
 		if (callback != null) {
 			Intent i = new Intent(callback, DisplayPhotoActivity.class);
 			callback.startActivity(i);
