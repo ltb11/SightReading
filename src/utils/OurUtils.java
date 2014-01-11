@@ -338,7 +338,9 @@ public class OurUtils {
 			}
 		});
 		// MID: lines is sorted highest to lowest
-
+		int maxStaveHeight = 100;
+		
+		
 		StaveLine first = lines.get(0);
 		for (int i = 1; i < lines.size(); i++) {
 			StaveLine second = lines.get(i);
@@ -349,6 +351,8 @@ public class OurUtils {
 			double space = second.toLine().start().y - first.toLine().start().y;
 			double pos = second.toLine().start().y + space;
 
+			if (space > maxStaveHeight) continue;
+			
 			for (int j = i + 1; j < lines.size(); j++) {
 				if (Math.abs(lines.get(j).toLine().start().y - pos) < space
 						* staveGapTolerance) {
