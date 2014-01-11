@@ -410,8 +410,8 @@ public class MusicDetector {
 	private Mat getAccidentalArea(Note n) {
 		double nx = n.center().x;
 		double ny = n.center().y;
-		int rowStart = Math.max(0, (int) (ny - staveGap));
-		int rowEnd = Math.min(workingSheet.rows(), (int) (ny + staveGap));
+		int rowStart = Math.max(0, (int) (ny - staveGap * 1.5));
+		int rowEnd = Math.min(workingSheet.rows(), (int) (ny + staveGap * 1.5));
 		int colStart = Math.max(0, (int) (nx - 3 * noteWidth));
 		int colEnd = Math.min(workingSheet.cols(), (int) (nx - noteWidth / 2));
 		return workingSheet.submat(rowStart, rowEnd, colStart, colEnd);
@@ -428,7 +428,7 @@ public class MusicDetector {
 			for (Note n : s.notes()) {
 				Mat accidentalArea = getAccidentalArea(n);
 				detectFlats(accidentalArea, n, s);
-				//detectSharps(accidentalArea, n, s);
+				detectSharps(accidentalArea, n, s);
 				//detectNaturals(accidentalArea,n);
 			}
 		}
@@ -452,7 +452,7 @@ public class MusicDetector {
 			 * not the accidentalArea
 			 */
 			Point p = new Point(minLoc.x + n.center().x - 3 * noteWidth,
-					minLoc.y + n.center().y - staveGap);
+					minLoc.y + n.center().y - (int) (staveGap *1.5));
 			if (!OurUtils.isThereANoteAtThisPosition(p, OurUtils
 					.whichStaveDoesAPointBelongTo(p, staves,
 							workingSheet.rows())))
@@ -482,7 +482,7 @@ public class MusicDetector {
 			 * not the accidentalArea
 			 */
 			Point p = new Point(minLoc.x + n.center().x - 3 * noteWidth,
-					minLoc.y + n.center().y - staveGap);
+					minLoc.y + n.center().y - (int) (staveGap*1.5));
 			if (!OurUtils.isThereANoteAtThisPosition(p, OurUtils
 					.whichStaveDoesAPointBelongTo(p, staves,
 							workingSheet.rows())))
@@ -941,7 +941,7 @@ public class MusicDetector {
 		printTrebleClefs(output);
 		printNotes(output);
 		printFlats(output);
-		//printSharps(output);
+		printSharps(output);
 		printDots(output);
 		printBeams(output);
 		printScale(output);
