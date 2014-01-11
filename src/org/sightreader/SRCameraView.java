@@ -9,11 +9,14 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
+import utils.OurUtils;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
+import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.Size;
 import android.util.AttributeSet;
@@ -26,6 +29,7 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 	private String mPictureFileName;
 	private int mRotation;
 	private CameraActivity callback;
+	private boolean configured = false;
 
 	public SRCameraView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -76,7 +80,32 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		mCamera.setPreviewCallback(null);
 
 		// PictureCallback is implemented by the current class
+		if (!configured) {
+			configure();
+		}
+		
+		Size size = mCamera.getParameters().getPictureSize();
+		Log.i("TEST_CAMERA_SIZE",size.width+"  "+size.height);
+		
 		mCamera.takePicture(null, null, this);
+	}
+
+	private void configure() {
+		configured=true;
+		Parameters params = mCamera.getParameters();
+		Size pictureSize = getBestPictureSize(params);
+		
+		params.setPictureSize(pictureSize.width,
+                pictureSize.height);
+		params.setPreviewSize(pictureSize.width,
+                pictureSize.height);
+		
+		Size test = params.getPictureSize();
+		
+		Log.i("FINAL_SIZE",pictureSize.width+"  "+pictureSize.height);
+		Log.i("ACTUAL_SIZE",test.width+"  "+test.height);
+		
+		mCamera.setParameters(params);
 	}
 
 	@Override
@@ -90,6 +119,12 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		Mat tmp = new Mat(bitmap.getWidth(), bitmap.getHeight(), CvType.CV_8UC1);
 
 		Utils.bitmapToMat(bitmap, tmp);
+		OurUtils.saveTempImage(bitmap, "INPUT");
+		
+		//Log.i("CAM",""+camera.equals(mCamera));
+		//Log.i("FINAL_CAMERA_SIZE",size.width+"  "+size.height);
+		Log.i("BITMAP_SIZE",bitmap.getWidth()+"  "+bitmap.getHeight());
+		
 
 		switch (mRotation) {
 		case Surface.ROTATION_0:
@@ -128,4 +163,28 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 	public void setCallback(CameraActivity cameraActivity) {
 		this.callback = cameraActivity;
 	}
+	
+	
+	  private Camera.Size getBestPictureSize(Camera.Parameters parameters) {
+	    Camera.Size result=null;
+
+	    for (Camera.Size size : parameters.getSupportedPictureSizes()) {
+	      Log.i("SIZE",""+size.width+"  "+size.height);
+	      if (result == null) {
+	        result=size;
+	      }
+	      else {
+	        int resultArea=result.width * result.height;
+	        int newArea=size.width * size.height;
+
+	        if (newArea > resultArea) {
+	          result=size;
+	        }
+	        
+	        if (size.width>=2000) break;
+	      }
+	    }
+
+	    return(result);
+	 }
 }

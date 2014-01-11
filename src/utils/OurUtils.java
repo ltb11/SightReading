@@ -43,7 +43,7 @@ public class OurUtils {
 	private static final double staveGapTolerance = 0.2;
 	public static final String sdPath = Environment
 			.getExternalStorageDirectory().getAbsolutePath() + "/DCIM/";
-	public static final int totalVerticalSlices = 20;
+	public static final int totalVerticalSlices = 30;
 	public static final double STANDARD_IMAGE_WIDTH = 2500;
 
 	public static final String DATA_FOLDER = "data";
