@@ -117,10 +117,10 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		Log.i(TAG, "after decode " + (System.currentTimeMillis() - startTime));
 		Mat tmp = new Mat(bitmap.getWidth(), bitmap.getHeight(), CvType.CV_8UC1);
 
-
 		Utils.bitmapToMat(bitmap, tmp);
 		// OurUtils.saveTempImage(bitmap, "INPUT");
-		Log.i(TAG, "after bitmat to map " + (System.currentTimeMillis() - startTime));
+		Log.i(TAG, "after bitmat to map "
+				+ (System.currentTimeMillis() - startTime));
 		// Log.i("CAM",""+camera.equals(mCamera));
 		// Log.i("FINAL_CAMERA_SIZE",size.width+"  "+size.height);
 		// Log.i("BITMAP_SIZE", bitmap.getWidth() + "  " + bitmap.getHeight());
@@ -147,18 +147,20 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		default:
 			mRgbaT = tmp;
 		}
-		Log.i(TAG, "after rotation decode " + (System.currentTimeMillis() - startTime));
+		Log.i(TAG, "after rotation decode "
+				+ (System.currentTimeMillis() - startTime));
 		if (mRotation == Surface.ROTATION_0
 				|| mRotation == Surface.ROTATION_180) {
 			Bitmap bitmap2 = Bitmap.createBitmap(bitmap.getHeight(),
-					bitmap.getWidth(), Bitmap.Config.RGB_565);
+					bitmap.getWidth(), bitmap.getConfig());
 			Utils.matToBitmap(mRgbaT, bitmap2);
 			DisplayPhotoActivity.image = bitmap2;
 		} else {
 			Utils.matToBitmap(mRgbaT, bitmap);
 			DisplayPhotoActivity.image = bitmap;
 		}
-		Log.i(TAG, "after mat to bitmap " + (System.currentTimeMillis() - startTime));
+		Log.i(TAG, "after mat to bitmap "
+				+ (System.currentTimeMillis() - startTime));
 		if (callback != null) {
 			Intent i = new Intent(callback, DisplayPhotoActivity.class);
 			callback.startActivity(i);
