@@ -8,7 +8,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="Playback"
+        android:text="@string/playback"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <FrameLayout
@@ -30,6 +30,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Reset" />
+        android:text="@string/reset" />
 
 </LinearLayout>
