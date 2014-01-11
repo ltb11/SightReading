@@ -763,8 +763,7 @@ public class MusicDetector {
 			quaverRest = OurUtils.resizeImage(masterQuaverRest,
 					s.staveGap() * 2);
 			Mat quaverRestArea = workingSheet.submat(
-					.rows()), new Range(0, workingSheet.cols()));
-			OurUtils.writeImage(quaverArea,
+					s.closeYRange(workingSheet.rows()), new Range(0, workingSheet.cols()));
 			Imgproc.matchTemplate(quaverRestArea, quaverRest, result,
 					Imgproc.TM_CCOEFF);
 			Point minLoc = Core.minMaxLoc(result).minLoc;
