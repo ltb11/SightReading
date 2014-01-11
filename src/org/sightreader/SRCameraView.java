@@ -9,6 +9,8 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
+import utils.OurUtils;
+
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -117,9 +119,10 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		Mat tmp = new Mat(bitmap.getWidth(), bitmap.getHeight(), CvType.CV_8UC1);
 
 		Utils.bitmapToMat(bitmap, tmp);
+		OurUtils.saveTempImage(bitmap, "INPUT");
 		
 		//Log.i("CAM",""+camera.equals(mCamera));
-		Log.i("FINAL_CAMERA_SIZE",size.width+"  "+size.height);
+		//Log.i("FINAL_CAMERA_SIZE",size.width+"  "+size.height);
 		Log.i("BITMAP_SIZE",bitmap.getWidth()+"  "+bitmap.getHeight());
 		
 
@@ -178,7 +181,7 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 	          result=size;
 	        }
 	        
-	        if (size.width>1500) break;
+	        if (size.width>=2000) break;
 	      }
 	    }
 
