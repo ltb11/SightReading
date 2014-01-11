@@ -1,17 +1,16 @@
 package org.sightreader;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.imgproc.Imgproc;
 
 import utils.OurUtils;
 import android.app.Activity;
@@ -20,13 +19,13 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class CameraActivity extends Activity implements OnTouchListener,
 		CvCameraViewListener2 {
@@ -36,6 +35,7 @@ public class CameraActivity extends Activity implements OnTouchListener,
 
 	private SRCameraView mOpenCvCameraView;
 	private Mat mRgba;
+	static int rotation = 0;
 	private static int totalImages = 0;
 
 	private Button done;
@@ -92,14 +92,17 @@ public class CameraActivity extends Activity implements OnTouchListener,
 				if (totalImages > 0) {
 					ProcessingActivity.SetPageNum(totalImages);
 					CameraActivity.reset();
+
 					Intent i = new Intent(CameraActivity.this,
 							ProcessingActivity.class);
 					startActivity(i);
+				} else {
+					// TODO
 				}
 			}
 		});
 	}
-	
+
 	protected static void reset() {
 		totalImages = 0;
 	}
@@ -111,12 +114,9 @@ public class CameraActivity extends Activity implements OnTouchListener,
 
 	public static void savePage(Bitmap bitmap) {
 		totalImages++;
-		String fName = "page"+ totalImages;
-		
-		// QUICK FIX
-		Bitmap rotated = OurUtils.RotateBitmap(bitmap, 360);
-		
-		OurUtils.saveTempImage(rotated,fName);
+		String fName = "page" + totalImages;
+
+		OurUtils.saveTempImage(bitmap, fName);
 	}
 
 	public CameraActivity() {
@@ -147,32 +147,8 @@ public class CameraActivity extends Activity implements OnTouchListener,
 
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-		// mRgba = inputFrame.rgba();
-		// return mRgba;
-
-		Mat input = inputFrame.rgba();
-		mRgba = input;
-
+		Mat mRgba = correctOrientation(CameraActivity.this, inputFrame.rgba());
 		return mRgba;
-
-		// Mat mRgbaT = input.t();
-		// Core.flip(input.t(), mRgbaT, 1);
-
-		// Imgproc.resize(mRgbaT, mRgbaT, new
-		// Size(input.height(),input.width()));
-		// Imgproc.resize(mRgbaT, mRgbaT, new
-		// Size(input.width(),input.height()));
-
-		/*
-		 * Bitmap image = Bitmap.createBitmap(mRgba.width(), mRgba.height(),
-		 * Bitmap.Config.ARGB_8888); Utils.matToBitmap(mRgba, image);
-		 * 
-		 * ImageView layout = (ImageView) findViewById(R.id.cameraPreview);
-		 * layout.setImageDrawable(new BitmapDrawable(this.getResources(),
-		 * image));
-		 */
-
-		// return mRgbaT;
 	}
 
 	@Override
@@ -188,8 +164,37 @@ public class CameraActivity extends Activity implements OnTouchListener,
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		mOpenCvCameraView.setCallback(this);
-		mOpenCvCameraView.takePicture("page"+(totalImages+1)+".jpg");
+		mOpenCvCameraView.takePicture("page" + (totalImages + 1) + ".jpg",
+				rotation);
+
 		return false;
 	}
 
+	public static Mat correctOrientation(Activity activity, Mat mRgba) {
+		rotation = activity.getWindowManager().getDefaultDisplay()
+				.getRotation();
+		switch (rotation) {
+		case Surface.ROTATION_0:
+			Mat mRgbaT = mRgba.t();
+			Core.flip(mRgba.t(), mRgbaT, 1);
+			Imgproc.resize(mRgbaT, mRgbaT, mRgba.size());
+			return mRgbaT;
+		case Surface.ROTATION_90:
+			return mRgba;
+		case Surface.ROTATION_180:
+			Mat mRgbaT1 = mRgba.t();
+			Core.flip(mRgba.t(), mRgbaT1, 0);
+			Imgproc.resize(mRgbaT1, mRgbaT1, mRgba.size());
+			return mRgbaT1;
+		case Surface.ROTATION_270:
+			Mat mRgbaT11 = mRgba;
+			Core.flip(mRgba, mRgbaT11, 1);
+			Core.flip(mRgbaT11, mRgbaT11, 0);
+			Imgproc.resize(mRgbaT11, mRgbaT11, mRgba.size());
+			return mRgbaT11;
+		}
+
+		// TODO compensate for mirror if front facing camera
+		return mRgba;
+	}
 }

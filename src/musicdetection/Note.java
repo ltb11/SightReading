@@ -5,6 +5,7 @@ import musicrepresentation.PlayedNote;
 
 import org.opencv.core.Point;
 
+import android.util.Log;
 import utils.OurUtils;
 
 public class Note {
@@ -30,6 +31,10 @@ public class Note {
 	public void setDuration(double d) {
 		this.duration = d;
 	}
+	
+	public void halveDuration() {
+		this.duration /= 2;
+	}
 
 	public void setName(NoteName name) {
 		this.name=name;
@@ -42,6 +47,10 @@ public class Note {
 	public PlayedNote toPlayedNote() {
 		// TODO Auto-generated method stub
 		return new PlayedNote(name, octave, OurUtils.getDuration(duration), 0);
+	}
+	
+	public void display() {
+		Log.d("Guillaume", "x: " + center.x + ", y: " + center.y);
 	}
 	
 	@Override

@@ -58,12 +58,13 @@ public class OurUtils {
 		Core.bitwise_not(mat, mat);
 	}
 
+	/**
+	 * Divides the image into 250x250 pixel sections as much as possible,
+	 * then for each section it takes the mean pixel intensity, and
+	 * thresholds the section based on that value.
+	 **/
 	public static void thresholdImage(Mat sheet) {
-		/*
-		 * divides the image into 250x250 pixel sections as much as possible,
-		 * then for each section it takes the man pixel intensity, and
-		 * thresholds the section based on that value.
-		 */
+	
 		int width = sheet.cols();
 		int height = sheet.rows();
 		int sep = 250;
@@ -145,7 +146,13 @@ public class OurUtils {
 	/***************************************
 	 ************ CHECK METHODS ************
 	 **************************************/
-
+	
+	/**
+	 * 
+	 * @param toCheck
+	 * @param currentStave
+	 * @return
+	 */
 	public static boolean isThereANoteAtThisPosition(Point toCheck,
 			Stave currentStave) {
 		for (Note n : currentStave.notes()) {
@@ -190,15 +197,16 @@ public class OurUtils {
 		return false;
 	}
 
-	public static boolean isABeam(Line line, Stave s) {
+	public static boolean isABeam(Line line, Stave s, double staveGap) {
 		boolean beginning = false;
 		boolean end = false;
+		boolean actual = false;
 		for (Note n : s.notes()) {
 			if (Math.abs(n.center().x - line.start().x) < MusicDetector.beamLengthTolerance)
 				beginning = true;
 			else if (Math.abs(n.center().x - line.end().x) < MusicDetector.beamLengthTolerance)
 				end = true;
-			if (beginning && end)
+			if (beginning && end && actual)
 				return true;
 		}
 		return false;
@@ -443,7 +451,7 @@ public class OurUtils {
 		return divisions;
 	}
 
-	public static List<BeamDivision> detectBeamDivisions(Mat sheet) {
+	/*public static List<BeamDivision> detectBeamDivisions(Mat sheet) {
 		Mat verticalProj = verticalProjection(sheet);
 		List<BeamDivision> potentialBeams = new LinkedList<BeamDivision>();
 		int[] v = new int[4];
@@ -451,11 +459,13 @@ public class OurUtils {
 		int lastEntry = 0;
 		for (int i = 0; i < verticalProj.cols(); i++) {
 			verticalProj.get(0, i, v);
+			if (in) Log.d("Guillaume", "in: " + in);
 			if (in && (v[0] < MusicDetector.beamVerticalThresholdTolerance)) {
 				if (i - lastEntry > MusicDetector.beamMinLength) {
 					Log.d("Guillaume", "New line detected at x: " + lastEntry + "," + i);
 					Mat region = sheet.submat(new Range(0, sheet.rows()),
 							new Range(lastEntry, i));
+					writeImage(region, getPath("output/proj" + i + ".jpg"));
 					Mat horizontalProj = horizontalProjection(region);
 					List<Integer> divs = detectDivisions(horizontalProj,
 							MusicDetector.beamHorizontalThresholdTolerance);
@@ -493,7 +503,7 @@ public class OurUtils {
 			}
 		}
 		return potentialBeams;
-	}
+	}*/
 
 	public static Point findNearestNeighbour(Point centre, Mat ref, int width,
 			int height) {
@@ -630,6 +640,35 @@ public class OurUtils {
 
 	public static Line correctLine(Line potentialLine, Mat part, double staveGap) {
 		return potentialLine;
+	}
+	
+	public static double distanceBetweenTwoPoints(Point p1, Point p2) {
+		return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
+	}
+
+	public static boolean isAHalfNote(Point p, Mat eroded, int staveGap) {
+		int centerX = (int) p.x;
+		int centerY = (int) p.y;
+		Mat sub = eroded.submat(centerY - 2 * staveGap, centerY - staveGap / 2, centerX, centerX + staveGap);
+		Mat horizontalProj = horizontalProjection(sub);
+		boolean allWhite = true;
+		for (int i = 0; i < horizontalProj.rows(); i++) {
+			if (horizontalProj.get(i, 0)[0] < 10) {
+				allWhite = false;
+				break;
+			}
+		}
+		if (allWhite)
+			return true;
+		sub = eroded.submat(centerY + staveGap / 2, centerY + 2 * staveGap, centerX - staveGap, centerX);
+		horizontalProj = horizontalProjection(sub);
+		allWhite = true;
+		for (int i = 0; i < horizontalProj.rows(); i++) {
+			if (horizontalProj.get(i, 0)[0] < 10) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/** Use this to save midi images ad .sr connector when files are generated */

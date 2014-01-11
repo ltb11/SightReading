@@ -7,6 +7,7 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 -->
  
 <!-- Colors arranged from A -Z -->
+ 
 <color name="air_force_blue">#5D8AA8</color>
 <color name="algae_green">#64E986</color>
 <color name="alice_blue">#F0F8FF</color>
@@ -36,7 +37,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="aztech_purple">#893BFF</color>
 <color name="azure">#007FFF</color>
 <color name="azure_mist_web">#F0FFFF</color>
- 
 <color name="baby_blue">#89CFF0</color>
 <color name="baby_blue_eyes">#A1CAF1</color>
 <color name="baby_pink">#F4C2C2</color>
@@ -127,7 +127,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="butterfly_blue">#38ACEC</color>
 <color name="byzantine">#BD33A4</color>
 <color name="byzantium">#702963</color>
- 
 <color name="cadet">#536872</color>
 <color name="cadet_blue">#5F9EA0</color>
 <color name="cadet_grey">#91A3B0</color>
@@ -171,9 +170,7 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="chamoisee">#A0785A</color>
 <color name="champagne">#FAD6A5</color>
 <color name="charcoal">#34282C</color>
-<color name="charcoal">#36454F</color>
 <color name="chartreuse">#7FFF00</color>
-<color name="chartreuse">#8AFB17</color>
 <color name="cherry">#DE3163</color>
 <color name="cherry_blossom_pink">#FFB7C5</color>
 <color name="cherry_red">#C24641</color>
@@ -221,7 +218,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="crystal_blue">#5CB3FF</color>
 <color name="cyan">#00FFFF</color>
 <color name="cyan_opaque">#92C7C7</color>
- 
 <color name="daffodil">#FFFF31</color>
 <color name="dandelion">#F0E130</color>
 <color name="dark_blue">#00008B</color>
@@ -235,7 +231,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="dark_electric_blue">#536878</color>
 <color name="dark_forrest_green">#254117</color>
 <color name="dark_goldenrod">#AF7817</color>
-<color name="dark_goldenrod">#B8860B</color>
 <color name="dark_gray">#A9A9A9</color>
 <color name="dark_green">#013220</color>
 <color name="dark_jungle_green">#1A2421</color>
@@ -255,22 +250,16 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="dark_raspberry">#872657</color>
 <color name="dark_red">#8B0000</color>
 <color name="dark_salmon">#E18B6B</color>
-<color name="dark_salmon">#E9967A</color>
 <color name="dark_scarlet">#560319</color>
 <color name="dark_sea_green">#8BB381</color>
-<color name="dark_sea_green">#8FBC8F</color>
 <color name="dark_sienna">#3C1414</color>
 <color name="dark_slate_blue">#2B3856</color>
-<color name="dark_slate_blue">#483D8B</color>
 <color name="dark_slate_gray">#25383C</color>
-<color name="dark_slate_gray">#2F4F4F</color>
 <color name="dark_spring_green">#177245</color>
 <color name="dark_tan">#918151</color>
 <color name="dark_tangerine">#FFA812</color>
 <color name="dark_terra_cotta">#CC4E5C</color>
-<color name="dark_turquoise">#00CED1</color>
 <color name="dark_turquoise">#3B9C9C</color>
-<color name="dark_violet">#842DCE</color>
 <color name="dark_violet">#9400D3</color>
 <color name="dartmouth_green">#00693E</color>
 <color name="davy_grey">#555555</color>
@@ -301,7 +290,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="dragon_green">#6AFB92</color>
 <color name="duke_blue">#00009C</color>
 <color name="dull_purple">#7F525D</color>
- 
 <color name="earth_blue">#0000A0</color>
 <color name="earth_yellow">#E1A95F</color>
 <color name="eggplant">#614051</color>
@@ -318,7 +306,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="emerald">#50C878</color>
 <color name="emerald_green">#5FFB17</color>
 <color name="eton_blue">#96C8A2</color>
- 
 <color name="fall_leaf_brown">#C8B560</color>
 <color name="falu_red">#801818</color>
 <color name="famous">#FF00FF</color>
@@ -350,7 +337,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="fuchsia_pink">#FF77FF</color>
 <color name="fulvous">#E48400</color>
 <color name="fuzzy_wuzzy">#CC6666</color>
- 
 <color name="gainsboro">#DCDCDC</color>
 <color name="gamboge">#E49B0F</color>
 <color name="ghost_white">#F8F8FF</color>
@@ -386,7 +372,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="grullo">#A99A86</color>
 <color name="gunmetal">#2C3539</color>
 <color name="guppie_green">#00FF7F</color>
- 
 <color name="halaya_ube">#663854</color>
 <color name="halloween_orange">#E66C2C</color>
 <color name="han_blue">#446CCF</color>
@@ -394,7 +379,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="hansa_yellow">#E9D66B</color>
 <color name="harlequin">#3FFF00</color>
 <color name="harvard_crimson">#C90016</color>
-<color name="harvest_gold">#DA9100</color>
 <color name="harvest_gold">#EDE275</color>
 <color name="hazel_green">#617C58</color>
 <color name="heliotrope">#DF73FF</color>
@@ -406,7 +390,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="hot_pink">#F660AB</color>
 <color name="hummingbird_green">#7FE817</color>
 <color name="hunter_green">#355E3B</color>
- 
 <color name="iceberg">#56A5EC</color>
 <color name="icterine">#FCF75E</color>
 <color name="iguana_green">#9CB071</color>
@@ -420,7 +403,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="isabelline">#F4F0EC</color>
 <color name="islamic_green">#009000</color>
 <color name="ivory">#FFFFF0</color>
- 
 <color name="jade">#5EFB6E</color>
 <color name="jasmine">#F8DE7E</color>
 <color name="jasmine_purple">#A23BEC</color>
@@ -432,12 +414,10 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="jonquil">#FADA5E</color>
 <color name="june_bud">#BDDA57</color>
 <color name="jungle_green">#29AB87</color>
- 
 <color name="kelly_green">#4CC552</color>
 <color name="khaki">#C3B091</color>
 <color name="khaki_rose">#C5908E</color>
 <color name="ku_crimson">#E8000D</color>
- 
 <color name="la_salle_green">#087830</color>
 <color name="languid_lavender">#D6CADD</color>
 <color name="lapis_blue">#15317E</color>
@@ -466,7 +446,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="light_blue">#ADDFFF</color>
 <color name="light_brown">#B5651D</color>
 <color name="light_carmine_pink">#E66771</color>
-<color name="light_coral">#E77471</color>
 <color name="light_coral">#F08080</color>
 <color name="light_cornflower_blue">#93CCEA</color>
 <color name="light_crimson">#F56991</color>
@@ -499,7 +478,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="love_red">#E41B17</color>
 <color name="lovely_purple">#7F38EC</color>
 <color name="lust">#E62020</color>
- 
 <color name="macaroni_and_cheese">#FFBD88</color>
 <color name="magenta">#FF00FF</color>
 <color name="magic_mint">#AAF0D1</color>
@@ -562,7 +540,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="mulberry">#C54B8C</color>
 <color name="mustard">#FFDB58</color>
 <color name="myrtle">#21421E</color>
- 
 <color name="nadeshiko_pink">#F6ADC6</color>
 <color name="napier_green">#2A8000</color>
 <color name="naples_yellow">#FADA5E</color>
@@ -576,7 +553,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="non_photo_blue">#A4DDED</color>
 <color name="north_texas_green">#059033</color>
 <color name="northern_lights_blue">#78C7C7</color>
- 
 <color name="oak_brown">#806517</color>
 <color name="ocean_blue">#2B65EC</color>
 <color name="ocean_boat_blue">#0077BE</color>
@@ -603,7 +579,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="outer_space">#414A4C</color>
 <color name="outrageous_orange">#FF6E4A</color>
 <color name="oxford_blue">#002147</color>
- 
 <color name="pacific_blue">#1CA9C9</color>
 <color name="pakistan_green">#006600</color>
 <color name="palatinate_blue">#273BE2</color>
@@ -662,7 +637,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="phthalo_green">#123524</color>
 <color name="pig_pink">#FDD7E4</color>
 <color name="piggy_pink">#FDDDE6</color>
-<color name="pine_green">#01796F</color>
 <color name="pine_green">#387C44</color>
 <color name="pink">#FAAFBE</color>
 <color name="pink_bow">#C48189</color>
@@ -683,7 +657,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="plum_velvet">#7D0552</color>
 <color name="portland_orange">#FF5A36</color>
 <color name="powder_blue">#B0E0E6</color>
-<color name="powder_blue">#C6DEFF</color>
 <color name="princeton_orange">#FF8F00</color>
 <color name="prussian_blue">#003153</color>
 <color name="psychedelic_purple">#DF00FF</color>
@@ -702,11 +675,9 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="purple_mimosa">#9E7BFF</color>
 <color name="purple_monster">#461B7E</color>
 <color name="purple_mountain_majesty">#9678B6</color>
-<color name="purple_mountain_majesty">#9D81BA</color>
 <color name="purple_pizzazz">#FE4EDA</color>
 <color name="purple_sage_bush">#7A5DC7</color>
 <color name="purple_taupe">#50404D</color>
- 
 <color name="radical_red">#FF355E</color>
 <color name="raspberry">#E30B5D</color>
 <color name="raspberry_glace">#915F6D</color>
@@ -756,7 +727,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="rufous">#A81C07</color>
 <color name="russet">#80461B</color>
 <color name="rust">#C36241</color>
- 
 <color name="sacramento_state_green">#00563F</color>
 <color name="saddle_brown">#8B4513</color>
 <color name="safety_orange">#FF6700</color>
@@ -818,7 +788,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="sunrise_orange">#E67451</color>
 <color name="sunset">#FAD6A5</color>
 <color name="sunset_orange">#FD5E53</color>
- 
 <color name="tan">#D2B48C</color>
 <color name="tan_brown">#ECE5B6</color>
 <color name="tangelo">#F94D00</color>
@@ -858,7 +827,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="tuscan_red">#66424D</color>
 <color name="twilight_lavender">#8A496B</color>
 <color name="tyrian_purple">#C45AEC</color>
- 
 <color name="ua_blue">#0033AA</color>
 <color name="ua_red">#D9004C</color>
 <color name="ube">#8878C3</color>
@@ -877,7 +845,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="upsdell_red">#AE2029</color>
 <color name="urobilin">#E1AD21</color>
 <color name="utah_crimson">#D3003F</color>
- 
 <color name="valentine_red">#E55451</color>
 <color name="vampire_gray">#565051</color>
 <color name="vanilla">#F3E5AB</color>
@@ -897,7 +864,6 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="vivid_cerise">#DA1D81</color>
 <color name="vivid_tangerine">#FFA089</color>
 <color name="vivid_violet">#9F00FF</color>
- 
 <color name="warm_black">#004242</color>
 <color name="water">#EBF4FA</color>
 <color name="watermelon_pink">#FC6C85</color>
@@ -912,14 +878,11 @@ Reference : http://www.computerhope.com/htmcolor.htm , http://www.color-hex.com/
 <color name="wiseria_purple">#C6AEC7</color>
 <color name="wisteria">#C9A0DC</color>
 <color name="wood">#966F33</color>
- 
 <color name="xanadu">#738678</color>
- 
 <color name="yale_blue">#0F4D92</color>
 <color name="yellow">#FFFF00</color>
 <color name="yellow_green">#52D017</color>
 <color name="yellow_orange">#FFAE42</color>
- 
 <color name="zaffre">#0014A8</color>
 <color name="zinnwaldite_brown">#2C1608</color>
 <color name="zombie_green">#54C571</color>

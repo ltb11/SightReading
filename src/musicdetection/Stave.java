@@ -86,9 +86,7 @@ public class Stave {
 		}
 	}
 
-	public void drawDetailed(Mat image) {
-		Scalar col = new Scalar(128, 0, 0);
-
+	public void drawDetailed(Mat image, Scalar col) {
 		for (int i = 0; i < 5; i++) {
 			for (Line l : lines.get(i).getLines()) {
 				Core.line(image, l.start(), l.end(), col, 3);
@@ -107,6 +105,11 @@ public class Stave {
 	public Range yRange(int maxRows) {
 		return new Range((int) Math.max(0, topLine().start().y - 4 * staveGap),
 				(int) Math.min(maxRows, bottomLine().start().y + 4 * staveGap));
+	}
+	
+	public Range closeYRange(int maxRows){
+		return new Range((int) Math.max(0, topLine().start().y),
+				(int) Math.min(maxRows, bottomLine().start().y));
 	}
 
 	public Range xRange() {
