@@ -157,7 +157,7 @@ public class SightReaderActivity extends Activity {
 		}
 		detector.detect();
 		output = detector.print();
-		OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));
+		OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));                                                                                                                                                                                                                                                                                          
 
 		//Piece piece = detector.toPiece();
 		//MidiFile f = Converter.Convert(piece);
