@@ -83,28 +83,26 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		if (!configured) {
 			configure();
 		}
-		
+
 		Size size = mCamera.getParameters().getPictureSize();
-		Log.i("TEST_CAMERA_SIZE",size.width+"  "+size.height);
-		
+		Log.i("TEST_CAMERA_SIZE", size.width + "  " + size.height);
+
 		mCamera.takePicture(null, null, this);
 	}
 
 	private void configure() {
-		configured=true;
+		configured = true;
 		Parameters params = mCamera.getParameters();
 		Size pictureSize = getBestPictureSize(params);
-		
-		params.setPictureSize(pictureSize.width,
-                pictureSize.height);
-		params.setPreviewSize(pictureSize.width,
-                pictureSize.height);
-		
+
+		params.setPictureSize(pictureSize.width, pictureSize.height);
+		params.setPreviewSize(pictureSize.width, pictureSize.height);
+
 		Size test = params.getPictureSize();
-		
-		Log.i("FINAL_SIZE",pictureSize.width+"  "+pictureSize.height);
-		Log.i("ACTUAL_SIZE",test.width+"  "+test.height);
-		
+
+		Log.i("FINAL_SIZE", pictureSize.width + "  " + pictureSize.height);
+		Log.i("ACTUAL_SIZE", test.width + "  " + test.height);
+
 		mCamera.setParameters(params);
 	}
 
@@ -120,39 +118,44 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 
 		Utils.bitmapToMat(bitmap, tmp);
 		OurUtils.saveTempImage(bitmap, "INPUT");
-		
-		//Log.i("CAM",""+camera.equals(mCamera));
-		//Log.i("FINAL_CAMERA_SIZE",size.width+"  "+size.height);
-		Log.i("BITMAP_SIZE",bitmap.getWidth()+"  "+bitmap.getHeight());
-		
+
+		// Log.i("CAM",""+camera.equals(mCamera));
+		// Log.i("FINAL_CAMERA_SIZE",size.width+"  "+size.height);
+		Log.i("BITMAP_SIZE", bitmap.getWidth() + "  " + bitmap.getHeight());
+
+		Mat mRgbaT;
 
 		switch (mRotation) {
 		case Surface.ROTATION_0:
-			Mat mRgbaT = tmp.t();
+			mRgbaT = tmp.t();
 			Core.flip(tmp.t(), mRgbaT, 1);
-			Imgproc.resize(mRgbaT, mRgbaT, tmp.size());
-			tmp = mRgbaT;
 			break;
 		case Surface.ROTATION_90:
+			mRgbaT = tmp;
 			break;
 		case Surface.ROTATION_180:
-			Mat mRgbaT1 = tmp.t();
-			Core.flip(tmp.t(), mRgbaT1, 0);
-			Imgproc.resize(mRgbaT1, mRgbaT1, tmp.size());
-			tmp = mRgbaT1;
+			mRgbaT = tmp.t();
+			Core.flip(tmp.t(), mRgbaT, 0);
 			break;
 		case Surface.ROTATION_270:
-			Mat mRgbaT11 = tmp;
-			Core.flip(tmp, mRgbaT11, 1);
-			Core.flip(mRgbaT11, mRgbaT11, 0);
-			Imgproc.resize(mRgbaT11, mRgbaT11, tmp.size());
-			tmp = mRgbaT11;
+			mRgbaT = tmp;
+			Core.flip(tmp, mRgbaT, 1);
+			Core.flip(mRgbaT, mRgbaT, 0);
 			break;
+		default:
+			mRgbaT = tmp;
 		}
 
-		Utils.matToBitmap(tmp, bitmap);
-
-		DisplayPhotoActivity.image = bitmap;
+		if (mRotation == Surface.ROTATION_0
+				|| mRotation == Surface.ROTATION_180) {
+			Bitmap bitmap2 = Bitmap.createBitmap(bitmap.getHeight(),
+					bitmap.getWidth(), Bitmap.Config.RGB_565);
+			Utils.matToBitmap(mRgbaT, bitmap2);
+			DisplayPhotoActivity.image = bitmap2;
+		} else {
+			Utils.matToBitmap(mRgbaT, bitmap);
+			DisplayPhotoActivity.image = bitmap;
+		}
 
 		if (callback != null) {
 			Intent i = new Intent(callback, DisplayPhotoActivity.class);
@@ -163,28 +166,27 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 	public void setCallback(CameraActivity cameraActivity) {
 		this.callback = cameraActivity;
 	}
-	
-	
-	  private Camera.Size getBestPictureSize(Camera.Parameters parameters) {
-	    Camera.Size result=null;
 
-	    for (Camera.Size size : parameters.getSupportedPictureSizes()) {
-	      Log.i("SIZE",""+size.width+"  "+size.height);
-	      if (result == null) {
-	        result=size;
-	      }
-	      else {
-	        int resultArea=result.width * result.height;
-	        int newArea=size.width * size.height;
+	private Camera.Size getBestPictureSize(Camera.Parameters parameters) {
+		Camera.Size result = null;
 
-	        if (newArea > resultArea) {
-	          result=size;
-	        }
-	        
-	        if (size.width>=2000) break;
-	      }
-	    }
+		for (Camera.Size size : parameters.getSupportedPictureSizes()) {
+			Log.i("SIZE", "" + size.width + "  " + size.height);
+			if (result == null) {
+				result = size;
+			} else {
+				int resultArea = result.width * result.height;
+				int newArea = size.width * size.height;
 
-	    return(result);
-	 }
+				if (newArea > resultArea) {
+					result = size;
+				}
+
+				if (size.width >= 2000)
+					break;
+			}
+		}
+
+		return (result);
+	}
 }

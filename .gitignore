@@ -1,7 +1,7 @@
 #Gradle stuff
 .gradle/
 .idea/
-build/*
+build/
 out/
 
 obj/local/*

@@ -163,7 +163,7 @@ public class MusicDetector {
 				"Start time of detection: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
 
-		Log.i("PROC", "detecting clefs");
+		/*Log.i("PROC", "detecting clefs");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectTrebleClefs();
 		Log.v("Guillaume",
@@ -229,6 +229,7 @@ public class MusicDetector {
 		Log.v("Guillaume",
 				"Total time for detection: "
 						+ (System.currentTimeMillis() - startTime));
+						*/
 	}
 
 	public Piece toPiece() {
@@ -378,6 +379,8 @@ public class MusicDetector {
 		Point clef = trebleClefs.get(0);
 		Mat timeArea = workingSheet.submat(s.yRange(workingSheet.rows()),
 				new Range((int) clef.x + 70, (int) clef.x + 250));
+		Log.d("Guillaume", "Stave gap: " + staveGap);
+		Log.d("Guillaume", fourFour.width() + "," + fourFour.height() + "/" + timeArea.width() + "," + timeArea.height());
 		Imgproc.matchTemplate(timeArea, fourFour, result, Imgproc.TM_CCOEFF);
 		Point minLoc;
 		double minVal = Core.minMaxLoc(result).minVal;
@@ -460,7 +463,6 @@ public class MusicDetector {
 			OurUtils.zeroInMatrix(result, minLoc, (int) flat_on.cols(),
 					(int) flat_on.rows());
 		}
-
 	}
 
 	private void detectSharps(Mat accidentalArea, Note n, Stave s) {
