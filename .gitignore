@@ -39,9 +39,4 @@ proguard/
 # Generated project folders
 Images/
 log
-.settings/org.eclipse.jdt.core.prefs
-SightReading/project.properties
-SightReading/.settings/org.eclipse.jdt.core.prefs
-SightReading/hs_err_pid972.log
-project.properties
 project.properties
