@@ -70,7 +70,7 @@ public class MusicDetector {
 	// private Mat flat_inter;
 	private Mat flat_on;
 	private Mat sharp_on;
-	private Mat sharp;
+	private Mat sharp = masterSharp;
 	private Mat natural_on;
 	private Mat half_note;
 	private Mat quaverRest;
@@ -101,6 +101,7 @@ public class MusicDetector {
 	 **/
 	public MusicDetector(final Mat input) throws NoMusicDetectedException {
 		workingSheet = preprocess(input);
+		Log.d("Guillaume", "After preprocessing, width: " + workingSheet.cols());
 		master_half_notes.add(masterHalf_note);
 		master_half_notes.add(masterHalf_note_on);
 		master_whole_notes.add(masterWhole_note);
@@ -181,7 +182,7 @@ public class MusicDetector {
 				"Accidental detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
 		Log.i("PROC", "detecting whole notes");
-		detectWholeNotes();
+		// detectWholeNotes();
 		sortNotes();
 
 		Log.i("PROC", "detecting beams");
@@ -297,20 +298,17 @@ public class MusicDetector {
 					if (difference < 3) {
 						Note next = null;
 						boolean truePositive = true;
-						while (next != null) {
-							int count = j + 1;
-							if (count < notes.size())
+						int count = j + 1;
+						if (count < notes.size())
+							next = notes.get(count);
+						if (next != null) {
+							do {
 								next = notes.get(count);
-							if (next != null) {
-								do {
-									next = notes.get(count);
-									if (Math.abs(next.center().x - p.x) < 30)
-										truePositive = false;
-									count++;
-								} while (count < notes.size()
-										&& Math.abs(next.center().x
-												- n.center().x) < 100);
-							}
+								if (Math.abs(next.center().x - p.x) < 20)
+									truePositive = false;
+								count++;
+							} while (count < notes.size()
+									&& Math.abs(next.center().x - n.center().x) < 100);
 						}
 						if (truePositive
 								&& !OurUtils.isInAnyRectangle(flats,
@@ -335,7 +333,9 @@ public class MusicDetector {
 	private void detectQuavers() {
 		Mat eroded = workingSheet.clone();
 		Imgproc.erode(eroded, eroded, Imgproc.getStructuringElement(
-				Imgproc.MORPH_RECT, new Size(staveGap / 3, staveGap / 3)));
+				Imgproc.MORPH_RECT, new Size(1, staveGap / 3)));
+		OurUtils.writeImage(eroded,
+				OurUtils.getPath("output/quaverEroding.jpg"));
 		for (Stave s : staves) {
 			for (Note n : s.notes()) {
 				if (n.duration() != 1)
@@ -420,7 +420,7 @@ public class MusicDetector {
 			for (Note n : s.notes()) {
 				Mat accidentalArea = getAccidentalArea(n);
 				detectFlats(accidentalArea, n, s);
-				detectSharps(accidentalArea, n, s);
+				//detectSharps(accidentalArea, n, s);
 				// detectNaturals(accidentalArea,n);
 			}
 		}
@@ -811,8 +811,7 @@ public class MusicDetector {
 						trebleClef.rows(), potentialNote.center())
 						&& !OurUtils.isInAnyRectangle(fourFours,
 								fourFour.cols(), fourFour.rows(),
-								potentialNote.center())
-						&& potentialNote.center().x < s.topLine().end().x * 0.98) {
+								potentialNote.center())) {
 					if (!OurUtils.isThereANoteAtThisPosition(
 							potentialNote.center(), s)) {
 						result.add(potentialNote);
@@ -909,7 +908,7 @@ public class MusicDetector {
 		printTreble(output);
 		printNotes(output);
 		printFlats(output);
-		printSharps(output);
+		//printSharps(output);
 		printDots(output);
 		printBeams(output);
 		printScale(output);
