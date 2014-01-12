@@ -37,13 +37,13 @@
                         android:id="@+id/test"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Test" />
+                        android:text="@string/test" />
 
                     <Button
                         android:id="@+id/parse"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Parse" />
+                        android:text="@string/parse" />
 
                 </LinearLayout>
 
@@ -59,7 +59,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Scan" />
+                    android:text="@string/scan" />
 
                 <FrameLayout
                     android:layout_width="match_parent"
@@ -73,7 +73,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="Play" />
+                    android:text="@string/play" />
 
                 <FrameLayout
                     android:layout_width="match_parent"

@@ -212,7 +212,7 @@ public class MusicDetector {
 				"Quavers detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
 		startTimeOfEachMethod = System.currentTimeMillis();
-		detectQuaverRests();
+		//detectQuaverRests();
 		Log.v("Guillaume",
 				"Quaver Rests detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
@@ -308,7 +308,7 @@ public class MusicDetector {
 					difference %= s.staveGapAtPos(p);
 					difference -= s.staveGapAtPos(p) / 2;
 					difference = Math.abs(difference);
-					if (difference < 3) {
+					if (difference < staveGap / 4) {
 						Note next = null;
 						boolean truePositive = true;
 						int count = j + 1;
@@ -326,9 +326,9 @@ public class MusicDetector {
 						if (truePositive
 								&& !OurUtils.isInAnyRectangle(flats,
 										flat_on.width(), flat_on.height(), p)
-								&& !OurUtils.isInAnyRectangle(quaverRests,
+								/*&& !OurUtils.isInAnyRectangle(quaverRests,
 										quaverRest.width(),
-										quaverRest.height(), p)
+										quaverRest.height(), p)*/
 								&& !OurUtils.isInAnyRectangle(sharps,
 										sharp.width(), sharp.height(), p)) {
 							//Rect r = Imgproc.boundingRect(contours.get(i));
@@ -760,12 +760,14 @@ public class MusicDetector {
 			allNotesTwo.addAll(detectNoteOnPart(eroded, s));
 		for (Note n1 : allNotesOne) {
 			for (Note n2 : allNotesTwo) {
-				if (OurUtils.distanceBetweenTwoPoints(n1.center(), n2.center()) < 3) {
+				if (OurUtils.distanceBetweenTwoPoints(n1.center(), n2.center()) < 10) {
 					notes.add(n1);
 					OurUtils.whichStaveDoesAPointBelongTo(n1.center(), staves,
 							workingSheet.rows()).addNote(n1);
 					allNotesTwo.remove(n2);
+					
 					break;
+					
 				}
 			}
 		}
@@ -841,7 +843,7 @@ public class MusicDetector {
 			mu.add(i, Imgproc.moments(contours.get(i), false));
 			Moments m = mu.get(i);
 			Note potentialNote = null;
-			if (r.width <= noteWidth) {
+			if (r.width <= noteWidth * 1.2) {
 				if (m.get_m00() != 0) {
 					double x = (m.get_m10() / m.get_m00())
 							+ s.startDetection().x;
