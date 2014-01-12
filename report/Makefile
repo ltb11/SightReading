@@ -12,5 +12,4 @@ report.pdf: *.tex
 clean: 	
 		rm -rf *.pdf
 		rm -rf *.log
-		rm -rf *.toc
 		rm -rf *.aux
