@@ -320,7 +320,7 @@ public class MusicDetector {
 					difference %= s.staveGapAtPos(p);
 					difference -= s.staveGapAtPos(p) / 2;
 					difference = Math.abs(difference);
-					if (difference < 3) {
+					if (difference < staveGap / 4) {
 						Note next = null;
 						boolean truePositive = true;
 						int count = j + 1;
@@ -338,9 +338,9 @@ public class MusicDetector {
 						if (truePositive
 								&& !OurUtils.isInAnyRectangle(flats,
 										flat_on.width(), flat_on.height(), p)
-								&& !OurUtils.isInAnyRectangle(quaverRests,
+								/*&& !OurUtils.isInAnyRectangle(quaverRests,
 										quaverRest.width(),
-										quaverRest.height(), p)
+										quaverRest.height(), p)*/
 								&& !OurUtils.isInAnyRectangle(sharps,
 										sharp.width(), sharp.height(), p)) {
 							//Rect r = Imgproc.boundingRect(contours.get(i));
@@ -430,8 +430,8 @@ public class MusicDetector {
 	private Mat getAccidentalArea(Note n) {
 		double nx = n.center().x;
 		double ny = n.center().y;
-		int rowStart = Math.max(0, (int) (ny - staveGap));
-		int rowEnd = Math.min(workingSheet.rows(), (int) (ny + staveGap));
+		int rowStart = Math.max(0, (int) (ny - staveGap * 1.5));
+		int rowEnd = Math.min(workingSheet.rows(), (int) (ny + staveGap * 1.5));
 		int colStart = Math.max(0, (int) (nx - 3 * noteWidth));
 		int colEnd = Math.min(workingSheet.cols(), (int) (nx - noteWidth / 2));
 		return workingSheet.submat(rowStart, rowEnd, colStart, colEnd);
@@ -448,7 +448,7 @@ public class MusicDetector {
 			for (Note n : s.notes()) {
 				Mat accidentalArea = getAccidentalArea(n);
 				detectFlats(accidentalArea, n, s);
-				//detectSharps(accidentalArea, n, s);
+				detectSharps(accidentalArea, n, s);
 				//detectNaturals(accidentalArea,n);
 			}
 		}
@@ -472,7 +472,7 @@ public class MusicDetector {
 			 * not the accidentalArea
 			 */
 			Point p = new Point(minLoc.x + n.center().x - 3 * noteWidth,
-					minLoc.y + n.center().y - staveGap);
+					minLoc.y + n.center().y - (int) (staveGap *1.5));
 			if (!OurUtils.isThereANoteAtThisPosition(p, OurUtils
 					.whichStaveDoesAPointBelongTo(p, staves,
 							workingSheet.rows())))
@@ -488,20 +488,24 @@ public class MusicDetector {
 				s.staveGapAtPos(n.center()) * 2);
 		sharp_on = OurUtils.resizeImage(masterSharp_on,
 				s.staveGapAtPos(n.center()) * 2);
-		OurUtils.writeImage(sharp_on, OurUtils.getPath("output/sharp_on.jpg"));
 		// Not up to n.center().x because of half-notes that are
 		// detected as flat if too close
+		OurUtils.writeImage(sharp_on, OurUtils.getPath("output/sharp_on.png"));
+		OurUtils.writeImage(accidentalArea, OurUtils.getPath("output/accidentalArea.png"));
 		Imgproc.matchTemplate(accidentalArea, sharp_on, result,
 				Imgproc.TM_CCOEFF_NORMED);
-		Point minLoc;
-		if (Core.minMaxLoc(result).minVal < -0.4) {
+		Point minLoc = Core.minMaxLoc(result).minLoc;
+		double minVal = Core.minMaxLoc(result).minVal;
+		double minAllowed = -0.34;
+		if (minVal < minAllowed) {
+			Log.v("Conrad", "Value: " + minVal);
 			minLoc = Core.minMaxLoc(result).minLoc;
 			/*
 			 * Point p is minLoc in the coordinate system of the original image,
 			 * not the accidentalArea
 			 */
 			Point p = new Point(minLoc.x + n.center().x - 3 * noteWidth,
-					minLoc.y + n.center().y - staveGap);
+					minLoc.y + n.center().y - (int) (staveGap*1.5));
 			if (!OurUtils.isThereANoteAtThisPosition(p, OurUtils
 					.whichStaveDoesAPointBelongTo(p, staves,
 							workingSheet.rows())))
@@ -765,12 +769,14 @@ public class MusicDetector {
 			allNotesTwo.addAll(detectNoteOnPart(eroded, s));
 		for (Note n1 : allNotesOne) {
 			for (Note n2 : allNotesTwo) {
-				if (OurUtils.distanceBetweenTwoPoints(n1.center(), n2.center()) < 3) {
+				if (OurUtils.distanceBetweenTwoPoints(n1.center(), n2.center()) < 10) {
 					notes.add(n1);
 					OurUtils.whichStaveDoesAPointBelongTo(n1.center(), staves,
 							workingSheet.rows()).addNote(n1);
 					allNotesTwo.remove(n2);
+					
 					break;
+					
 				}
 			}
 		}
@@ -784,10 +790,10 @@ public class MusicDetector {
 			Mat quaverRestArea = workingSheet.submat(
 					s.closeYRange(workingSheet.rows()), new Range(0, workingSheet.cols()));
 			Imgproc.matchTemplate(quaverRestArea, quaverRest, result,
-					Imgproc.TM_CCOEFF);
+					Imgproc.TM_CCOEFF_NORMED);
 			Point minLoc = Core.minMaxLoc(result).minLoc;
 			double minVal = Core.minMaxLoc(result).minVal;
-			double minAllowed = minVal * 0.9;
+			double minAllowed = -0.55;
 			while (minVal < minAllowed) {
 				Point p = new Point(minLoc.x, s.startYRange() + 4
 						* s.staveGap() + minLoc.y);
@@ -960,7 +966,7 @@ public class MusicDetector {
 		printTrebleClefs(output);*/
 		printNotes(output);
 		/*printFlats(output);
-		//printSharps(output);
+		printSharps(output);
 		printDots(output);
 		printBeams(output);
 		printScale(output);
@@ -1003,7 +1009,7 @@ public class MusicDetector {
 	private void printQuaverRests(Mat sheet) {
 		for (Point qr : quaverRests)
 			Core.rectangle(sheet, qr, new Point(qr.x + quaverRest.cols(), qr.y
-					+ quaverRest.rows()), new Scalar(255, 0, 127), 4);
+					+ quaverRest.rows()), new Scalar(255, 200, 127), 4);
 	}
 	
 	private void printNoteRests(Mat sheet){

@@ -10,9 +10,19 @@
     <color name="DarkGrey">#333333</color>
     <string name="scan">Scan</string>
     <string name="play">Play</string>
+    <string name="done">Done</string>
+    <string name="test">Test</string>
+    <string name="playback">Playback</string>
+    <string name="reset">Reset</string>
+    <string name="keep">Keep this image?</string>
+    <string name="confirm">  Yes  </string>
+    <string name="retry">Try Again</string>
+    <string name="processing">Processing</string>
     <string name="default_file_name">complexStaves.png</string>
     <string name="default_image_description">This is the default image to be scanned and played</string>
     <string name="camera_description">Image of a camera</string>
-    <string name="scanning">Scanning...</string>
+    <string name="scanning">Scanning&#8230;</string>
     <string name="parse">Parse file - Only for testing</string>
+    <string name="saved">You have saved X pages</string>
+    <string name="photoprompt">Tap to take a photo</string>
 </resources>

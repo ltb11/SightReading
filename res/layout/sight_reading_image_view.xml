@@ -8,7 +8,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Keep this image?"
+        android:text="@string/keep"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <ImageView
@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:text="  Yes  " />
+            android:text="@string/confirm" />
 
         <Button
             android:id="@+id/buttonCameraDiscardImage"
@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:text="Try Again" />
+            android:text="@string/retry" />
 
     </LinearLayout>
 
