@@ -185,7 +185,7 @@ public class MusicDetector {
 
 		Log.i("PROC", "detecting flats");
 		startTimeOfEachMethod = System.currentTimeMillis();
-		detectAccidentals();
+		/*detectAccidentals();
 		Log.v("Guillaume",
 				"Accidental detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
@@ -228,8 +228,7 @@ public class MusicDetector {
 				- SightReaderActivity.startTime;
 		Log.v("Guillaume",
 				"Total time for detection: "
-						+ (System.currentTimeMillis() - startTime));
-						
+						+ (System.currentTimeMillis() - startTime));*/
 	}
 
 	public Piece toPiece() {
@@ -261,6 +260,19 @@ public class MusicDetector {
 			Imgproc.matchTemplate(clefArea, trebleClef, result,
 					Imgproc.TM_CCOEFF);
 			Point minLoc = Core.minMaxLoc(result).minLoc;
+			
+			/*double minVal = Core.minMaxLoc(result).minVal;
+			
+			Mat toSave = new Mat(new Size(result.width(), result.height()), workingSheet.type());
+			
+			for (int i = 0; i < result.width(); i++) {
+				for (int j = 0; j < result.height(); j++) {
+					toSave.put(j, i, new double[] {result.get(j, i)[0] / minVal});
+				}
+			}
+			
+			OurUtils.writeImage(toSave, OurUtils.getPath("output/trebleClefTM.jpg"));*/
+			
 			/*
 			 * double minVal = Core.minMaxLoc(result).minVal; double minAllowed
 			 * = minVal * 0.9; while (minVal < minAllowed) {
@@ -332,6 +344,7 @@ public class MusicDetector {
 								&& !OurUtils.isInAnyRectangle(sharps,
 										sharp.width(), sharp.height(), p)) {
 							//Rect r = Imgproc.boundingRect(contours.get(i));
+							n.setDuration(n.duration() * 1.5);
 							dotWidth = r.width;
 							dotHeight = r.height;
 							dots.put(p, n);
@@ -362,10 +375,6 @@ public class MusicDetector {
 										(int) Math.min(eroded.cols(),
 												n.center().x + 3 * noteWidth
 														/ 2)));
-				if (n.center().x < 300 && n.center().y < 1000)
-					OurUtils.writeImage(region, OurUtils.getPath("output/quaverSection.jpg"));
-				if (n.center().x > 1650 && n.center().y < 1300 && n.center().y > 1000)
-					OurUtils.writeImage(region, OurUtils.getPath("output/quaverSectionOK.jpg"));
 				List<MatOfPoint> contours = new LinkedList<MatOfPoint>();
 				Imgproc.findContours(region, contours, new Mat(),
 						Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
@@ -837,7 +846,7 @@ public class MusicDetector {
 			mu.add(i, Imgproc.moments(contours.get(i), false));
 			Moments m = mu.get(i);
 			Note potentialNote = null;
-			if (r.width <= noteWidth) {
+			if (r.width <= noteWidth * 1.2) {
 				if (m.get_m00() != 0) {
 					double x = (m.get_m10() / m.get_m00())
 							+ s.startDetection().x;
@@ -946,17 +955,18 @@ public class MusicDetector {
 	 * image
 	 **/
 	public Mat print() {
-		printStaves(output);
+		/*printStaves(output);
 		printFourFour(output);
-		printTrebleClefs(output);
+		printTrebleClefs(output);*/
 		printNotes(output);
-		printFlats(output);
+		/*printFlats(output);
 		//printSharps(output);
 		printDots(output);
 		printBeams(output);
 		printScale(output);
 		printQuaverRests(output);
-		printNoteRests(output);
+		printNoteRests(output);*/
+		
 		return output;
 	}
 
