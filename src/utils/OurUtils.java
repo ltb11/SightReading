@@ -59,12 +59,12 @@ public class OurUtils {
 	}
 
 	/**
-	 * Divides the image into 250x250 pixel sections as much as possible,
-	 * then for each section it takes the mean pixel intensity, and
-	 * thresholds the section based on that value.
+	 * Divides the image into 250x250 pixel sections as much as possible, then
+	 * for each section it takes the mean pixel intensity, and thresholds the
+	 * section based on that value.
 	 **/
 	public static void thresholdImage(Mat sheet) {
-	
+
 		int width = sheet.cols();
 		int height = sheet.rows();
 		int sep = 250;
@@ -90,8 +90,8 @@ public class OurUtils {
 		double newWidth = newHeight * image.cols() / image.rows();
 		Size newSize = new Size(newWidth, newHeight);
 
-		assert(newHeight>0 && newWidth>0);
-		
+		assert (newHeight > 0 && newWidth > 0);
+
 		Mat newImage = new Mat(newSize, image.type());
 		Imgproc.resize(image, newImage, newSize);
 
@@ -102,15 +102,11 @@ public class OurUtils {
 	}
 
 	public static void zeroInMatrix(Mat mat, Point start, int width, int height) {
-		int startX = (int) start.x;
-		int startY = (int) start.y;
-		for (int i = -width + 1; i < width; i++) {
-			for (int j = -height + 1; j < height; j++) {
-				int x = Math.max(startX + i, 0);
-				int y = Math.max(startY + j, 0);
-				mat.put(y, x, new double[] { 0 });
-			}
-		}
+		int startX = (int) Math.max(0, start.x - width);
+		int startY = (int) Math.max(0, start.y - height);
+		int endX = (int) Math.min(mat.width(), start.x + width);
+		int endY = (int) Math.min(mat.height(), start.y + height);
+		MusicDetector.zerosForTM.submat(0, endY - startY, 0, endX - startX).copyTo(mat.submat(startY, endY, startX, endX));
 	}
 
 	public static void makeColour(Mat sheet, Point topLeft, int width,
@@ -146,7 +142,7 @@ public class OurUtils {
 	/***************************************
 	 ************ CHECK METHODS ************
 	 **************************************/
-	
+
 	/**
 	 * 
 	 * @param toCheck
@@ -339,8 +335,7 @@ public class OurUtils {
 		});
 		// MID: lines is sorted highest to lowest
 		int maxStaveHeight = 100;
-		
-		
+
 		StaveLine first = lines.get(0);
 		for (int i = 1; i < lines.size(); i++) {
 			StaveLine second = lines.get(i);
@@ -351,8 +346,9 @@ public class OurUtils {
 			double space = second.toLine().start().y - first.toLine().start().y;
 			double pos = second.toLine().start().y + space;
 
-			if (space > maxStaveHeight) continue;
-			
+			if (space > maxStaveHeight)
+				continue;
+
 			for (int j = i + 1; j < lines.size(); j++) {
 				if (Math.abs(lines.get(j).toLine().start().y - pos) < space
 						* staveGapTolerance) {
@@ -455,59 +451,34 @@ public class OurUtils {
 		return divisions;
 	}
 
-	/*public static List<BeamDivision> detectBeamDivisions(Mat sheet) {
-		Mat verticalProj = verticalProjection(sheet);
-		List<BeamDivision> potentialBeams = new LinkedList<BeamDivision>();
-		int[] v = new int[4];
-		boolean in = false;
-		int lastEntry = 0;
-		for (int i = 0; i < verticalProj.cols(); i++) {
-			verticalProj.get(0, i, v);
-			if (in) Log.d("Guillaume", "in: " + in);
-			if (in && (v[0] < MusicDetector.beamVerticalThresholdTolerance)) {
-				if (i - lastEntry > MusicDetector.beamMinLength) {
-					Log.d("Guillaume", "New line detected at x: " + lastEntry + "," + i);
-					Mat region = sheet.submat(new Range(0, sheet.rows()),
-							new Range(lastEntry, i));
-					writeImage(region, getPath("output/proj" + i + ".jpg"));
-					Mat horizontalProj = horizontalProjection(region);
-					List<Integer> divs = detectDivisions(horizontalProj,
-							MusicDetector.beamHorizontalThresholdTolerance);
-					Point p1 = null, p2 = null;
-					for (int j = 0; j < divs.size() - 1; j++) {
-						int start = divs.get(j);
-						int end = divs.get(j + 1);
-						if (end - start > 10) {
-							if (sheet.get(start, lastEntry)[0] == 255) {
-								p1 = new Point(lastEntry, start);
-								p2 = new Point(i, end);
-								break;
-							}
-							else if (sheet.get(end - 1, lastEntry)[0] == 255) {
-								p1 = new Point(lastEntry, end);
-								p2 = new Point(i, start);
-								break;
-							}
-							Log.e("Guillaume",
-									"Could not find a valid match for point @position: "
-											+ lastEntry + "," + start + "/" + i
-											+ "," + end);
-						}
-					}
-					List<Point> toBeam = new LinkedList<Point>();
-					toBeam.add(p1);
-					toBeam.add(p2);
-					potentialBeams.add(new BeamDivision(toBeam));
-				}
-				in = false;
-			} else if (!in
-					&& (v[0] > MusicDetector.beamVerticalThresholdTolerance)) {
-				in = true;
-				lastEntry = i;
-			}
-		}
-		return potentialBeams;
-	}*/
+	/*
+	 * public static List<BeamDivision> detectBeamDivisions(Mat sheet) { Mat
+	 * verticalProj = verticalProjection(sheet); List<BeamDivision>
+	 * potentialBeams = new LinkedList<BeamDivision>(); int[] v = new int[4];
+	 * boolean in = false; int lastEntry = 0; for (int i = 0; i <
+	 * verticalProj.cols(); i++) { verticalProj.get(0, i, v); if (in)
+	 * Log.d("Guillaume", "in: " + in); if (in && (v[0] <
+	 * MusicDetector.beamVerticalThresholdTolerance)) { if (i - lastEntry >
+	 * MusicDetector.beamMinLength) { Log.d("Guillaume",
+	 * "New line detected at x: " + lastEntry + "," + i); Mat region =
+	 * sheet.submat(new Range(0, sheet.rows()), new Range(lastEntry, i));
+	 * writeImage(region, getPath("output/proj" + i + ".jpg")); Mat
+	 * horizontalProj = horizontalProjection(region); List<Integer> divs =
+	 * detectDivisions(horizontalProj,
+	 * MusicDetector.beamHorizontalThresholdTolerance); Point p1 = null, p2 =
+	 * null; for (int j = 0; j < divs.size() - 1; j++) { int start =
+	 * divs.get(j); int end = divs.get(j + 1); if (end - start > 10) { if
+	 * (sheet.get(start, lastEntry)[0] == 255) { p1 = new Point(lastEntry,
+	 * start); p2 = new Point(i, end); break; } else if (sheet.get(end - 1,
+	 * lastEntry)[0] == 255) { p1 = new Point(lastEntry, end); p2 = new Point(i,
+	 * start); break; } Log.e("Guillaume",
+	 * "Could not find a valid match for point @position: " + lastEntry + "," +
+	 * start + "/" + i + "," + end); } } List<Point> toBeam = new
+	 * LinkedList<Point>(); toBeam.add(p1); toBeam.add(p2);
+	 * potentialBeams.add(new BeamDivision(toBeam)); } in = false; } else if
+	 * (!in && (v[0] > MusicDetector.beamVerticalThresholdTolerance)) { in =
+	 * true; lastEntry = i; } } return potentialBeams; }
+	 */
 
 	public static Point findNearestNeighbour(Point centre, Mat ref, int width,
 			int height) {
@@ -645,23 +616,26 @@ public class OurUtils {
 	public static Line correctLine(Line potentialLine, Mat part, double staveGap) {
 		return potentialLine;
 	}
-	
+
 	public static double distanceBetweenTwoPoints(Point p1, Point p2) {
 		return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
 	}
-	
-	public static List<Point> pointListSubtraction(List<Point> ps1, List<Point> ps2, double threshholdDistance){
+
+	public static List<Point> pointListSubtraction(List<Point> ps1,
+			List<Point> ps2, double threshholdDistance) {
 		List<Point> output = ps1;
-		for (Point x : ps1){
-			if (containsPoint(ps2, x, threshholdDistance)!=null){
+		for (Point x : ps1) {
+			if (containsPoint(ps2, x, threshholdDistance) != null) {
 				output.remove(x);
 			}
 		}
 		return output;
 	}
-	public static Point containsPoint(List<Point> ps, Point p, double threshholdDistance){
-		for (Point x : ps){
-			if (distanceBetweenTwoPoints(p, x) < threshholdDistance){
+
+	public static Point containsPoint(List<Point> ps, Point p,
+			double threshholdDistance) {
+		for (Point x : ps) {
+			if (distanceBetweenTwoPoints(p, x) < threshholdDistance) {
 				return x;
 			}
 		}
@@ -671,7 +645,8 @@ public class OurUtils {
 	public static boolean isAHalfNote(Point p, Mat eroded, int staveGap) {
 		int centerX = (int) p.x;
 		int centerY = (int) p.y;
-		Mat sub = eroded.submat(centerY - 2 * staveGap, centerY - staveGap / 2, centerX, centerX + staveGap);
+		Mat sub = eroded.submat(centerY - 2 * staveGap, centerY - staveGap / 2,
+				centerX, centerX + staveGap);
 		Mat horizontalProj = horizontalProjection(sub);
 		boolean allWhite = true;
 		for (int i = 0; i < horizontalProj.rows(); i++) {
@@ -682,7 +657,8 @@ public class OurUtils {
 		}
 		if (allWhite)
 			return true;
-		sub = eroded.submat(centerY + staveGap / 2, centerY + 2 * staveGap, centerX - staveGap, centerX);
+		sub = eroded.submat(centerY + staveGap / 2, centerY + 2 * staveGap,
+				centerX - staveGap, centerX);
 		horizontalProj = horizontalProjection(sub);
 		allWhite = true;
 		for (int i = 0; i < horizontalProj.rows(); i++) {
