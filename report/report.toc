@@ -4,9 +4,9 @@
 \contentsline {subsection}{\numberline {2.1}Musical Notation}{4}
 \contentsline {subsubsection}{\numberline {2.1.1}Pitch}{4}
 \contentsline {subsubsection}{\numberline {2.1.2}Duration}{4}
-\contentsline {subsubsection}{\numberline {2.1.3}Stave}{5}
-\contentsline {subsubsection}{\numberline {2.1.4}Clef}{5}
-\contentsline {subsection}{\numberline {2.2}Computer Vision and OMR}{5}
+\contentsline {subsubsection}{\numberline {2.1.3}Stave}{4}
+\contentsline {subsubsection}{\numberline {2.1.4}Clef}{4}
+\contentsline {subsection}{\numberline {2.2}Computer Vision and OMR}{4}
 \contentsline {section}{\numberline {3}Design and Implementation}{6}
 \contentsline {section}{\numberline {4}Evaluation}{7}
 \contentsline {section}{\numberline {5}Conclusion}{8}
