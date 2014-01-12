@@ -212,7 +212,7 @@ public class MusicDetector {
 				"Quavers detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
 		startTimeOfEachMethod = System.currentTimeMillis();
-		//detectQuaverRests();
+		detectQuaverRests();
 		Log.v("Guillaume",
 				"Quaver Rests detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
