@@ -13,7 +13,7 @@ buildscript{
 apply plugin: 'android'
 
 android {
-    compileSdkVersion 18
+    compileSdkVersion 17
     buildToolsVersion "18.1.1"
 
     sourceSets{
@@ -42,7 +42,7 @@ android {
         instrumentTest.setRoot('tests')
     }
     defaultConfig{
-        targetSdkVersion 18
+        targetSdkVersion 17
     }
 }
 
