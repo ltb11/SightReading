@@ -33,25 +33,27 @@
 \contentsline {subsubsection}{\numberline {3.3.3}Saving Files}{13}{subsubsection.3.3.3}
 \contentsline {subsection}{\numberline {3.4}Music Detection}{13}{subsection.3.4}
 \contentsline {subsubsection}{\numberline {3.4.1}Our Solution}{13}{subsubsection.3.4.1}
-\contentsline {subsubsection}{\numberline {3.4.2}Implementation Details}{13}{subsubsection.3.4.2}
-\contentsline {paragraph}{Pre-processing}{13}{section*.15}
-\contentsline {paragraph}{Staves}{14}{section*.16}
-\contentsline {subparagraph}{Detecting the lines}{14}{section*.17}
-\contentsline {subparagraph}{Correcting Line Distortion}{14}{section*.18}
-\contentsline {subparagraph}{Building Staves from Lines}{15}{section*.19}
-\contentsline {paragraph}{Clef and time signature detection}{15}{section*.20}
-\contentsline {subparagraph}{Extracting the results}{15}{section*.21}
-\contentsline {paragraph}{Crotchets}{16}{section*.22}
-\contentsline {subparagraph}{Hough Circles}{16}{section*.23}
-\contentsline {subparagraph}{Template matching}{16}{section*.24}
-\contentsline {subparagraph}{FindContours}{16}{section*.25}
-\contentsline {paragraph}{Accidentals}{17}{section*.26}
-\contentsline {paragraph}{Beams}{17}{section*.27}
-\contentsline {paragraph}{Quavers}{17}{section*.28}
-\contentsline {paragraph}{Dots}{17}{section*.29}
-\contentsline {subsection}{\numberline {3.5}Interpretation and Playback}{18}{subsection.3.5}
-\contentsline {section}{\numberline {4}Evaluation}{19}{section.4}
-\contentsline {section}{\numberline {5}Conclusion}{20}{section.5}
-\contentsline {section}{\numberline {6}Project Management}{21}{section.6}
-\contentsline {section}{\numberline {7}Bibliography}{22}{section.7}
-\contentsline {section}{\numberline {8}Appendix}{22}{section.8}
+\contentsline {subsubsection}{\numberline {3.4.2}Implementation Details}{14}{subsubsection.3.4.2}
+\contentsline {paragraph}{Pre-processing}{14}{section*.16}
+\contentsline {paragraph}{Staves}{14}{section*.17}
+\contentsline {subparagraph}{Detecting the lines}{14}{section*.18}
+\contentsline {subparagraph}{Correcting Line Distortion}{15}{section*.19}
+\contentsline {subparagraph}{Building Staves from Lines}{15}{section*.20}
+\contentsline {paragraph}{Clef and time signature detection}{15}{section*.21}
+\contentsline {subparagraph}{Extracting the results}{16}{section*.22}
+\contentsline {paragraph}{Crotchets}{17}{section*.24}
+\contentsline {subparagraph}{Hough Circles}{17}{section*.25}
+\contentsline {subparagraph}{Template matching}{17}{section*.26}
+\contentsline {subparagraph}{FindContours}{17}{section*.27}
+\contentsline {paragraph}{Accidentals}{18}{section*.30}
+\contentsline {paragraph}{Beams}{19}{section*.31}
+\contentsline {paragraph}{Quavers}{19}{section*.33}
+\contentsline {paragraph}{Dots}{19}{section*.34}
+\contentsline {subsection}{\numberline {3.5}Interpretation and Playback}{19}{subsection.3.5}
+\contentsline {subsubsection}{\numberline {3.5.1}Intermediary representation}{19}{subsubsection.3.5.1}
+\contentsline {subsubsection}{\numberline {3.5.2}Playback}{20}{subsubsection.3.5.2}
+\contentsline {section}{\numberline {4}Evaluation}{22}{section.4}
+\contentsline {section}{\numberline {5}Conclusion}{23}{section.5}
+\contentsline {section}{\numberline {6}Project Management}{24}{section.6}
+\contentsline {section}{\numberline {7}Bibliography}{25}{section.7}
+\contentsline {section}{\numberline {8}Appendix}{25}{section.8}
