@@ -1,1 +1,14 @@
-\section{Conclusion}
+\section{Conclusion and Extensions}
+
+When we started this project, we deludedly thought that 8 weeks in we would be able to scan Fantasie Impromptu by Chopin, one of the most musically complex and technically challenging pieces we could think of. While our goals may have shrunk, our pride in what we achieved hasn\'t. We have created an app that has laid the groundworks for a robust OMR system, and proven that it is possible to have decent music recognition on a mobile platform. 
+
+As a team that were not only novices in computer vision, but also in the field of OMR, we had no idea what we could accomplish at the beginning of the project, so we decided to aim high, and then bring our expectations down as we progressed. We did not manage to accomplish all of our original goals; along the way we made the decision to prioritise finishing certain areas at the expense of others. This means that for example while we did not manage to support multiple staves or musical chords, we can say that our fundamental features of note detection and stave detection will work very reliably.
+ 
+To improve the usability of the software, we could be able to display the interpreted music from within the app, as well as outputting it to MIDI which we already do. This could be used to feed a visual representation of the music back to the user, or be further manipulated from within the app. We could also allow users to select different musical instruments to play back the piece in, or give them the ability to change the tempo to aid in practice. To speed up the processing time, we could parallelise more operations to exploit the multiple cores found in modern mobile devices, or if the user is connected to the internet, send the job to a server with high processing capability.
+ 
+To make the software more useful, we could add automated transposition of Music- a goal we mentioned early on in the report, we could add support for multiple stave recognition, and handling chords (multiple notes simultaneously). Both were left out due to time constraints, as we wanted to make what we did have quite robust rather than having an app with more features that didn’t work 30\% of the time.
+
+Also to make the app more marketable we would package openCV so that it can stand alone. As specified \href{http://docs.opencv.org/doc/tutorials/introduction/android_binary_package/dev_with_OCV_on_Android.html}{here}
+At the moment we are making use of OpenCV Manager which automatically downloads the best version of OpenCV for the development device.
+
+
