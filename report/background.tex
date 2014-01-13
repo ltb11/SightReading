@@ -219,9 +219,12 @@ Another important consideration is the selection of a pixel comparison method. I
 which values constitute a match, and this threshold must fit within our tolerance gap.
 
 As expected from looking through the literature, we found that the ‘correlation-coefficient’ approach gave us the best results and we used it throughout the project.  
+It is given by the following equation:
+\begin{equation}
+	C(x,y) = \sum_{x'y'} T'(x',y') I(x+x',y+y')
+\end{equation}
 
-(MATH)
-
+where $x'$, $y'$ sum over the dimensions of the template image, and $T(x,y)$ and $I(x,y)$ return the intensity values found at those coordinates in the template and source image respectively.
 The major advantage of template matching is its ability to match an arbitrary pattern. While most other algorithms are highly specialised to detect a single feature like straight lines, template matching can find virtually any distinctive pattern in an image. However, this also presents its greatest drawback: it searches for a very specific pattern and is therefore very intolerant to slight variations in this pattern. It
 is also slow as it operates on each pixel in the image.
 
