@@ -5,60 +5,42 @@
         \begin{enumerate}
         \item{How accurately the detected music reflects the actual music}
         \item{The speed with which our app parses the sheet music}
-        \item{The responsiveness and general flow of our app}
         \end{enumerate}
         \subsubsection{Accuracy of Detection}
-            We tested the accuracy of the music detection by parsing various different test images and checking by hand how many of the features were correctly detected. We considered trying to automate this process when we first started the project. However  
+            We tested the accuracy of the music detection by parsing various different test images and checking by hand how many of the features were correctly detected. We considered trying to automate this process when we first started the project, however we quickly realised that solving this automation problem would take just as much if not more time than solving the task itself. As such it is a method that has stuck with us since the beginning.
+            The results of our most recent tests are seen in Table \ref{table:testresults}
+            \begin{table}[h!]
+                \centering
+                \begin{tabular}{ c | c | c }
+                    Piece Name & Distinct Feature Types & Percentage of Features Correctly Detected \\
+                    Baa Baa Black Sheep & 8 & 100\% \\
+                    Indiana Jones & 10 & 90\%\\
+                \end{tabular}
+                \caption{Accuracy Test Results}
+                \label{table:acctestresults}
+            \end{table}
+            
+            All of the basic feature types, which is to say all the distinct feature types in "Baa Baa Black Sheep" are reliably detected in any piece we try to parse. However the more complex elements, such as the Rests in Indiana Jones are what cause problems for our detection system.
         \subsubsection{Speed of Detection}
-        \subsubsection{Responsiveness}
-    \subsection{Tool Choice}
-
+        We measured the speed of detection by logging the times at which various tasks were started and finished, and then measuring the time between the two. Speed was very important to us, as a user can very quickly lose interest if the app produces no output after a long time. Because of these measurements, we determined at several stages in development that the algorithms we were using to detect features were often far too slow for our needs, and a faster (potentially less
+        accurate) algorithm was necessary (as mentioned in our Implementation). Our approach to the trade off was this: As long as the detection and playback happened within 30 seconds, accuracy was the most important aspect. 
+            \begin{table}[h!]
+                \centering
+                \begin{tabular}{ c | c | c | c }
+                    Device & Android Version & Piece & Time \\
+                    Galaxy S3 & 4.1 & Baa Baa Black Sheep & 5-10s \\
+                    Motorola Xoom & 4.2.2 & Baa Baa Black Sheep & 10-20s
+                \end{tabular}
+                \caption{Speed Test Results}
+                \label{table:speedtestresults}
+            \end{table}
+            Our speed performance varies from device to device, but in general we are wll within our 30s aim.
+    Overall our app runs at a speed that is reasonable and with accuracy on basic sheet music that we are satisfied with.
     \subsection{Difficulties Encountered}
+    We encountered several major difficulties when developing our app.
+    \begin{enumerate}
+        \item{The lack of documentation for OpenCV and in particular OpenCV4Android. For instance: we attempted to write our own methods to iterate over pixels in an image, and found that they ran very slowly compared to the native methods. It took us a long time to work out that this was because the internal methods were all running C++ code, whereas our implementations would only ever run Java code}
+        \item{Revision control and 
 
-    
-Our tests involved running the app on various different test images. We wanted it to do this fairly quickly/efficiently so we get a quick response for the user, which is important for apps. This led us to use a new algorithm because the old one was too slow.
+    \end{enumerate}
 
-We started by re-uploading all of our testing images every time we ran a test. This was a significant pain point in our project as each upload took in the region of 20-30 seconds, and when we had done it enough times so as to want to shoot somebody we decided to look at how we could refactor our code.
-
-The device we are used primarily for development was the Motorola Xoom from 2011 running Android 4.2.2 with a 5MP camera. This meant we were working with a device which is not brand new and so the technology will be guaranteed to supported on older devices. The aim of this being that the app should work for a larger range of people than if we were using a newer device which might cause compatibility issues, or behave unacceptably slowly on slightly older devices. We have also
-been using our android phones for testing which checks if they work on another device and also on a smaller screen.
-
-Because of the visual nature of our task our testing techniques for the majority of the project had needed to be quite laborious, and relied on us looking over the outputs of our app to see that we were detecting the right pieces of musical notation when we were supposed to be, and not detecting things we were not supposed to be. For example, once we were able to detect the staves in our images reliably, we would then try and recognise the note heads in the images, and did not design
-another element until we were able to “pass” the visual “test”. We did consider trying to automate a process like this, but we quickly realised that setting up that automation would be a task akin to completing our actual task, and so was not worth the time it would save.
-
-
-In the app activity:
-detector.print(output);
-
-
-In MusicDetector.java:
-public void print(Mat sheet) {
-printStaves(sheet);
-printFourFour(sheet);
-printTreble(sheet);
-printNotes(sheet);
-                        printBars(sheet);
-                                                printFlats(sheet);
-                                                            }
-
-
-                                                            private void printNotes(Mat sheet) {
-                                                                                        for (Note n : notes)
-                                                                                                                                Core.circle(sheet, n.center(), (int) (staveGap / 2),
-                                                                                                                                                                                (n.duration() == 1. ? new Scalar(0, 0, 255)
-                                                                                                                                                                                                                                            : (n.duration() == 2. ? new Scalar(128, 128, 0)
-                                                                                                                                                                                                                                                                                                                    : new Scalar(255, 0, 255))), -1);
-                                                            }
-
-
-                                                            We used print methods to check what has been detected visually.
-
-
-                                                            If this was a larger scale project that did not have as a tight a deadline as the one we are working towards, we would have considered a more sophisticated testing strategy that automatically generated new sheet music from our intermediate data structure, and then tested the generated sheet music to see if it
-                                                            matched up, but the task of generating sheet music from our data structure was deemed too time intensive.
-                                                             
-                                                             Tools
-                                                             We have been using gradle to build our project, some of the output of this is seen from Jenkins below, and our build.gradle content is posted below. We chose this build tool for two reasons: first of all, gradle is the basis of the official new build system for Android, which uses a DSL (Groovy) to write build
-                                                             files and Groovy is very easy to work with coming from a Java background - which all of us in the team have. The second reason is that it manages dependencies using maven, and has the gradle wrapper, making it very easy for anyone to compile the project from scratch from anywhere (assuming they have the
-                                                             Android SDK installed). As mentioned before, when Jenkins pulls from our GitHub repository it runs the gradle wrapper to compile the app. 
-                                                             
