@@ -2,7 +2,7 @@ package musicrepresentation;
 
 public class PlayedNote extends AbstractNote {
 	private final NoteName name;
-    private final Shift shift;
+    private Shift shift;
 	private final int octave;
 
 	public PlayedNote(NoteName name, int octave,Shift shift,
@@ -27,6 +27,18 @@ public class PlayedNote extends AbstractNote {
 
 	public int getOctave() {
 		return this.octave;
+	}
+	
+	public NoteName name() {
+		return name;
+	}
+	
+	public void setShift(Shift shift) {
+		this.shift = shift;
+	}
+
+	public Shift shift() {
+		return shift;
 	}
 	
 	@Override
