@@ -36,7 +36,7 @@ The main activity for the app is SightReaderActivity. The app home screen has tw
 
 The Scan option launches the CameraActivity which takes you to the capture part of the app where you can take a picture of some sheet music. Tap the camera preview to take a picture, this launches the DisplayPhotoActivity which allows you to decide if you want to keep the picture or try again. You are then returned to the Camera preview screen. Once you have captured as many pictures as you want you tap done and the ProcessingActivity is called and the processing begin. Here we have a processing screen as this can take some time to let the user know the app is still running.
 
-The reason for using a new activity for each new action is that this allows each activity to handle normal function such as when the back button is pressed in the intuitive way. This is the recommended method of organising android apps as discussed in the background section (\nameref{sec:android} \autoref{sec:android}).
+The reason for using a new activity for each new action is that this allows each activity to handle normal function such as when the back button is pressed in the intuitive way. This is the recommended method of organising android apps as discussed in background (\nameref{sec:android} \autoref{sec:android}).
 
 The other option is to press ‘Play’ which takes you to the file management dialog. Here, you can view the midi files all of your previously processed pieces. Selecting a saved piece will then take you to the playback activity where you can hear it. We have used an external library, FileDialog\cite{FileDialog} , to implement this functionality. We have configured configured to open in the default save file directory with a filter to only show the relevant files.
 
@@ -70,7 +70,7 @@ As sheet music does not assign semantic meaning to colors, we decided to first r
 Secondly, the convention in computer vision is to use white-on-black images. However, sheet music is the opposite, black markings on a white page. This means that before we do anything, we need to invert the image. This can be done very quickly by bitwise operations, ie. applying bitwise NOT to each pixel.
 
 When we later transitioned from scanned pdf images onto real photographs we discovered a significant flaw with our preprocessing algorithm. On a photograph you are very likely to have shadows (including the shadow of the device taking the picture) and this means that some areas of the image are darker than others and therefore require a different threshold. We even found that on many images there did not even exist a single threshold value that could describe the entire
-image. Therefore, we needed a method of finding the correct threshold dynamically.
+image (see Figure\ref{image:thresholding}). Therefore we needed a method of finding the correct threshold dynamically.
 
 \begin{figure}[h!]
     \centering
@@ -89,7 +89,7 @@ The staves are perhaps the single most important feature when it comes to detect
 
 Our first attempt to recognise the lines was to use the standard \lq Hough Lines\rq  algorithm (\nameref{sec:hough} \autoref{sec:hough}). However, this approach had very serious problems with detecting the thin stave lines accurately.
 
-After this obvious approach had failed, we decided to look into the literature and found that most previous work used a horizontal image projection to solve this particular problem (CIT). By horizontally projecting the image onto a single column of pixels, we could detect large horizontal lines on the page and from there extract the stave information (see image \ref{projection}).
+After this obvious approach had failed, we decided to look into the literature and found that most previous work used a horizontal image projection to solve this particular problem. By horizontally projecting the image onto a single column of pixels, we could detect large horizontal lines on the page and from there extract the stave information (see image \ref{image:projection}).
 
 \begin{figure}[h!]
     \centering
