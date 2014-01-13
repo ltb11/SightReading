@@ -39,8 +39,12 @@
     \subsection{Difficulties Encountered}
     We encountered several major difficulties when developing our app.
     \begin{enumerate}
-        \item{The lack of documentation for OpenCV and in particular OpenCV4Android. For instance: we attempted to write our own methods to iterate over pixels in an image, and found that they ran very slowly compared to the native methods. It took us a long time to work out that this was because the internal methods were all running C++ code, whereas our implementations would only ever run Java code}
-        \item{Revision control and }
+        \item{The lack of documentation for OpenCV and in particular OpenCV4Android. For instance: we attempted to write our own methods to iterate over pixels in an image, and found that they ran very slowly compared to the native methods. It took us a long time to work out that this was because the internal methods were all running C++ code, whereas our implementations would only ever run Java code. The real difficulty here was that we had no choice but to use
+            OpenCV4Android if we wanted to do any Computer Vision tasks}
+    \item{Revision Control and Build Flows. Each member of our team was using a slightly different build environment. Some were on Unix systems, others on Windows; some built from the command line, others used an IDE such as Eclipse and Android Studio; some were using an emulator to run the app and some were using their own Android devices or the ones provided. These small differences on their own were not a problem. However, when it came to deciding what should be checked in
+            to the revision control system, there were a few occasions when one person pushing their settings would break someone elses build tree.} 
+
+
 
     \end{enumerate}
 
