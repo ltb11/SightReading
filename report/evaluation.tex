@@ -20,7 +20,7 @@
                 \label{table:acctestresults}
             \end{table}
             
-            All of the basic feature types, which is to say all the distinct feature types in "Baa Baa Black Sheep" are reliably detected in any piece we try to parse. However the more complex elements, such as the Rests in Indiana Jones are what cause problems for our detection system.
+            All of the basic feature types, which is to say all the distinct feature types in \lq Baa Baa Black Sheep\rq  are reliably detected in any piece we try to parse. However the more complex elements, such as the Rests in Indiana Jones are what cause problems for our detection system.
         \subsubsection{Speed of Detection}
         We measured the speed of detection by logging the times at which various tasks were started and finished, and then measuring the time between the two. Speed was very important to us, as a user can very quickly lose interest if the app produces no output after a long time. Because of these measurements, we determined at several stages in development that the algorithms we were using to detect features were often far too slow for our needs, and a faster (potentially less
         accurate) algorithm was necessary (as mentioned in our Implementation). Our approach to the trade off was this: As long as the detection and playback happened within 30 seconds, accuracy was the most important aspect. 
