@@ -10,6 +10,7 @@ import java.util.Map;
 
 import musicrepresentation.Bar;
 import musicrepresentation.Piece;
+import musicrepresentation.Shift;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -478,8 +479,10 @@ public class MusicDetector {
 					minLoc.y + n.center().y - (int) (staveGap * 1.5));
 			if (!OurUtils.isThereANoteAtThisPosition(p, OurUtils
 					.whichStaveDoesAPointBelongTo(p, staves,
-							workingSheet.rows())))
+							workingSheet.rows()))) {
 				flats.add(p);
+				n.setShift(Shift.Flat);
+			}
 			OurUtils.zeroInMatrix(result, minLoc, (int) flat_on.cols(),
 					(int) flat_on.rows());
 		}
