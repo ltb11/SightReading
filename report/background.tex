@@ -1,4 +1,4 @@
-﻿\section{Background}
+\section{Background}
     \subsection{Musical Notation}
         In order properly to understand the task of reading music, one must understand a few basic terms.
 
@@ -162,7 +162,7 @@ Eroding an image means to expand the black areas of the image, while dilating me
                 \caption{Erosion/Dilation}
                 \label{image:dilationerosion}
             \end{figure}
-To process, the algorithm requires a kernel. Intuitively, this kernel can be thought of as a matrix represents the area around each pixel to look into, centered on the aforementioned pixel. A change in shape and size can lead to totally different processing effects, depending on the quality of the image and the lighting conditions.
+To process, the algorithm requires a kernel and iteratively goes through each pixel in the image. For each of them, it runs the convolution with the specified kernel, running calculations depending on the surrounding pixels intensity as well as the kernel values, and returns a value that will state whether the given pixel becomes black or white. Intuitively, this kernel can be thought of as a matrix represents the area around each pixel to look into, centred on the aforementioned pixel. A change in shape and size can lead to totally different processing effects, depending on the quality of the image and the lighting conditions.
 It is important to note that each eroding/dilating operation requires some thinking and testing about its kernel shape and size.
 
 \subsubsection{Projections}
@@ -219,9 +219,12 @@ Another important consideration is the selection of a pixel comparison method. I
 which values constitute a match, and this threshold must fit within our tolerance gap.
 
 As expected from looking through the literature, we found that the ‘correlation-coefficient’ approach gave us the best results and we used it throughout the project.  
+It is given by the following equation:
+\begin{equation}
+	C(x,y) = \sum_{x'y'} T'(x',y') I(x+x',y+y')
+\end{equation}
 
-(MATH)
-
+where $x'$, $y'$ sum over the dimensions of the template image, and $T(x,y)$ and $I(x,y)$ return the intensity values found at those coordinates in the template and source image respectively.
 The major advantage of template matching is its ability to match an arbitrary pattern. While most other algorithms are highly specialised to detect a single feature like straight lines, template matching can find virtually any distinctive pattern in an image. However, this also presents its greatest drawback: it searches for a very specific pattern and is therefore very intolerant to slight variations in this pattern. It
 is also slow as it operates on each pixel in the image.
 
