@@ -228,6 +228,8 @@ where $x'$, $y'$ sum over the dimensions of the template image, and $T(x,y)$ and
 The major advantage of template matching is its ability to match an arbitrary pattern. While most other algorithms are highly specialised to detect a single feature like straight lines, template matching can find virtually any distinctive pattern in an image. However, this also presents its greatest drawback: it searches for a very specific pattern and is therefore very intolerant to slight variations in this pattern. It
 is also slow as it operates on each pixel in the image.
 
+Another drawback of template matching is that there is no built-in method to extract more than one result. While there exists a method, \verb!minMaxLoc! in the org.opencv.Core package, that returns the location and value of the best result there is no trivial way to extract any further results. The way we worked around it was by zeroing all the pixels in a specified area around the best result and calling \verb!minMaxLoc! again until the associated value reached a certain threshold. This threshold has to be fine tuned for each feature we want to template match.
+
 For best results the technique should be used on a very specific and distinctive pattern. It should typically be used when more specialised solutions are not applicable.
 
     \subsection{Android}
