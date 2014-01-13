@@ -5,10 +5,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 
+import musicdetection.Time;
+
 public class Bar implements Iterable<Chord>{
 
     private final List<Chord> chords;
-    private final Time time_signature;
+    private final Enum<Time> time_signature;
     private int fullness;
     private boolean full;
 
@@ -26,13 +28,14 @@ public class Bar implements Iterable<Chord>{
 
     public void addChord(Chord chord){
         chords.add(chord);
+        fullness+=chord.shortestNote();
     }
     
     public void addNote(AbstractNote note) {
     	Chord chord = new Chord(note);
     	addChord(chord);
-        fullness+=note.getDuration();
     }
+
     public boolean isFull(){
         return fullness >= AbstractNote.TEMP_44LENGTH;
     }

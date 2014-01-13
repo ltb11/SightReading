@@ -9,7 +9,7 @@ import musicdetection.Time;
 public class Piece implements Iterable<Bar> {
  
     private final String title;
-    private final Time time_signature;
+    private final Enum<Time> time_signature;
     private final List<Bar> bars;
     private int bpm;
     private Bar currentBar;
