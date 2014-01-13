@@ -20,7 +20,7 @@ public class PlayedNote extends AbstractNote {
 
     @Override
     public int getPitch(){
-        int noteVal = 0;
+        int noteVal = 12;// C0 is MIDI 12
         noteVal += octave * 12 + name.ordinal() + (shift.ordinal() - 2);
         return noteVal;
     }
