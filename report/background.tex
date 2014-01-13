@@ -1,4 +1,4 @@
-﻿\section{Background}
+\section{Background}
     \subsection{Musical Notation}
         In order properly to understand the task of reading music, one must understand a few basic terms.
 
@@ -162,7 +162,7 @@ Eroding an image means to expand the black areas of the image, while dilating me
                 \caption{Erosion/Dilation}
                 \label{image:dilationerosion}
             \end{figure}
-To process, the algorithm requires a kernel. Intuitively, this kernel can be thought of as a matrix represents the area around each pixel to look into, centered on the aforementioned pixel. A change in shape and size can lead to totally different processing effects, depending on the quality of the image and the lighting conditions.
+To process, the algorithm requires a kernel and iteratively goes through each pixel in the image. For each of them, it runs the convolution with the specified kernel, running calculations depending on the surrounding pixels intensity as well as the kernel values, and returns a value that will state whether the given pixel becomes black or white. Intuitively, this kernel can be thought of as a matrix represents the area around each pixel to look into, centred on the aforementioned pixel. A change in shape and size can lead to totally different processing effects, depending on the quality of the image and the lighting conditions.
 It is important to note that each eroding/dilating operation requires some thinking and testing about its kernel shape and size.
 
 \subsubsection{Projections}
