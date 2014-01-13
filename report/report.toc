@@ -11,19 +11,19 @@
 \contentsline {subsubsection}{\numberline {2.1.5}Bar}{7}{subsubsection.2.1.5}
 \contentsline {subsubsection}{\numberline {2.1.6}Time Signature}{7}{subsubsection.2.1.6}
 \contentsline {subsubsection}{\numberline {2.1.7}Beams}{7}{subsubsection.2.1.7}
-\contentsline {subsubsection}{\numberline {2.1.8}Dots}{8}{subsubsection.2.1.8}
+\contentsline {subsubsection}{\numberline {2.1.8}Dots}{7}{subsubsection.2.1.8}
 \contentsline {subsubsection}{\numberline {2.1.9}Accidentals}{8}{subsubsection.2.1.9}
 \contentsline {subsection}{\numberline {2.2}Computer Vision and OMR}{8}{subsection.2.2}
 \contentsline {subsubsection}{\numberline {2.2.1}OpenCV}{8}{subsubsection.2.2.1}
 \contentsline {subsubsection}{\numberline {2.2.2}Representing Images}{8}{subsubsection.2.2.2}
-\contentsline {subsubsection}{\numberline {2.2.3}Grayscale Conversion}{9}{subsubsection.2.2.3}
-\contentsline {subsubsection}{\numberline {2.2.4}Image Thresholding}{9}{subsubsection.2.2.4}
+\contentsline {subsubsection}{\numberline {2.2.3}Grayscale Conversion}{8}{subsubsection.2.2.3}
+\contentsline {subsubsection}{\numberline {2.2.4}Image Thresholding}{8}{subsubsection.2.2.4}
 \contentsline {subsubsection}{\numberline {2.2.5}Erosion and Dilation}{9}{subsubsection.2.2.5}
 \contentsline {subsubsection}{\numberline {2.2.6}Projections}{9}{subsubsection.2.2.6}
 \contentsline {subsubsection}{\numberline {2.2.7}Contours}{9}{subsubsection.2.2.7}
-\contentsline {subsubsection}{\numberline {2.2.8}Hough Transforms}{10}{subsubsection.2.2.8}
+\contentsline {subsubsection}{\numberline {2.2.8}Hough Transforms}{9}{subsubsection.2.2.8}
 \contentsline {subsubsection}{\numberline {2.2.9}Template Matching}{10}{subsubsection.2.2.9}
-\contentsline {subsection}{\numberline {2.3}Android}{11}{subsection.2.3}
+\contentsline {subsection}{\numberline {2.3}Android}{10}{subsection.2.3}
 \contentsline {section}{\numberline {3}Design and Implementation}{12}{section.3}
 \contentsline {section}{\numberline {4}Evaluation}{13}{section.4}
 \contentsline {section}{\numberline {5}Conclusion}{14}{section.5}
