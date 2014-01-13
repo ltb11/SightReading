@@ -14,12 +14,22 @@ public class Note {
 	private double duration;
 	private NoteName name;
 	private int octave = 0;
+	private int dot;
 	
 	public Note(Point center, double d) {
 		this.center = center;
 		this.duration = d;
+		this.dot = 0;
 	}
 
+	public void incrementDot(){
+		dot++;
+	}
+	
+	/*public int getDot(){
+		return dot;
+	}*/
+	
 	public Point center() {
 		return center;
 	}
@@ -46,7 +56,7 @@ public class Note {
 
 	public PlayedNote toPlayedNote() {
 		// TODO Auto-generated method stub
-		return new PlayedNote(name, octave, OurUtils.getDuration(duration), 0);
+		return new PlayedNote(name, octave, OurUtils.getDuration(duration), dot);
 	}
 	
 	public void display() {
