@@ -1,7 +1,10 @@
 \section{Introduction}
 \subsection{Motivation}
  
+<<<<<<< HEAD
 The reading of sheet music is a difficult skill that takes people many years to perfect. It can also be a significant entry barrier for beginner musicians. Therefore, automating this process can bring a lot of benefits to a lot of people. For example:
+=======
+The initial brief for the project was simple. It was in the form of a challenge: Can you do this or better? It referred to a video of anonymous hands using the iSeeNotes app to take a picture of Mozart’s Rondo Alla Turca which was then played before our eyes.
 
 \begin{figure}[ht!]
     \centering
@@ -9,6 +12,9 @@ The reading of sheet music is a difficult skill that takes people many years to 
     \caption{iSeeNotes Demo}
     \label{iseenotes}
 \end{figure}
+ 
+To us the challenge was irresistible. The opportunity to work on something that was very practically applicable was appealing. The applications of such software can be demonstrated in some of the early user stories we came up with:
+>>>>>>> 2e45c88ab74a620cbe32c3ebbfa0abebb099d3da
 
 \begin{itemize}
   \item A singer is learning to sight read music. He can take a picture of the sheet music with the app and it will play the notes so they can learn them.
