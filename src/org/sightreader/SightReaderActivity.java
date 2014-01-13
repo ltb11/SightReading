@@ -160,11 +160,11 @@ public class SightReaderActivity extends Activity {
 			Log.d("Guillaume", "No music detected here!");
 		}
 		
-		/*Piece piece = detector.toPiece();
+		Piece piece = detector.toPiece();
 		MidiFile f = Converter.Convert(piece);
 		Playback.saveMidiFile(f, destMid);
 
-		Playback.playMidiFile("test.mid");*/
+		Playback.playMidiFile("baaBaa.midi");
 
 	}
 

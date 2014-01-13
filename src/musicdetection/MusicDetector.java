@@ -350,7 +350,6 @@ public class MusicDetector {
 								&& !OurUtils.isInAnyRectangle(sharps,
 										sharp.width(), sharp.height(), p)) {
 							// Rect r = Imgproc.boundingRect(contours.get(i));
-							n.setDuration(n.duration() * 1.5);
 							dotWidth = r.width;
 							dotHeight = r.height;
 							dots.put(p, n);
@@ -728,7 +727,7 @@ public class MusicDetector {
 							+ half_note.cols() / 2, minLoc.y + s.startYRange()
 							+ half_note.rows() / 2);
 					if (!OurUtils.isThereANoteAtThisPosition(p, s)
-							&& OurUtils.isAHalfNote(p, eroded, (int) staveGap)) {
+							&& OurUtils.isAHalfNote(p, eroded, (int) staveGap) && !OurUtils.isInAnyRectangle(flats, flat_on.width(), flat_on.height(), p)) {
 						Note n = new Note(p, 2);
 						notes.add(n);
 						s.addNote(n);

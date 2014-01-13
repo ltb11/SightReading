@@ -557,6 +557,8 @@ public class OurUtils {
 			return Duration.Minim;
 		if (duration == 0.5)
 			return Duration.Quaver;
+		if (duration == 0.25)
+			return Duration.SemiQuaver;
 		return null;
 	}
 
