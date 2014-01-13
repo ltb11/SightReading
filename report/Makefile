@@ -5,11 +5,17 @@ BIB = bibtex
 
 all: report.pdf
 
-report.pdf: *.tex
+report.pdf: *.tex ./assets/* report.toc
+	$(TEX) report.tex
+report.toc:
 	$(TEX) report.tex
 
 
 clean: 	
 		rm -rf *.pdf
 		rm -rf *.log
+		rm -rf *.toc
 		rm -rf *.aux
+		rm -rf *.log
+		rm -rf *.lof
+		rm -rf *.out
