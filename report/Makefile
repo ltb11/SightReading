@@ -5,7 +5,7 @@ BIB = bibtex
 
 all: report.pdf
 
-report.pdf: *.tex ./assets/*
+report.pdf: *.tex ./assets/* report.toc
 	$(TEX) report.tex
 report.toc:
 	$(TEX) report.tex

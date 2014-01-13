@@ -48,7 +48,7 @@ We have used the FileDialog library, detailed in the background section, to impl
 We originally used the default android camera activity for taking the photographs, but later realised that we required additional features that this activity could not handle. Therefore, we implemented a new camera activity called SightReaderCameraView so that we could keep the theme of our app consistent and also have finer grained control on the camera options to maximise our detection accuracy.
 
 \subsubsection{Saving Files}
-\[Diagram here\]
+\[Diagram here\] 
 We need to save various files, both so the user can reaccess past music and also in order to deal with the limitations of device RAM.
 
 \subsection{Music Detection}
@@ -134,13 +134,17 @@ template match on each of these.
 \subparagraph{Extracting the results}
 
 Although there is a clef at the beginning of each stave, and a time signature at the start of each music piece, there is a need to run the detection on the whole piece because additional clefs and signatures can be found at an arbitrary point in the staves.
-\\
-The matrix ‘returned’ by ‘matchTemplate’ is of size\\ \verb!(imageHeight - templateHeight + 1, imageWidth - templateWidth + 1)! . Each cell of the matrix is an area of size one storing a double corresponding to the value computed in regards of the comparison method used at the given pixel location in the image. Since they are stored in arrays, results are difficult to extract directly using an intuitive algorithm. Fortunately,there exists a built-in method of OpenCV, ‘minMaxLoc’, which returns an object storing the maximum and minimum value in the matrix of this type, as well as their respective locations - both are stored because depending on the comparison method used, the best results will be stored either at the maximum value location, or the minimum one.
-With this method, we can extract a value that is then compared to a threshold, either calculated at the start of the method, or being set in terms of percentage of the first (therefore best) match, or a constant one if the comparison method is used in its normed way. If this value passes the threshold test, the associated location is a good match. The location is then added to the corresponding list (e.g. treble clefs
-list if we’re running the treble clef detection).
-\\
+
+The matrix ‘returned’ by ‘matchTemplate’ is of size:
+
+\verb!(imageHeight - templateHeight + 1, imageWidth - templateWidth + 1)! .
+
+Each cell of the matrix is an area of size one storing a double corresponding to the value computed in regards of the comparison method used at the given pixel location in the image. Since they are stored in arrays, results are difficult to extract directly using an intuitive algorithm. Fortunately,there exists a built-in method of OpenCV, ‘minMaxLoc’, which returns an object storing the maximum and minimum value in the matrix of this type, as well as their respective locations - both are stored because depending on the comparison method used, the best results will be stored either at the maximum value location, or the minimum one.
+
+With this method, we can extract a value that is then compared to a threshold, either calculated at the start of the method, or being set in terms of percentage of the first (therefore best) match, or a constant one if the comparison method is used in its normed way. If this value passes the threshold test, the associated location is a good match. The location is then added to the corresponding list (e.g. treble clefs list if we’re running the treble clef detection).
+
 /* Proofreading needed for the next paragraph, not sure it actually means anything in English */
-\\
+
 So far we have found the best match in the image. Unfortunately, the ‘minMaxLoc’ method does not remove the values from the matrix. We then have to set the values in the matrix to zero, at the just-found location but also around it to prevent another match just next to the previously found location, that would correspond to the same feature: we set all values in the areas around the point, in all directions and for the
 size of the template image to zero, and iteratively run the extraction algorithm again until the threshold test fails. We have then found all features for the given method.
 
@@ -246,8 +250,9 @@ Contours are well suited to this problem as dots necessarily have a border of wh
 \subsection{Interpretation and Playback}
 \subsubsection{Intermediary representation}
 Once the music has been detected, we build up an intermediary representation of the piece. The structure of this representation is as follows:
-The Piece class holds information such as the clef, tempo and time signature of the piece. Pieces contain a list of Bars, which themselves are lists of Chords, and a Chord is a list of AbstractNotes. There were then two subclasses of AbstractNote - PlayedNote and RestNote. Notes contained information about their pitch, duration and velocity. We felt this intermediary representation was adequate for our immediate needs, but it was also open to any potential extensions we may desire later on.
+The \verb!Piece! class holds information such as the clef, tempo and time signature of the piece. \verb!Piece!s contain a list of \verb!Bar!s, which themselves are lists of \verb!Chord!s, and a \verb!Chord! is a list of \verb!AbstractNote!s. There are then two subclasses of \verb!AbstractNote! - \verb!PlayedNote! and \verb!RestNote!. Notes contained information about their pitch, duration and velocity. We felt this intermediary representation was adequate for our immediate needs, but it was also open to any potential extensions we may desire later on.
 
 \subsubsection{Playback}
-Playback was achieved in two steps. First we generated a MIDI file from our intermediary representation. This was a case of iterating through the nested lists in the structure and converting each Note or Rest into an appropriate MIDI event using the helper functions provided by the Android MIDI Library. Once generated and saved to the device we could play it back using the Android JetPlayer Class.
+Playback was achieved in two steps. First we generated a MIDI file from our intermediary representation. This was a case of iterating through the nested lists using the helper functions provided by the Android MIDI Library. This library provided an interface to the MIDI format through the class \verb!MidiFile!, which represented a series of \verb!MidiTrack!s. Tracks were manipulated by inserting events, and
+a function \verb!MidiTrack.insertNote()! meant inserting either a rest or played note was straightforward. Once generated it was saved to the device.  [] once retrieved from the file system, it was played back using the Android JetPlayer Class.
 

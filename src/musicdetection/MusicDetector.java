@@ -720,7 +720,7 @@ public class MusicDetector {
 						Imgproc.TM_CCOEFF);
 				Point minLoc;
 				double minVal = Core.minMaxLoc(result).minVal;
-				double minAllowed = minVal * 0.999;
+				double minAllowed = minVal * 0.9;
 				while (minVal < minAllowed) {
 					minLoc = Core.minMaxLoc(result).minLoc;
 					minVal = Core.minMaxLoc(result).minVal;
