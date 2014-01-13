@@ -140,11 +140,11 @@ In this project we have used the Android implementation of Bitmaps\cite{Bitmap}.
 
         \subsubsection{Grayscale Conversion}
 
-Converting a full color image to grayscale is a relatively simple operation. For each pixel in the image, you simply find the average value of each color channel. (MATH) The new image can be represented by a single channel, which reduces the memory requirements 3-fold. Obviously, some information will be lost in this process as many different colors will map to the same grayscale value. However, sheet music does not assign any semantic meaning to different colors and so this is not an issue for our project.
+Converting a full color image to grayscale is a relatively simple operation. For each pixel in the image, you simply find the average value of each color channel. The new image can be represented by a single channel, which reduces the memory requirements 3-fold. Obviously, some information will be lost in this process as many different colors will map to the same grayscale value. However, sheet music does not assign any semantic meaning to different colors and so this is not an issue for our project.
 
         \subsubsection{Image Thresholding}
 
-Converting a grayscale image    to a binary (black and white) image is also a simple process. A threshold is chosen and all values below the threshold are set to black while all values above it are set to white. However, deciding on this threshold value is a non-trivial problem and is explored further in our implementation.   
+Converting a grayscale image to a binary (black and white) image is also a simple process. A threshold is chosen and all intensity values below the threshold are set to black while all values above it are set to white. The \lq intensity\rq of a grasycale pixel simple refers to that pixels value from 0-255. However, deciding on this threshold value is a non-trivial problem and is explored further in our implementation.   
 \[ f(i,t) = \left\{ 
   \begin{array}{l l}
     255 & \quad \text{if } i \leq  t\\
@@ -174,7 +174,7 @@ Similarly, a vertical projection performs the same operation on columns and outp
 
 \subsubsection{Contours}
 
-A contour is a boundary between two areas of different color in an image. On a black and white image, this will separate the black from the white areas. The built-in method ‘findContours’ in the OpenCV library finds all contours in a given image, returned as a list of matrices, by following a complex algorithm that is outside the scope of this document. The contour can then be processed to find useful information such as its center of gravity.
+A contour is a boundary between two areas of different color in an image. On a black and white image, this will separate the black from the white areas. The built-in method \verb!findContours! in the OpenCV library finds all contours in a given image, returned as a list of matrices, by following a complex algorithm that is outside the scope of this document. The contour can then be processed to find useful information such as its center of gravity.
 
 Intuitively, the center of gravity of a shape represents the point that a human would call its ‘center’. For a highly symmetric shape, like a circle or star, this will be located in the geometric center of the shape. For an uneven shape, like a hammer, the center of gravity may be quite far from the geometric center of that shape.
 
@@ -219,9 +219,12 @@ Another important consideration is the selection of a pixel comparison method. I
 which values constitute a match, and this threshold must fit within our tolerance gap.
 
 As expected from looking through the literature, we found that the ‘correlation-coefficient’ approach gave us the best results and we used it throughout the project.  
+It is given by the following equation:
+\begin{equation}
+	C(x,y) = \sum_{x'y'} T'(x',y') I(x+x',y+y')
+\end{equation}
 
-(MATH)
-
+where $x'$, $y'$ sum over the dimensions of the template image, and $T(x,y)$ and $I(x,y)$ return the intensity values found at those coordinates in the template and source image respectively.
 The major advantage of template matching is its ability to match an arbitrary pattern. While most other algorithms are highly specialised to detect a single feature like straight lines, template matching can find virtually any distinctive pattern in an image. However, this also presents its greatest drawback: it searches for a very specific pattern and is therefore very intolerant to slight variations in this pattern. It
 is also slow as it operates on each pixel in the image.
 
