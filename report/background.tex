@@ -77,7 +77,7 @@
                 \label{image:barline}
             \end{figure}
         \subsubsection{Time Signature}
-            Time signature indicates the number of beats in each bar. A time of 4/4 (or C - common time) indicates there should be four crotchets (a.k.a. quarter notes) in each bar; 3/4 indicates there should be 3 crotchets; 2/4 - two crotchets; 2/2 - 2 minims.
+            Time signature indicates the number of beats in each bar. A time of 4/4 (or C - common time) indicates there should be four crotchets (a.k.a. quarter notes) in each bar; 3/4 indicates there should be 3 crotchets; 2/4 - 2 crotchets; 2/2 - 2 minims etc.
             \begin{figure}[h!]
                 \centering
                 \includegraphics[width=70mm]{./assets/timesignatures.png}
@@ -85,7 +85,7 @@
                 \label{image:timesignatures}
             \end{figure}
         \subsubsection{Beams}
-            Beams link together two or more consecutive notes to indicate a rythmic or melodic grouping, e.g. multiple notes for a single sung syllable. 
+        Beams link together two or more consecutive quarter notes (or smaller divisions) to indicate a rythmic or melodic grouping, e.g. multiple notes for a single sung syllable. 
             \begin{figure}[h!]
                 \centering
                 \includegraphics[width=20mm]{./assets/beam.png}
@@ -148,7 +148,14 @@ Converting a grayscale image    to a binary (black and white) image is also a si
         \subsubsection{Erosion and Dilation}
 
 When you want to detect a specific feature of an image it can often help to highlight that feature through image processing. Erosion and dilation are two common ways in which this might be done.
+
 Eroding an image means to expand the black areas of the image, while dilating means to expand the white areas of the image. This has a wide variety of applications such as removing noise, filling small gaps and highlighting important features.
+            \begin{figure}[ht!]
+                \centering
+                \includegraphics[width=90mm]{./assets/dilated.png}
+                \caption{Erosion/Dilation}
+                \label{image:dilationerosion}
+            \end{figure}
 To process, the algorithm requires a kernel. Intuitively, this kernel can be thought of as a matrix represents the area around each pixel to look into, centered on the aforementioned pixel. A change in shape and size can lead to totally different processing effects, depending on the quality of the image and the lighting conditions.
 It is important to note that each eroding/dilating operation requires some thinking and testing about its kernel shape and size.
 
@@ -194,7 +201,13 @@ Template matching is a technique for detecting complex, arbitrary patterns in a 
 It works by performing the following check on each pixel of the source image. Starting from that pixel, we select an area of the source image of equal size to our template. Then, we can check how well that area matches the template by comparing each pixel to its corresponding pixel on the template and then combining these results. 
 
 Once we have done this for each pixel in our source image, we can extract all the matches that are above a certain threshold. While doing this, we must consider that if one pixel is a good match, the pixels surrounding it are likely to be good matches too and so we require a minimum distance between any 2 matches.
-A visualisation of the best match found for 2 different templates
+    
+            \begin{figure}[h!]
+                \centering
+                \includegraphics[width=90mm]{./assets/templatematch.png}
+                \caption{Best matches for 2 different templates}
+                \label{image:templatematch}
+            \end{figure}
 
 Another important consideration is the selection of a pixel comparison method. It is perhaps counter-intuitive, but it is not enough to simply check which method gives the best matches. Rather, we need to find the method that gives the most distinct results, ie. the greatest difference between the least accurate positive match and the most accurate negative match. This is because the method uses a threshold value to determine
 which values constitute a match, and this threshold must fit within our tolerance gap.
