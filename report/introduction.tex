@@ -13,7 +13,7 @@ The reading of sheet music is a difficult skill that takes people many years to 
 
 There are existing OMR solutions on the marketplace, however they primarily deal with scanned or computer generated images and run on desktop computers. There are very few mobile OMR applications.
 
-One of the select few is 'iSeeNotes', an Android application by 'Gear Up AB'  that was actually mentioned in our project brief. We ran this application on a simple piece of sheet music, 'Baa Baa Black Sheep', and found that, whilst it processed quickly, the results were quite unreliable. In our trials, roughly 80\% of notes were accurately detected. Despite computer vision being a notoriously difficult problem we felt there was significant room for improvement.
+One of the select few is \lq iSeeNotes\rq , an Android application by \lq Gear Up AB\rq   that was actually mentioned in our project brief. We ran this application on a simple piece of sheet music, \lq Baa Baa Black Sheep\rq , and found that, whilst it processed quickly, the results were quite unreliable. In our trials, roughly 80\% of notes were accurately detected. Despite computer vision being a notoriously difficult problem we felt there was significant room for improvement.
 
 \begin{figure}[ht!]
     \centering
@@ -26,8 +26,8 @@ One of the select few is 'iSeeNotes', an Android application by 'Gear Up AB'  th
 The main difference between desktop OMR products and mobile ones, is that photographs from a mobile device are significantly lower quality than a scanned image. Consider the following issues.
 
 \begin{itemize}
-  \item Lighting tolerant: Our application should be able to scan images even where uniform lighting isn't possible
-  \item Distortion tolerant: Our application should be able to correct unavoidable perspective distortion found in even the highest quality photos.
+  \item Lighting: Our application should be able to scan images even where uniform lighting isn't possible
+  \item Distortion: Our application should be able to correct unavoidable perspective distortion found in even the highest quality photos.
   \item Resolution: Most flatbed scanners support resolutions of at least 1200ppi, meaning a typical A4 scan could contain 140 megapixels. In comparison most mobile phones have an order of magnitude less megapixels.
 \end{itemize}
 
@@ -36,7 +36,7 @@ In addition to these issues, mobile devices have much less processing power than
 Therefore our primary objective was to make an OMR application that can adapt to the constraints imposed by a mobile environment.
 
 \subsection{Achievements}
-We have created application that can reliably detect and interpret the foundations of music notation. In  particular, we have a robust solution for the recognition of staves and basic notes, even dealing with moderate levels of non-uniform perspective distortion. This also runs well within our 30 second time criteria, even processing complex sheet music on a 2011 device that would be considered slow by today's standards.
+We have created an application that can reliably detect and interpret the foundations of music notation. In  particular, we have a robust solution for the recognition of staves and basic notes, even dealing with moderate levels of non-uniform perspective distortion. This also runs well within our 30 second time criteria, even when processing complex sheet music on a 2011 device that would be considered slow by today's standards.
 
 Additionally, our app exports music to the MIDI format, which is the industry standard format for music sequences. Exporting in this format means that the users of our app can now continue to use the music information they've created in many other music applications.
 
