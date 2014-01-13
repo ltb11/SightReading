@@ -74,8 +74,6 @@ Since there is no general way to detect an arbitrary feature using OpenCV, we ha
 
 As sheet music does not assign semantic meaning to colors, we decided to first remove all color from the image using a grayscale conversion (\nameref{sec:grayscale} \autoref{sec:grayscale}). We then threshold the image to increase image consistency in different lighting conditions (\nameref{sec:threshold} \autoref{sec:threshold}). 
 
-These processes are detailed in the background section.
-
 Secondly, the convention in computer vision is to use white-on-black images. However, sheet music is the opposite, black markings on a white page. This means that before we do anything, we need to invert the image. This can be done very quickly by bitwise operations, ie. applying bitwise NOT to each pixel.
 
 When we later transitioned from scanned pdf images onto real photographs we discovered a significant flaw with our preprocessing algorithm. On a photograph you are very likely to have shadows (including the shadow of the device taking the picture) and this means that some areas of the image are darker than others and therefore require a different threshold. We even found that on many images there did not even exist a single threshold value that could describe the entire
@@ -83,8 +81,7 @@ image. Therefore, we needed a method of finding the correct threshold dynamicall
 
 (IMAGE) 
 
-We solved this by first dividing the image into small, equal sized sections and found the average color of each section. As the image is going to be mostly black (a music sheet is mostly white space, and we have inverted the image) this means that features will be significantly lighter than this average. We therefore increase the average by a fixed percentage and use that as our threshold for that given section. Then, the sections are recombined back into a final binary image. We are now
-ready to begin detecting features.
+We solved this by first dividing the image into small, equal sized sections and found the average color of each section. As the image is going to be mostly black (a music sheet is mostly white space, and we have inverted the image) this means that features will be significantly lighter than this average. We therefore increase the average by a fixed percentage and use that as our threshold for that given section. Then, the sections are recombined back into a final binary image. We are now ready to begin detecting features.
 
 \subsubsection{Staves}
 
@@ -92,7 +89,7 @@ The staves are perhaps the single most important feature when it comes to detect
 
 \paragraph{Detecting the lines}
 
-Our first attempt to recognise the lines was to use the standard ‘Hough Lines’ algorithm. However, this approach had very serious problems with detecting the thin stave lines accurately, as explained in the background section.
+Our first attempt to recognise the lines was to use the standard ‘Hough Lines’ algorithm (\nameref{sec:hough} \autoref{sec:hough}). However, this approach had very serious problems with detecting the thin stave lines accurately.
 
 After this obvious approach had failed, we decided to look into the literature and found that most previous work used a horizontal image projection to solve this particular problem (CIT). By horizontally projecting the image onto a single column of pixels, we could detect large horizontal lines on the page and from there extract the stave information. (IMAGE)
 
@@ -179,7 +176,7 @@ detection quality by only matching against heads. Also, many features of sheet m
 
 We settled on the following algorithm: after a very careful and measured eroding, we used the built-in 'findContours' method to detect all contours. Because the 'findContours' method is very accurate, we need to have a measured eroding that would get rid of all the noise without erasing any of the notes. Fortunately, since notes are almost round and compact, we can afford a very large
 eroding kernel, resulting in loads of features being simply erased, as well as all noise.
-Once a contour has been found, we used moments to recover the center out of them, as explained in the background. This approach can very quickly and accurately detect every single note on the page, with almost no false positives. It is also highly insensitive to noise because of the large erosion kernel.
+Once a contour has been found, we used moments to recover the center out of them (\nameref{sec:contour} \autoref{sec:contour}). This approach can very quickly and accurately detect every single note on the page, with almost no false positives. It is also highly insensitive to noise because of the large erosion kernel.
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=1\textwidth]{./assets/highlight.png}
@@ -208,8 +205,7 @@ position of the note and that of the neighbouring notes. Therefore, we run the t
 
 At first glance, beam detection may appear similar to stave detection. However, they are not necessarily horizontal which makes a horizontal projection impractical. Fortunately we can exploit the fact that they are very thick instead (compared to all other lines in sheet music).
 
-First, we eroded the image to get rid of the small noise and stave lines which may interfere with detecting beams. We then used Hough lines to try and detect the remaining lines, naming only the beam lines. Unfortunately, we ran into the problem where Hough lines cannot detect lines of significantly differing sizes, as explained in the background. Due to the
-significant processing overhead it introduced, we decided to find another approach.
+First, we eroded the image to get rid of the small noise and stave lines which may interfere with detecting beams. We then used Hough lines to try and detect the remaining lines, naming only the beam lines. Unfortunately, we ran into the problem where Hough lines cannot detect lines of significantly differing sizes (see \autoref{sec:hough}). Due to the significant processing overhead it introduced, we decided to find another approach.
 
 First, we applied a strong erosion to the image. This left us with only the most prominent features, namely the notes and beams. Then, using our prior knowledge of the location of notes, we black out all notes on the eroded image, leaving us with just beams.
 

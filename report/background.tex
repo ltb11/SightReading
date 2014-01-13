@@ -151,7 +151,7 @@ Converting a grayscale image to a binary (black and white) image is also a simpl
     0   & \quad \text{otherwise}
   \end{array} \right.\]
 
-        \subsubsection{Erosion and Dilation}
+        \subsubsection{Erosion and Dilation} \label{sec:erosion}
 
 When you want to detect a specific feature of an image it can often help to emphasise that feature through image processing. Erosion and dilation are two common ways in which this might be done.
 
@@ -167,14 +167,14 @@ For processing the algorithm that does this requires a kernel and iteratively go
 
 It is important to note that each eroding/dilating operation requires some thinking and testing about its kernel shape and size.
 
-\subsubsection{Projections}
+\subsubsection{Projections} \label{sec:projections}
 
 There are two basic types of projections: horizontal and vertical. A horizontal projection performs an operation on each row of the image. You end up with a new image of width 1 and the same height as the original image. In our case, we always average the values in the grayscale image channel.
 Similarly, a vertical projection performs the same operation on columns and outputs a new image of height 1 and the same width as the original image. The operation we use is also the average of the intensity values.
 
 (IMAGE)
 
-\subsubsection{Contours}
+\subsubsection{Contours} \label{sec:contour}
 
 A contour is a boundary between two areas of different color in an image. On a black and white image, this will separate the black from the white areas. The built-in method \verb!findContours!\cite{findContours} in the OpenCV library finds all contours in a given image, returned as a list of matrices, by following a complex algorithm that is outside the scope of this document. The contour can then be processed to find useful information such as its center of gravity.
 
@@ -191,7 +191,7 @@ where $m_{i,j}$ denotes the $i$th moment on $x$ and $j$th on $y$
 
 
 
-\subsubsection{Hough Transforms}
+\subsubsection{Hough Transforms} \label{sec:hough}
 
 Hough transformations are feature-extraction techniques that work by transforming the image into a new mathematical space where the desired feature is highlighted. The two most commonly used Hough transformations are Hough lines and Hough circles, which detect straight line segments and circles respectively.
 
@@ -202,7 +202,7 @@ image, which is a serious problem for an Android device as it has little process
 
 Hough circles is a similar algorithm that detects circles in an image. It has similar strengths and weaknesses to Hough lines.
 
-\subsubsection{Template Matching}
+\subsubsection{Template Matching} \label{sec:template}
 
 Template matching is a technique for detecting complex, arbitrary patterns in a source image. It searches the source image for areas that best match a given ‘template’ image.
 
