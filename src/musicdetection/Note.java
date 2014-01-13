@@ -2,6 +2,7 @@ package musicdetection;
 
 import musicrepresentation.NoteName;
 import musicrepresentation.PlayedNote;
+import musicrepresentation.Shift;
 
 import org.opencv.core.Point;
 
@@ -15,15 +16,21 @@ public class Note {
 	private NoteName name;
 	private int octave = 0;
 	private int dot;
+	private Shift shift;
 	
 	public Note(Point center, double d) {
 		this.center = center;
 		this.duration = d;
 		this.dot = 0;
+		this.shift = Shift.Natural;
 	}
 
 	public void incrementDot(){
 		dot++;
+	}
+	
+	public void setShift(Shift shift){
+		this.shift = shift;
 	}
 	
 	/*public int getDot(){
@@ -56,7 +63,7 @@ public class Note {
 
 	public PlayedNote toPlayedNote() {
 		// TODO Auto-generated method stub
-		return new PlayedNote(name, octave, OurUtils.getDuration(duration), dot);
+		return new PlayedNote(name, octave, shift, OurUtils.getDuration(duration), dot);
 	}
 	
 	public void display() {

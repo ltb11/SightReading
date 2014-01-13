@@ -7,6 +7,8 @@ import musicrepresentation.Bar;
 import musicrepresentation.Chord;
 import musicrepresentation.Piece;
 
+import android.util.Log;
+
 import com.leff.midi.MidiFile;
 import com.leff.midi.MidiTrack;
 import com.leff.midi.event.meta.Tempo;
@@ -34,6 +36,7 @@ public class Converter{
                 int channel = 0; 
                 for(AbstractNote note: chord){
                     int duration = note.getDuration();
+                    Log.d("Conrad", ""+duration);
                     duration /= AbstractNote.CROTCHET_DURATION;
                     int length = (int) crotchetLength * duration;
                     noteTrack.insertNote(channel,note.getPitch(),note.getVelocity(), nextNote,length);
