@@ -16,8 +16,7 @@ public abstract class AbstractNote {
         this.dots = dots;
         this.velocity=velocity;
    }
-
-    public int getDuration(){
+   public int getDuration(){
         int val = value(duration);
         for(int i = dots; i != 0; --i){
             val *= 1.5;
