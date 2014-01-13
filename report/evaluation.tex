@@ -8,8 +8,21 @@
         \item{The responsiveness and general flow of our app}
         \end{enumerate}
         \subsubsection{Accuracy of Detection}
-            We tested the accuracy of the music detection by parsing various different test images and checking by hand how many of the features were correctly detected. We considered trying to automate this process when we first started the project. However  
+            We tested the accuracy of the music detection by parsing various different test images and checking by hand how many of the features were correctly detected. We considered trying to automate this process when we first started the project, however we quickly realised that solving this automation problem would take just as much if not more time than solving the task itself. As such it is a method that has stuck with us since the beginning.
+            The results of our most recent tests are as follows:
+            \begin{table}[h]
+                \centering
+                \begin{tabular}{ c | c | c }
+                    Piece Name & Distinct Feature Types & Percentage of Features Correctly Detected \\
+                    Baa Baa Black Sheep & 8 & 100\% \\
+                    Indiana Jones & 10 & 90\%\\
+                \end{tabular}
+                \caption{Test Results}
+                \label{table:testresults}
+            \end{table}
+            All of the basic feature types, which is to say all the distinct feature types in "Baa Baa Black Sheep" are reliably detected in any piece we try to parse. However the more complex elements, such as the Rests in Indiana Jones are what cause problems for our detection system.
         \subsubsection{Speed of Detection}
+
         \subsubsection{Responsiveness}
     \subsection{Tool Choice}
 
@@ -37,28 +50,28 @@ printStaves(sheet);
 printFourFour(sheet);
 printTreble(sheet);
 printNotes(sheet);
-                        printBars(sheet);
-                                                printFlats(sheet);
-                                                            }
+printBars(sheet);
+printFlats(sheet);
+}
 
 
-                                                            private void printNotes(Mat sheet) {
-                                                                                        for (Note n : notes)
-                                                                                                                                Core.circle(sheet, n.center(), (int) (staveGap / 2),
-                                                                                                                                                                                (n.duration() == 1. ? new Scalar(0, 0, 255)
-                                                                                                                                                                                                                                            : (n.duration() == 2. ? new Scalar(128, 128, 0)
-                                                                                                                                                                                                                                                                                                                    : new Scalar(255, 0, 255))), -1);
-                                                            }
+private void printNotes(Mat sheet) {
+for (Note n : notes)
+Core.circle(sheet, n.center(), (int) (staveGap / 2),
+(n.duration() == 1. ? new Scalar(0, 0, 255)
+: (n.duration() == 2. ? new Scalar(128, 128, 0)
+: new Scalar(255, 0, 255))), -1);
+}
 
 
-                                                            We used print methods to check what has been detected visually.
+We used print methods to check what has been detected visually.
 
 
-                                                            If this was a larger scale project that did not have as a tight a deadline as the one we are working towards, we would have considered a more sophisticated testing strategy that automatically generated new sheet music from our intermediate data structure, and then tested the generated sheet music to see if it
-                                                            matched up, but the task of generating sheet music from our data structure was deemed too time intensive.
-                                                             
-                                                             Tools
-                                                             We have been using gradle to build our project, some of the output of this is seen from Jenkins below, and our build.gradle content is posted below. We chose this build tool for two reasons: first of all, gradle is the basis of the official new build system for Android, which uses a DSL (Groovy) to write build
-                                                             files and Groovy is very easy to work with coming from a Java background - which all of us in the team have. The second reason is that it manages dependencies using maven, and has the gradle wrapper, making it very easy for anyone to compile the project from scratch from anywhere (assuming they have the
-                                                             Android SDK installed). As mentioned before, when Jenkins pulls from our GitHub repository it runs the gradle wrapper to compile the app. 
-                                                             
+If this was a larger scale project that did not have as a tight a deadline as the one we are working towards, we would have considered a more sophisticated testing strategy that automatically generated new sheet music from our intermediate data structure, and then tested the generated sheet music to see if it
+matched up, but the task of generating sheet music from our data structure was deemed too time intensive.
+
+Tools
+We have been using gradle to build our project, some of the output of this is seen from Jenkins below, and our build.gradle content is posted below. We chose this build tool for two reasons: first of all, gradle is the basis of the official new build system for Android, which uses a DSL (Groovy) to write build
+files and Groovy is very easy to work with coming from a Java background - which all of us in the team have. The second reason is that it manages dependencies using maven, and has the gradle wrapper, making it very easy for anyone to compile the project from scratch from anywhere (assuming they have the
+Android SDK installed). As mentioned before, when Jenkins pulls from our GitHub repository it runs the gradle wrapper to compile the app. 
+
