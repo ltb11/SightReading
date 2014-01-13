@@ -125,7 +125,7 @@ public class SightReaderActivity extends Activity {
 				String toTest = "INPUT.png";
 				String midi = "baaBaa.midi";
 				testImage(toTest, OurUtils.getDestImage(toTest), midi);
-				finish();
+				//finish();
 			}
 		});
 
