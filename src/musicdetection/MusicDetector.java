@@ -480,7 +480,7 @@ public class MusicDetector {
 					minLoc.y + n.center().y - (int) (staveGap * 1.5));
 			if (!OurUtils.isThereANoteAtThisPosition(p, OurUtils
 					.whichStaveDoesAPointBelongTo(p, staves,
-							workingSheet.rows()))) {
+							workingSheet.rows())) && !OurUtils.isInAnyRectangle(trebleClefs, trebleClef.width(), trebleClef.height(), p) && !OurUtils.isInAnyRectangle(fourFours, fourFour.width(), fourFour.height(), p)) {
 				flats.add(p);
 				n.setShift(Shift.Flat);
 			}
