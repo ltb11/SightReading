@@ -27,7 +27,12 @@ Once the language and libraries were chosen, we decided to start the design of t
 
 The main activity for the app is SightReaderActivity. The app home screen has two options, Scan and Play.
 
-[home screen capture] [Scan screen capture]
+ \begin{figure}[ht!]
+                \centering
+                \includegraphics[width=150mm]{./assets/activities.png}
+                \caption{Screenshots of different views in Sight Reader}
+                \label{image:activities}
+            \end{figure}
 
 The Scan option launches the CameraActivity which takes you to the capture part of the app where you can take a picture of some sheet music. Tap the camera preview to take a picture, this launches the DisplayPhotoActivity which allows you to decide if you want to keep the picture or try again. You are then returned to the Camera preview screen. Once you have captured as many pictures as you want you tap done and the ProcessingActivity is called and the processing begin. Here we have a processing screen as this can take some time to let the user know the app is still running.
 
