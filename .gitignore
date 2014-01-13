@@ -41,3 +41,7 @@ Images/
 log
 project.properties
 .settings/org.eclipse.jdt.core.prefs
+report.aux
+report.log
+report.out
+texput.log
