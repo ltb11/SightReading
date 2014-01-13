@@ -138,11 +138,11 @@ However, many existing computer vision techniques work only on a single grayscal
 
 In this project we have used the Android implementation of Bitmaps\cite{Bitmap}.
 
-        \subsubsection{Grayscale Conversion}
+        \subsubsection{Grayscale Conversion} \label{sec:grayscale}
 
 Converting a full color image to grayscale is a relatively simple operation. For each pixel in the image, you simply find the average value of each color channel. The new image can be represented by a single channel, which reduces the memory requirements 3-fold. Obviously, some information will be lost in this process as many different colors will map to the same grayscale value. However, sheet music does not assign any semantic meaning to different colors and so this is not an issue for our project.
 
-        \subsubsection{Image Thresholding}
+        \subsubsection{Image Thresholding} \label{sec:threshold}
 
 Converting a grayscale image to a binary (black and white) image is also a simple process. A threshold is chosen and all intensity values below the threshold are set to black while all values above it are set to white. The \lq intensity\rq of a grasycale pixel simple refers to that pixels value from 0-255. However, deciding on this threshold value is a non-trivial problem and is explored further in our implementation.   
 \[ f(i,t) = \left\{ 
