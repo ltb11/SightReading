@@ -199,7 +199,7 @@ The notes are then ordered by x coordinate, which aids the detection of some of 
 
 \subsubsection{Accidentals}
 
-Similarly to clefs, the uncharacterised shapes of accidentals forces the use of template matching. But as opposed to clefs, we need not run the detection on the whole stave: we just run it on areas around the note, not too specific because of noise, small location errors and the actual position before the note which is not fixed, depending on the actual
+Similarly to clefs, the uncharacterised shapes of accidentals forces the use of template matching. But as opposed to clefs, we need not run the detection on the whole stave: we just run it on areas around the note, not too specifically because of noise, small location errors and the actual position before the note which is not fixed, depending on the actual
 position of the note and that of the neighbouring notes. Therefore, we run the template matching method on a fixed small area in front of each note.
 
 \subsubsection{Beams}
