@@ -1,60 +1,60 @@
-\contentsline {section}{\numberline {1}Introduction}{3}{section.1}
-\contentsline {subsection}{\numberline {1.1}Motivation}{3}{subsection.1.1}
-\contentsline {subsection}{\numberline {1.2}Objectives}{3}{subsection.1.2}
-\contentsline {subsection}{\numberline {1.3}Achievements}{4}{subsection.1.3}
-\contentsline {section}{\numberline {2}Background}{5}{section.2}
-\contentsline {subsection}{\numberline {2.1}Musical Notation}{5}{subsection.2.1}
-\contentsline {subsubsection}{\numberline {2.1.1}Pitch}{5}{subsubsection.2.1.1}
-\contentsline {subsubsection}{\numberline {2.1.2}Duration}{5}{subsubsection.2.1.2}
-\contentsline {subsubsection}{\numberline {2.1.3}Stave}{5}{subsubsection.2.1.3}
-\contentsline {subsubsection}{\numberline {2.1.4}Clef}{6}{subsubsection.2.1.4}
-\contentsline {subsubsection}{\numberline {2.1.5}Bar}{6}{subsubsection.2.1.5}
-\contentsline {subsubsection}{\numberline {2.1.6}Time Signature}{6}{subsubsection.2.1.6}
-\contentsline {subsubsection}{\numberline {2.1.7}Beams}{6}{subsubsection.2.1.7}
-\contentsline {subsubsection}{\numberline {2.1.8}Dots}{7}{subsubsection.2.1.8}
-\contentsline {subsubsection}{\numberline {2.1.9}Accidentals}{7}{subsubsection.2.1.9}
-\contentsline {subsection}{\numberline {2.2}Computer Vision and OMR}{7}{subsection.2.2}
-\contentsline {subsubsection}{\numberline {2.2.1}OpenCV}{7}{subsubsection.2.2.1}
-\contentsline {subsubsection}{\numberline {2.2.2}Representing Images}{7}{subsubsection.2.2.2}
-\contentsline {subsubsection}{\numberline {2.2.3}Grayscale Conversion}{8}{subsubsection.2.2.3}
-\contentsline {subsubsection}{\numberline {2.2.4}Image Thresholding}{8}{subsubsection.2.2.4}
-\contentsline {subsubsection}{\numberline {2.2.5}Erosion and Dilation}{8}{subsubsection.2.2.5}
-\contentsline {subsubsection}{\numberline {2.2.6}Projections}{8}{subsubsection.2.2.6}
-\contentsline {subsubsection}{\numberline {2.2.7}Contours}{9}{subsubsection.2.2.7}
-\contentsline {subsubsection}{\numberline {2.2.8}Hough Transforms}{9}{subsubsection.2.2.8}
-\contentsline {subsubsection}{\numberline {2.2.9}Template Matching}{9}{subsubsection.2.2.9}
-\contentsline {subsection}{\numberline {2.3}Android}{10}{subsection.2.3}
-\contentsline {section}{\numberline {3}Design and Implementation}{7}{section.3}
-\contentsline {subsection}{\numberline {3.1}Platforms and Language Choice}{7}{subsection.3.1}
-\contentsline {subsection}{\numberline {3.2}Application Layout}{7}{subsection.3.2}
-\contentsline {subsection}{\numberline {3.3}The Android Application}{7}{subsection.3.3}
-\contentsline {subsubsection}{\numberline {3.3.1}Activity Layout}{7}{subsubsection.3.3.1}
-\contentsline {subsubsection}{\numberline {3.3.2}Camera Considerations}{8}{subsubsection.3.3.2}
-\contentsline {subsubsection}{\numberline {3.3.3}Saving Files}{8}{subsubsection.3.3.3}
-\contentsline {subsection}{\numberline {3.4}Music Detection}{8}{subsection.3.4}
-\contentsline {subsubsection}{\numberline {3.4.1}Our Solution}{8}{subsubsection.3.4.1}
-\contentsline {subsubsection}{\numberline {3.4.2}Implementation Details}{8}{subsubsection.3.4.2}
-\contentsline {paragraph}{Pre-processing}{8}{section*.15}
-\contentsline {paragraph}{Staves}{9}{section*.16}
-\contentsline {subparagraph}{Detecting the lines}{9}{section*.17}
-\contentsline {subparagraph}{Correcting Line Distortion}{9}{section*.18}
-\contentsline {subparagraph}{Building Staves from Lines}{10}{section*.19}
-\contentsline {paragraph}{Clef and time signature detection}{10}{section*.20}
-\contentsline {subparagraph}{Extracting the results}{10}{section*.21}
-\contentsline {paragraph}{Crotchets}{11}{section*.22}
-\contentsline {subparagraph}{Hough Circles}{11}{section*.23}
-\contentsline {subparagraph}{Template matching}{11}{section*.24}
-\contentsline {subparagraph}{FindContours}{11}{section*.25}
-\contentsline {paragraph}{Accidentals}{12}{section*.26}
-\contentsline {paragraph}{Beams}{12}{section*.27}
-\contentsline {paragraph}{Quavers}{12}{section*.28}
-\contentsline {paragraph}{Dots}{12}{section*.29}
-\contentsline {subsection}{\numberline {3.5}Interpretation and Playback}{13}{subsection.3.5}
-\contentsline {subsubsection}{\numberline {3.5.1}Intermediary representation}{13}{subsubsection.3.5.1}
-\contentsline {subsubsection}{\numberline {3.5.2}Playback}{13}{subsubsection.3.5.2}
-\contentsline {section}{\numberline {4}Evaluation}{14}{section.4}
-\contentsline {section}{\numberline {5}Conclusion and Extensions}{15}{section.5}
-\contentsline {section}{\numberline {6}Project Management}{16}{section.6}
+\contentsline {section}{\numberline {1}Introduction}{4}{section.1}
+\contentsline {subsection}{\numberline {1.1}Motivation}{4}{subsection.1.1}
+\contentsline {subsection}{\numberline {1.2}Objectives}{4}{subsection.1.2}
+\contentsline {subsection}{\numberline {1.3}Contributions}{5}{subsection.1.3}
+\contentsline {section}{\numberline {2}Background}{6}{section.2}
+\contentsline {subsection}{\numberline {2.1}Musical Notation}{6}{subsection.2.1}
+\contentsline {subsubsection}{\numberline {2.1.1}Pitch}{6}{subsubsection.2.1.1}
+\contentsline {subsubsection}{\numberline {2.1.2}Duration}{6}{subsubsection.2.1.2}
+\contentsline {subsubsection}{\numberline {2.1.3}Stave}{6}{subsubsection.2.1.3}
+\contentsline {subsubsection}{\numberline {2.1.4}Clef}{7}{subsubsection.2.1.4}
+\contentsline {subsubsection}{\numberline {2.1.5}Bar}{7}{subsubsection.2.1.5}
+\contentsline {subsubsection}{\numberline {2.1.6}Time Signature}{7}{subsubsection.2.1.6}
+\contentsline {subsubsection}{\numberline {2.1.7}Beams}{7}{subsubsection.2.1.7}
+\contentsline {subsubsection}{\numberline {2.1.8}Dots}{8}{subsubsection.2.1.8}
+\contentsline {subsubsection}{\numberline {2.1.9}Accidentals}{8}{subsubsection.2.1.9}
+\contentsline {subsection}{\numberline {2.2}Computer Vision and OMR}{8}{subsection.2.2}
+\contentsline {subsubsection}{\numberline {2.2.1}OpenCV}{8}{subsubsection.2.2.1}
+\contentsline {subsubsection}{\numberline {2.2.2}Representing Images}{8}{subsubsection.2.2.2}
+\contentsline {subsubsection}{\numberline {2.2.3}Grayscale Conversion}{9}{subsubsection.2.2.3}
+\contentsline {subsubsection}{\numberline {2.2.4}Image Thresholding}{9}{subsubsection.2.2.4}
+\contentsline {subsubsection}{\numberline {2.2.5}Erosion and Dilation}{9}{subsubsection.2.2.5}
+\contentsline {subsubsection}{\numberline {2.2.6}Projections}{9}{subsubsection.2.2.6}
+\contentsline {subsubsection}{\numberline {2.2.7}Contours}{10}{subsubsection.2.2.7}
+\contentsline {subsubsection}{\numberline {2.2.8}Hough Transforms}{10}{subsubsection.2.2.8}
+\contentsline {subsubsection}{\numberline {2.2.9}Template Matching}{10}{subsubsection.2.2.9}
+\contentsline {subsection}{\numberline {2.3}Android}{11}{subsection.2.3}
+\contentsline {section}{\numberline {3}Design and Implementation}{12}{section.3}
+\contentsline {subsection}{\numberline {3.1}Platforms and Language Choice}{12}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Application Layout}{12}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}The Android Application}{12}{subsection.3.3}
+\contentsline {subsubsection}{\numberline {3.3.1}Activity Layout}{12}{subsubsection.3.3.1}
+\contentsline {subsubsection}{\numberline {3.3.2}Camera Considerations}{13}{subsubsection.3.3.2}
+\contentsline {subsubsection}{\numberline {3.3.3}Saving Files}{13}{subsubsection.3.3.3}
+\contentsline {subsection}{\numberline {3.4}Music Detection}{13}{subsection.3.4}
+\contentsline {subsubsection}{\numberline {3.4.1}Our Solution}{13}{subsubsection.3.4.1}
+\contentsline {subsubsection}{\numberline {3.4.2}Implementation Details}{13}{subsubsection.3.4.2}
+\contentsline {paragraph}{Pre-processing}{13}{section*.15}
+\contentsline {paragraph}{Staves}{14}{section*.16}
+\contentsline {subparagraph}{Detecting the lines}{14}{section*.17}
+\contentsline {subparagraph}{Correcting Line Distortion}{14}{section*.18}
+\contentsline {subparagraph}{Building Staves from Lines}{15}{section*.19}
+\contentsline {paragraph}{Clef and time signature detection}{15}{section*.20}
+\contentsline {subparagraph}{Extracting the results}{15}{section*.21}
+\contentsline {paragraph}{Crotchets}{16}{section*.22}
+\contentsline {subparagraph}{Hough Circles}{16}{section*.23}
+\contentsline {subparagraph}{Template matching}{16}{section*.24}
+\contentsline {subparagraph}{FindContours}{16}{section*.25}
+\contentsline {paragraph}{Accidentals}{17}{section*.26}
+\contentsline {paragraph}{Beams}{17}{section*.27}
+\contentsline {paragraph}{Quavers}{17}{section*.28}
+\contentsline {paragraph}{Dots}{17}{section*.29}
+\contentsline {subsection}{\numberline {3.5}Interpretation and Playback}{18}{subsection.3.5}
+\contentsline {section}{\numberline {4}Evaluation}{19}{section.4}
+\contentsline {section}{\numberline {5}Conclusion}{20}{section.5}
+\contentsline {section}{\numberline {6}Project Management}{21}{section.6}
+\contentsline {section}{\numberline {7}Bibliography}{22}{section.7}
+\contentsline {section}{\numberline {8}Appendix}{22}{section.8}
 \contentsline {subsection}{\numberline {6.1}Supervisorial input}{16}{subsection.6.1}
 \contentsline {subsection}{\numberline {6.2}Meetings}{16}{subsection.6.2}
 \contentsline {subsection}{\numberline {6.3}trello}{16}{subsection.6.3}
