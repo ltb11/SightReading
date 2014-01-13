@@ -128,7 +128,7 @@
 
     \subsection{Computer Vision and OMR}
         \subsubsection{OpenCV}
-            OpenCV is an open source Computer Vision library. It is written in Native C++. We are using OpenCV4Android which allows us to work completely in Java. This then calls the original C++ implementation through the android Java Native Interface (JNI). We have used the OpenCV library for two things. Firstly to implement a camera, secondly to process the images.
+            OpenCV\cite{OpenCV} is an open source Computer Vision library. It is written in Native C++. We are using OpenCV4Android\cite{OpenCV4Android} which allows us to work completely in Java. This then calls the original C++ implementation through the Java Native Interface (JNI)\cite{JNI}. We have used the OpenCV library for two things: firstly to implement a camera, secondly to process the images.
 
         \subsubsection{Representing Images}
 
@@ -136,18 +136,19 @@ Bitmaps are perhaps the simplest method of representing an image. A bitmap is si
 
 However, many existing computer vision techniques work only on a single grayscale channel, or even on a binary (black and white) image. Therefore, pre-processing is sometimes required.
 
+In this project we have used the Android implementation of Bitmaps\cite{Bitmap}.
+
         \subsubsection{Grayscale Conversion}
 
-Converting a full color image to grayscale is a relatively simple operation. For each pixel in the image, you simply find the average value of each color channel. (MATH) The new image can be represented by a single channel, which reduces the memory requirements 3-fold. Obviously, some information will be lost in this process as many different colors will map to the same grayscale value. However, sheet music does not assign any semantic meaning to different colors and so this is a
-non-issue for our project.
+Converting a full color image to grayscale is a relatively simple operation. For each pixel in the image, you simply find the average value of each color channel. (MATH) The new image can be represented by a single channel, which reduces the memory requirements 3-fold. Obviously, some information will be lost in this process as many different colors will map to the same grayscale value. However, sheet music does not assign any semantic meaning to different colors and so this is not an issue for our project.
 
         \subsubsection{Image Thresholding}
 
-Converting a grayscale image    to a binary (black and white) image is also a simple process. A threshold is chosen and all values below the threshold are set to black while all values above it are set to white. However, deciding on this threshold value is a non-trivial problem and is explored further in our implementation.   (MATH) 
+Converting a grayscale image to a binary (black and white) image is also a simple process. A threshold is chosen and all values below the threshold are set to black while all values above it are set to white. However, deciding on this threshold value is a non-trivial problem and is explored further in our implementation.   (MATH) 
 
         \subsubsection{Erosion and Dilation}
 
-When you want to detect a specific feature of an image it can often help to highlight that feature through image processing. Erosion and dilation are two common ways in which this might be done.
+When you want to detect a specific feature of an image it can often help to emphasise that feature through image processing. Erosion and dilation are two common ways in which this might be done.
 
 Eroding an image means to expand the black areas of the image, while dilating means to expand the white areas of the image. This has a wide variety of applications such as removing noise, filling small gaps and highlighting important features.
             \begin{figure}[ht!]

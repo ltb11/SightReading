@@ -1,11 +1,15 @@
 \documentclass[pdftex,11pt,a4paper]{article}
+\usepackage{fullpage}
+%\usepackage{parskip}
 \usepackage[margin=1in]{geometry}
 \usepackage{array}
+\usepackage{caption}
 \usepackage{subcaption}
 \usepackage{amsmath}
 \usepackage{hyperref}
 \usepackage[pdftex]{graphicx}
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+\usepackage{parskip}
 \begin{document}
 
 \input{./title.tex}
@@ -21,7 +25,26 @@
 \include{./evaluation}
 \include{./conclusion}
 \include{./management}
-\section{Bibliography}
+
+\begin{thebibliography}{9}
+
+\bibitem{iSeeNotes}
+  \emph{http://www.iseenotes.com}.
+
+\bibitem{OpenCV}
+  \emph{http://opencv.org/}.
+
+\bibitem{OpenCV4Android}
+  \emph{http://opencv.org/android}.
+
+\bibitem{JNI}
+  \emph{http://docs.oracle.com/javase/6/docs/technotes/guides/jni/spec/jniTOC.html}.
+
+\bibitem{Bitmap}
+  \emph{http://developer.android.com/reference/android/graphics/Bitmap.html}.
+
+\end{thebibliography}
+
 \section{Appendix}
 
 \end{document}
