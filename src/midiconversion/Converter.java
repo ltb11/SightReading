@@ -37,8 +37,6 @@ public class Converter{
                 for(AbstractNote note: chord){
                     double duration = (double) note.getDuration();
                     duration /= AbstractNote.CROTCHET_DURATION ;
-                    Log.d("Conrad","duration: " +duration); 
-
                     length = (int) (duration*PPQ/2);
                     noteTrack.insertNote(channel,note.getPitch(),note.getVelocity(), nextNote,length);
                     channel++; 
