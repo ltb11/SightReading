@@ -31,24 +31,15 @@ The main activity for the app is SightReaderActivity. The app home screen has tw
 
 The Scan option launches the CameraActivity which takes you to the capture part of the app where you can take a picture of some sheet music. Tap the camera preview to take a picture, this launches the DisplayPhotoActivity which allows you to decide if you want to keep the picture or try again. You are then returned to the Camera preview screen. Once you have captured as many pictures as you want you tap done and the ProcessingActivity is called and the processing begin. Here we have a processing screen as this can take some time to let the user know the app is still running.
 
-[displayphotoactivity capture][progress screen capture]
-
-The reason for using a new activity for each new action is that this allows each activity to handle normal function such as when the back button is pressed in the intuitive way. This is the recommended method of organising android apps as discussed in the background section.
+The reason for using a new activity for each new action is that this allows each activity to handle normal function such as when the back button is pressed in the intuitive way. This is the recommended method of organising android apps as discussed in the background section (\nameref{sec:android} \autoref{sec:android}).
 
 The other option is to press ‘Play’ which takes you to the file management dialog. Here, you can view the midi files all of your previously processed pieces. Selecting a saved piece will then take you to the playback activity where you can hear it. We have used an external library, FileDialog\cite{FileDialog} , to implement this functionality. We have configured configured to open in the default save file directory with a filter to only show the relevant files.
 
 
-[screen capture??]
-
 \subsubsection{Camera Considerations}
 We originally used the default android camera activity for taking the photographs, but later realised that we required additional features that this activity could not handle. Therefore, we implemented a new camera activity called SightReaderCameraView so that we could keep the theme of our app consistent and also have finer grained control on the camera options to maximise our detection accuracy.
 
-\subsubsection{Saving Files}
-\[Diagram here\] 
-We need to save various files, both so the user can reaccess past music and also in order to deal with the limitations of device RAM.
-
 \subsection{Music Detection - Overview}
-
 Understanding sheet music is quite a complicated problem. The semantic meaning of the music is highly dependant on the relative locations of various features on the sheet. Understanding an English sentence is very simple, by contrast. Each letter is read sequentially from left to right, lines from top to bottom, and the spaces between letters denote words. When it comes to musical notation, however, even very small variations in the location of elements can entirely change the sound it
 transcribes. This provides us with a significant challenge: we need precise and accurate detection methods if we want reliable results.
 
