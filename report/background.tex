@@ -1,6 +1,6 @@
 \section{Background}
     \subsection{Musical Notation}
-        In order properly to understand the task of reading music, one must understand a few basic terms.
+        In order to understand the task of reading music properly, one must understand a few basic terms.
 
         \subsubsection{Pitch}
             The pitch of a note is referred to by one of the first 7 letters of the alphabet, i.e. \{C,D,E,F,G,A,B\}.
@@ -140,11 +140,11 @@ In this project we have used the Android implementation of Bitmaps\cite{Bitmap}.
 
         \subsubsection{Grayscale Conversion} \label{sec:grayscale}
 
-Converting a full color image to grayscale is a relatively simple operation. For each pixel in the image, you simply find the average value of each color channel. The new image can be represented by a single channel, which reduces the memory requirements 3-fold. Obviously, some information will be lost in this process as many different colors will map to the same grayscale value. However, sheet music does not assign any semantic meaning to different colors and so this is not an issue for our project.
+Converting a full color image to grayscale is a relatively simple operation, for each pixel in the image you simply find the average value of each color channel. The new image can be represented by a single channel, which reduces the memory requirements 3-fold. Obviously, some information will be lost in this process as many different colors will map to the same grayscale value. However, sheet music does not assign any semantic meaning to different colors and so this is not an issue for our project.
 
         \subsubsection{Image Thresholding} \label{sec:threshold}
 
-Converting a grayscale image to a binary (black and white) image is also a simple process. A threshold is chosen and all intensity values below the threshold are set to black while all values above it are set to white. The \lq intensity\rq of a grasycale pixel simple refers to that pixels value from 0-255. However, deciding on this threshold value is a non-trivial problem and is explored further in our implementation.   
+Converting a grayscale image to a binary (black and white) image is also a simple process. A threshold is chosen and all intensity values below the threshold are set to black while all values above it are set to white. The \lq intensity\rq  of a grasycale pixel simple refers to that pixels value from 0-255. However, deciding on this threshold value is a non-trivial problem and is explored further in our implementation.   
 \[ f(i,t) = \left\{ 
   \begin{array}{l l}
     255 & \quad \text{if } i \leq  t\\
@@ -163,7 +163,7 @@ Eroding an image means to expand the black areas of the image, while dilating me
                 \label{image:dilationerosion}
             \end{figure}
 
-For processing the algorithm that does this requires a kernel and iteratively goes through each pixel in the image. For each of them it runs the convolution with the specified kernel, making calculations depending on the surrounding pixels intensity as well as the kernel values, and returns a value that will state whether the given pixel becomes black or white. Intuitively, this kernel can be thought of as a matrix represents the area around each pixel to look into, centred on the pixel of interest. A change in the shape or size of the kernel can lead to totally different processing effects. The effect will also depend on the quality of the image and the lighting conditions.
+The algorithm that does this performs an operation on each pixel in the image using a supplied kernel. It performs the calculations depending on the surrounding pixels intensity as well as the kernel values, and returns a value that will state whether the given pixel becomes black or white. Intuitively, the kernel can be thought of as a matrix represents the area around each pixel to look into, centred on the pixel of interest. A change in the shape or size of the kernel can lead to totally different processing effects. The effect will also depend on the quality of the image and the lighting conditions.
 
 It is important to note that each eroding/dilating operation requires some thinking and testing about its kernel shape and size.
 
@@ -183,7 +183,7 @@ Similarly, a vertical projection performs the same operation on columns and outp
 
 A contour is a boundary between two areas of different color in an image. On a black and white image, this will separate the black from the white areas. The built-in method \verb!findContours!\cite{findContours} in the OpenCV library finds all contours in a given image, returned as a list of matrices, by following a complex algorithm that is outside the scope of this document. The contour can then be processed to find useful information such as its center of gravity.
 
-Intuitively, the center of gravity of a shape represents the point that a human would call its 'center'. For a highly symmetric shape, like a circle or star, this will be located in the geometric center of the shape. For an uneven shape, like a hammer, the center of gravity may be quite far from the geometric center of that shape.
+Intuitively, the center of gravity of a shape represents the point that a human would call its \lq center\rq . For a highly symmetric shape, like a circle or star, this will be located in the geometric center of the shape. For an uneven shape, like a hammer, the center of gravity may be quite far from the geometric center of that shape.
 
 We can find the center of gravity of a contour using the following formulae:
 \begin{equation}
@@ -209,7 +209,7 @@ Hough circles is a similar algorithm that detects circles in an image. It has si
 
 \subsubsection{Template Matching} \label{sec:template}
 
-Template matching is a technique for detecting complex, arbitrary patterns in a source image. It searches the source image for areas that best match a given 'template' image.
+Template matching is a technique for detecting complex, arbitrary patterns in a source image. It searches the source image for areas that best match a given \lq template\rq  image.
 
 It works by performing the following check on each pixel of the source image. Starting from that pixel, we select an area of the source image of equal size to our template. Then, we can check how well that area matches the template by comparing each pixel to its corresponding pixel on the template and then combining these results. 
 
