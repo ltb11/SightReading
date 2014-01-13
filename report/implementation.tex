@@ -2,7 +2,7 @@
 
 \subsection{Platforms and Language Choice}
 
-Since this application is built for Android tablets, we had to either write our application natively in Java with the Android SDK, or use a middleware platform. We ultimately chose the native approach due to several considerations. We needed to access external sdk’s and libraries that may not have been supported by any given middleware platform. We also did not require the major benefit of using such a platform (cross-platform compatibility, eg. with iOS) and also many of the better ones are neither open source nor free. 
+Since this application is built for Android tablets, we had to either write our application natively in Java with the Android SDK, or use a middleware platform. We ultimately chose the native approach due to several considerations. We needed to access external sdk's and libraries that may not have been supported by any given middleware platform. We also did not require the major benefit of using such a platform (cross-platform compatibility, eg. with iOS) and also many of the better ones are neither open source nor free. 
 Once we had decided to go with native java, we had to choose a computer vision library. The obvious choice was to go with OpenCV as it is widely used, open source, powerful and has a variety of useful features. We also ended up using a library called FileDialog (CIT) for our file dialogs, and Android MIDI library to generate our MIDIs.
 
 \subsection{Application Layout}
@@ -27,13 +27,18 @@ Once the language and libraries were chosen, we decided to start the design of t
 
 The main activity for the app is SightReaderActivity. The app home screen has two options, Scan and Play.
 
-[home screen capture] [Scan screen capture]
+ \begin{figure}[ht!]
+                \centering
+                \includegraphics[width=150mm]{./assets/activities.png}
+                \caption{Screenshots of different views in Sight Reader}
+                \label{image:activities}
+            \end{figure}
 
 The Scan option launches the CameraActivity which takes you to the capture part of the app where you can take a picture of some sheet music. Tap the camera preview to take a picture, this launches the DisplayPhotoActivity which allows you to decide if you want to keep the picture or try again. You are then returned to the Camera preview screen. Once you have captured as many pictures as you want you tap done and the ProcessingActivity is called and the processing begin. Here we have a processing screen as this can take some time to let the user know the app is still running.
 
 The reason for using a new activity for each new action is that this allows each activity to handle normal function such as when the back button is pressed in the intuitive way. This is the recommended method of organising android apps as discussed in the background section (\nameref{sec:android} \autoref{sec:android}).
 
-The other option is to press ‘Play’ which takes you to the file management dialog. Here, you can view the midi files all of your previously processed pieces. Selecting a saved piece will then take you to the playback activity where you can hear it. We have used an external library, FileDialog\cite{FileDialog}, to implement this functionality. We have configured configured to open in the default save file directory with a filter to only show the relevant files.
+The other option is to press ‘Play’ which takes you to the file management dialog. Here, you can view the midi files all of your previously processed pieces. Selecting a saved piece will then take you to the playback activity where you can hear it. We have used an external library, FileDialog\cite{FileDialog} , to implement this functionality. We have configured configured to open in the default save file directory with a filter to only show the relevant files.
 
 
 \subsubsection{Camera Considerations}
@@ -82,7 +87,7 @@ The staves are perhaps the single most important feature when it comes to detect
 
 \paragraph{Detecting the lines}
 
-Our first attempt to recognise the lines was to use the standard ‘Hough Lines’ algorithm (\nameref{sec:hough} \autoref{sec:hough}). However, this approach had very serious problems with detecting the thin stave lines accurately.
+Our first attempt to recognise the lines was to use the standard \lq Hough Lines\rq  algorithm (\nameref{sec:hough} \autoref{sec:hough}). However, this approach had very serious problems with detecting the thin stave lines accurately.
 
 After this obvious approach had failed, we decided to look into the literature and found that most previous work used a horizontal image projection to solve this particular problem (CIT). By horizontally projecting the image onto a single column of pixels, we could detect large horizontal lines on the page and from there extract the stave information (see image \ref{projection}).
 
@@ -97,7 +102,7 @@ This proved simple to implement using OpenCV and served us very well for some ti
 
 \paragraph{Correcting Line Distortion}
 
-On computer generated pdf images, the stave lines are always exactly horizontal and evenly spaced. This is how the horizontal projection can reliably extract the lines from all the surrounding noise. However, on a photograph this is an entirely unrealistic assumption. We identified 4 separate types of image distortion that undermine this algorithm’s effectiveness.
+On computer generated pdf images, the stave lines are always exactly horizontal and evenly spaced. This is how the horizontal projection can reliably extract the lines from all the surrounding noise. However, on a photograph this is an entirely unrealistic assumption. We identified 4 separate types of image distortion that undermine this algorithm's effectiveness.
 
 \begin{enumerate}
 \item{Angular distortion when the camera is not perfectly aligned with the axes of the image.}
@@ -109,7 +114,7 @@ On computer generated pdf images, the stave lines are always exactly horizontal 
 As all of the previous research has focused on scanned or generated images, we could not find a solution for distorted stave lines in the literature. We ultimately arrived at a novel solution (to our knowledge) for solving the issue, outlined as follows.
 
 We first break the image down into several equal-sized vertical strips, similar to how a paper shredder works. The thinner a strip is, the lower the distortion is relative to the length of the line, and so below a certain width even moderately large distortion becomes negligible. We found that 30 strips offered a good compromise between accuracy and speed. Then, each of these thin strips have a horizontal projection performed on them. The line segments are
-then extracted from these projections and are ‘threaded’ back together, by connecting lines on adjacent strips that are within a certain Y distance. Once the lines have been reconstructed, all viable lines (which are long enough to qualify) are saved.
+then extracted from these projections and are \lq threaded\rq  back together, by connecting lines on adjacent strips that are within a certain Y distance. Once the lines have been reconstructed, all viable lines (which are long enough to qualify) are saved.
 
 \begin{figure}[h!]
     \centering
@@ -160,7 +165,7 @@ There are many ways to detect crotchets. Unfortunately, most of them do not only
 
 \paragraph{Hough Circles}
 
-We originally tried to make use of the ‘Hough Circle’ algorithm. The method ‘HoughCircles’ is provided with OpenCV is very easy to use and merely depends on any variable: only the minimum distance between two detected circle centers is to be changed, as well as the minimum/maximum radius of the circles to detect. It was therefore quite straightforward to test the method. However, even when combined
+We originally tried to make use of the \lq Hough Circle\rq  algorithm. The method \lq HoughCircles\rq  is provided with OpenCV is very easy to use and merely depends on any variable: only the minimum distance between two detected circle centers is to be changed, as well as the minimum/maximum radius of the circles to detect. It was therefore quite straightforward to test the method. However, even when combined
 with highlighting techniques like eroding/dilating, this did not give any consistent results. There was a high rate of both false positives and false negatives. Considering the processing time that it took to run HoughCircles, we decided not to go further in this direction and changed the algorithm.
 
 \paragraph{Template matching}
@@ -170,7 +175,7 @@ detection quality by only matching against heads. Also, many features of sheet m
 
 \paragraph{FindContours}
 
-We settled on the following algorithm: after a very careful and measured eroding, we used the built-in 'findContours' method to detect all contours. Because the 'findContours' method is very accurate, we need to have a measured eroding that would get rid of all the noise without erasing any of the notes. Fortunately, since notes are almost round and compact, we can afford a very large
+We settled on the following algorithm: after a very careful and measured eroding, we used the built-in \lq findContours\rq  method to detect all contours. Because the \lq findContours\rq  method is very accurate, we need to have a measured eroding that would get rid of all the noise without erasing any of the notes. Fortunately, since notes are almost round and compact, we can afford a very large
 eroding kernel, resulting in loads of features being simply erased, as well as all noise.
 Once a contour has been found, we used moments to recover the center out of them (\nameref{sec:contour} \autoref{sec:contour}). This approach can very quickly and accurately detect every single note on the page, with almost no false positives. It is also highly insensitive to noise because of the large erosion kernel.
 \begin{figure}[h!]
@@ -180,7 +185,7 @@ Once a contour has been found, we used moments to recover the center out of them
     \label{image:highlight}
 \end{figure}
 
-We encountered some issues where beams would be mistaken for notes after the eroding, depending on the beam’s direction, slope, location and thickness.. Since it was sometimes very easy to mistake an eroded beam for a note, we also ran the same algorithm with a much lower erosion, leaving most of the beams intact. This allowed us to differentiate them from real notes,
+We encountered some issues where beams would be mistaken for notes after the eroding, depending on the beam's direction, slope, location and thickness.. Since it was sometimes very easy to mistake an eroded beam for a note, we also ran the same algorithm with a much lower erosion, leaving most of the beams intact. This allowed us to differentiate them from real notes,
 catching the false positives. Notes are only recorded if they register as a note on both levels of erosion.
 
 \begin{figure}[ht!]
@@ -223,11 +228,11 @@ We solved this by taking the eroded image, after the first pass of the algorithm
 \subsubsection{Quavers}
 
 We do not check for quavers directly, rather we perform an extra check on each crochet to determine if it is next to a quaver tail. This is a 2-part process: first, we erode the image with a non-square kernel of width 2. This will erase the stave lines but keep the details of every feature with width greater than 2 pixels; which includes
-quavers. We then isolate a small area to the right of the note and use the ‘findContours’ algorithm on this area. If a contour is detected that is tall enough to be considered a quaver tail rather than noise, we record that the note is a quaver.
+quavers. We then isolate a small area to the right of the note and use the \lq findContours\rq  algorithm on this area. If a contour is detected that is tall enough to be considered a quaver tail rather than noise, we record that the note is a quaver.
 
 \subsubsection{Dots}
 
-The only robust way to accurately detect dots is to use the findContours on some area after note, after some eroding, and check for the location of the center of gravity of the contours if it isn’t too wide or high, the same way we did for crotchets. This value is then compared to the expected location: the exact middle of
+The only robust way to accurately detect dots is to use the findContours on some area after note, after some eroding, and check for the location of the center of gravity of the contours if it isn't too wide or high, the same way we did for crotchets. This value is then compared to the expected location: the exact middle of
 the stavelines. The difference in height is computed, using the accurate exact value of the stave positions at the given location. If it is small enough, the contour is validated as a dot, and the duration of the note is updated.
 
 Contours are well suited to this problem as dots necessarily have a border of white space around them - otherwise they would not be a dot.
