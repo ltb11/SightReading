@@ -354,6 +354,7 @@ public class MusicDetector {
 							dotWidth = r.width;
 							dotHeight = r.height;
 							dots.put(p, n);
+							n.incrementDot();
 							break;
 						}
 					}
