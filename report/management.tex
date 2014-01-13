@@ -1,6 +1,6 @@
 \section{Project Management}
 \subsection{Supervisorial input}
-We arranged to have weekly meetings with our supervisor William Knottenbelt to keep him updated on the progress of our project, whilst also ensuring we felt we had a target to work to. We achieved this through our Milestone Plan, where each week we would tell our supervisor what we expected to be able to show him by next week. This required us to have something publically viewable in the early stages of the project, so that when we came to the final weeks we did not suddenly find we have a lot of code written, but no working product that tied it all together. This worked well for the first few weeks but as the term progressed and we had more time commitments we found it more difficult to keep to the schedule.
+We arranged to have weekly meetings with our supervisor William Knottenbelt to keep him updated on the progress of our project, whilst also ensuring we felt we had a target to work to. We had an aggressive implementation schedule at the beginning of the project, and  This worked well for the first few weeks but as the term progressed and we had more time commitments we found it more difficult to keep to the schedule.
 \subsection{Meetings}
 We held meetings every Tuesday since the start of the project.The aims of the meeting were as follows:
 \begin{itemize}
@@ -8,10 +8,19 @@ We held meetings every Tuesday since the start of the project.The aims of the me
 	\item Make amendments to our plan in order to make sure we haven’t overestimated/underestimated the amount of work that we can do over the coming weeks.
 	\item Work out how to best split up the following week’s tasks.
 \end{itemize}
-As well as this larger weekly meeting to give us direction for the week, we also had as many smaller daily meetings as our timetables will allow. This allows us to spread the knowledge among group members. It also means that the sub groups we have split into can stay in contact which helps to keep the project integrated, cut down on duplication of work and allow other people on the group who are not working directly on that problem to give constructive feedback.
+As well as this, larger weekly meeting to give us direction for the week, we also had as many smaller daily meetings as our timetables will allow. This allows us to spread the knowledge among group members. It also means that the sub groups we have split into can stay in contact which helps to keep the project integrated, cut down on duplication of work and allow other people on the group who are not working directly on that problem to give constructive feedback.
+
+We have also been using pair programming to spread knowledge around the team so that all members have a good understanding of how the product works. 
+
+\subsection{Trello}
+The project management tool Trello was useful for us because of the highly itemized nature of our project. It works by simulating post it notes being posted on a wall, similar to the Agile concept of \lq information radiators\rq . Our project suits this because we have many different small features to implement, in the form of different musical features to detect.  As we don’t actually have an office, it makes sense to base our post-it wall in the cloud, and Trello lets us do just that.
 
 
-We have also been using pair programming to spread knowledge around the team so that all members have a good understanding of how the product works. Again, this helps to keep us flexible and agile.
+\subsection{Dividing work}
+Looking at our specification we identified two main sections to the application, music detection and user interface. We split into two teams, one working on the music recognition and the other one on the user experience. 
+ 
+In the music recognition team, the idea was to first be able to parse Baa Baa Black Sheep, chosen by our supervisor as a good example of some basic music. To do so, we took the sheet music, and listed all the elements that needed to be recognised and parsed. We then ordered them in terms of how often they would appear and how important they were for the music, and finally wrote the code to parse them. For example, detecting all the crotchets is more important than detecting the dot that may appear after a note to signify that its duration is one and a half times longer, since it is a much more frequent and useful feature to detect.
 
-\subsection{trello}
-The project management tool Trello was useful for us because of the highly itemized nature of our project.
+An offshoot from music recognition was music interpretation, and the subsequent transformation into a MIDI file. We further split this into it's own separate task.
+
+In the GUI team, the main purpose was to be able to load an image, take a picture with the camera, and play the generated MIDI file. Eventually, the GUI needed to be able to take a photo from a camera, process it, and save the MIDI generated.

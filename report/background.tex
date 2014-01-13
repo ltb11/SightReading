@@ -172,7 +172,12 @@ It is important to note that each eroding/dilating operation requires some think
 There are two basic types of projections: horizontal and vertical. A horizontal projection performs an operation on each row of the image. You end up with a new image of width 1 and the same height as the original image. In our case, we always average the values in the grayscale image channel.
 Similarly, a vertical projection performs the same operation on columns and outputs a new image of height 1 and the same width as the original image. The operation we use is also the average of the intensity values.
 
-(IMAGE)
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=1\textwidth]{./assets/projectionBackground.png}
+	\caption{An example image with its corresponding horizontal projection}
+	\label{image:projectionBackground}
+\end{figure}
 
 \subsubsection{Contours} \label{sec:contour}
 
