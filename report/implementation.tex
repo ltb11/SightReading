@@ -2,8 +2,7 @@
 
 \subsection{Platforms and Language Choice}
 
-Since this application is built for Android tablets, we had to either write our application natively in Java with the Android SDK, or use a middleware platform. We ultimately chose the native approach due to several considerations. We needed to access external sdk’s and libraries that may not have been supported by any given middleware platform. We also did not require the major benefit of using such a platform (cross-platform compatibility, eg. with iOS) and also many of the better
-ones are neither open source nor free. 
+Since this application is built for Android tablets, we had to either write our application natively in Java with the Android SDK, or use a middleware platform. We ultimately chose the native approach due to several considerations. We needed to access external sdk’s and libraries that may not have been supported by any given middleware platform. We also did not require the major benefit of using such a platform (cross-platform compatibility, eg. with iOS) and also many of the better ones are neither open source nor free. 
 Once we had decided to go with native java, we had to choose a computer vision library. The obvious choice was to go with OpenCV as it is widely used, open source, powerful and has a variety of useful features. We also ended up using a library called FileDialog (CIT) for our file dialogs, and Android MIDI library to generate our MIDIs.
 
 \subsection{Application Layout}
@@ -33,16 +32,16 @@ The main activity for the app is SightReaderActivity. The app home screen has tw
 
 [home screen capture] [Scan screen capture]
 
-The Scan option launches the CameraActivity which takes you to the capture part of the app where you can take a picture of some sheet music. Tap the camera preview to take a picture, this launches the DisplayPhotoActivity which allows you to decide if you want to keep the picture or try again. You are then returned to the Camera preview screen. Once you have captured as many pictures as you want you tap done and the ProcessingActivity is called and the processing begin. Here we have a
-processing screen as this can take some time to let the user know the app is still running.
+The Scan option launches the CameraActivity which takes you to the capture part of the app where you can take a picture of some sheet music. Tap the camera preview to take a picture, this launches the DisplayPhotoActivity which allows you to decide if you want to keep the picture or try again. You are then returned to the Camera preview screen. Once you have captured as many pictures as you want you tap done and the ProcessingActivity is called and the processing begin. Here we have a processing screen as this can take some time to let the user know the app is still running.
 
 [displayphotoactivity capture][progress screen capture]
 
 The reason for using a new activity for each new action is that this allows each activity to handle normal function such as when the back button is pressed in the intuitive way. This is the recommended method of organising android apps as discussed in the background section.
 
-The other option is to press ‘Play’ which takes you to the file management dialog. Here, you can view all of your previously processed pieces. Selecting a saved piece will then take you to the playback activity where you can hear it. This dialog is pre-configured to open in the default save file directory and has a filter to only show the relevant files.
+The other option is to press ‘Play’ which takes you to the file management dialog. Here, you can view the midi files all of your previously processed pieces. Selecting a saved piece will then take you to the playback activity where you can hear it. We have used an external library, FileDialog\cite{FileDialog}, to implement this functionality. We have configured configured to open in the default save file directory with a filter to only show the relevant files.
 
-We have used the FileDialog library, detailed in the background section, to implement this functionality.
+
+[screen capture??]
 
 \subsubsection{Camera Considerations}
 We originally used the default android camera activity for taking the photographs, but later realised that we required additional features that this activity could not handle. Therefore, we implemented a new camera activity called SightReaderCameraView so that we could keep the theme of our app consistent and also have finer grained control on the camera options to maximise our detection accuracy.
@@ -73,7 +72,7 @@ Since there is no general way to detect an arbitrary feature using OpenCV, we ha
 
 \subsubsection{Pre-processing}
 
-As sheet music does not assign semantic meaning to colors, we decided to first remove all color from the image using a grayscale conversion. We then thresholded the image to increase image consistency in different lighting conditions. These processes are detailed in the background section.
+As sheet music does not assign semantic meaning to colors, we decided to first remove all color from the image using a grayscale conversion (\nameref{sec:grayscale} \autoref{sec:grayscale}). We then threshold the image to increase image consistency in different lighting conditions (\nameref{sec:threshold} \autoref{sec:threshold}). 
 
 Secondly, the convention in computer vision is to use white-on-black images. However, sheet music is the opposite, black markings on a white page. This means that before we do anything, we need to invert the image. This can be done very quickly by bitwise operations, ie. applying bitwise NOT to each pixel.
 
@@ -82,8 +81,7 @@ image. Therefore, we needed a method of finding the correct threshold dynamicall
 
 (IMAGE) 
 
-We solved this by first dividing the image into small, equal sized sections and found the average color of each section. As the image is going to be mostly black (a music sheet is mostly white space, and we have inverted the image) this means that features will be significantly lighter than this average. We therefore increase the average by a fixed percentage and use that as our threshold for that given section. Then, the sections are recombined back into a final binary image. We are now
-ready to begin detecting features.
+We solved this by first dividing the image into small, equal sized sections and found the average color of each section. As the image is going to be mostly black (a music sheet is mostly white space, and we have inverted the image) this means that features will be significantly lighter than this average. We therefore increase the average by a fixed percentage and use that as our threshold for that given section. Then, the sections are recombined back into a final binary image. We are now ready to begin detecting features.
 
 \subsubsection{Staves}
 
@@ -91,9 +89,16 @@ The staves are perhaps the single most important feature when it comes to detect
 
 \paragraph{Detecting the lines}
 
-Our first attempt to recognise the lines was to use the standard ‘Hough Lines’ algorithm. However, this approach had very serious problems with detecting the thin stave lines accurately, as explained in the background section.
+Our first attempt to recognise the lines was to use the standard ‘Hough Lines’ algorithm (\nameref{sec:hough} \autoref{sec:hough}). However, this approach had very serious problems with detecting the thin stave lines accurately.
 
-After this obvious approach had failed, we decided to look into the literature and found that most previous work used a horizontal image projection to solve this particular problem (CIT). By horizontally projecting the image onto a single column of pixels, we could detect large horizontal lines on the page and from there extract the stave information. (IMAGE)
+After this obvious approach had failed, we decided to look into the literature and found that most previous work used a horizontal image projection to solve this particular problem (CIT). By horizontally projecting the image onto a single column of pixels, we could detect large horizontal lines on the page and from there extract the stave information (see image \ref{projection}).
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=120mm]{./assets/projection.png}
+    \caption{A horizontal projection (right) of the staves (left)}
+    \label{image:projection}
+\end{figure}
 
 This proved simple to implement using OpenCV and served us very well for some time. We did not realise the fatal drawback to this approach until we moved from pdf images to images taken with a smartphone camera. 
 
@@ -111,17 +116,30 @@ On computer generated pdf images, the stave lines are always exactly horizontal 
 As all of the previous research has focused on scanned or generated images, we could not find a solution for distorted stave lines in the literature. We ultimately arrived at a novel solution (to our knowledge) for solving the issue, outlined as follows.
 
 We first break the image down into several equal-sized vertical strips, similar to how a paper shredder works. The thinner a strip is, the lower the distortion is relative to the length of the line, and so below a certain width even moderately large distortion becomes negligible. We found that 30 strips offered a good compromise between accuracy and speed. Then, each of these thin strips have a horizontal projection performed on them. The line segments are
-then extracted from these projections and are ‘threaded’ back together, by connecting lines on adjacent strips that are within a certain Y distance. Once the lines have been reconstructed, all viable lines (which are long enough to qualify) are saved. (IMAGE)
+then extracted from these projections and are ‘threaded’ back together, by connecting lines on adjacent strips that are within a certain Y distance. Once the lines have been reconstructed, all viable lines (which are long enough to qualify) are saved.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=120mm]{./assets/building_lines.png}
+    \caption{Splitting and reconstructing a distorted stave}
+    \label{image:linesjoining}
+\end{figure}
 
 \paragraph{Building Staves from Lines}
 
 The second half of the problem turned out to be much simpler. We had to take this pool of lines and extract staves, ie. groups of 5 lines with even spacing and width. This was done by sorting the lines vertically and then selecting each and every pair of lines. The pair was assumed to be the first 2 lines of the stave, and then the algorithm would check for 3 more lines with the same spacing below that pair. If all 5 lines are detected, the lines
 are removed from the pool and saved as a stave.
 
-An additional problem we found was that on pages with 5 or more staves, the algorithm could incorrectly detect a set of 5 equally spaced lines from different staves. For example, the first line of each of the 5 staves might be recognised as a stave itself. We solved this trivially by specifying a maximum spacing between stave lines. (IMAGE)
+An additional problem we found was that on pages with 5 or more staves, the algorithm could incorrectly detect a set of 5 equally spaced lines from different staves. For example, the first line of each of the 5 staves might be recognised as a stave itself. We solved this trivially by specifying a maximum spacing between stave lines (see image \ref{brokenstaves}).
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=120mm]{./assets/brokenStaves.jpg}
+    \caption{Wrongly detected staves}
+    \label{image:brokenstaves}
+\end{figure}
 
-A final issue we ran into much later was that in cases where the image was at least moderately distorted, a single straight line could not accurately describe the location of a stave line on the paper, and so we had to keep the reconstructed lines from the detection algorithm rather than simply using their best-fit approximation. (IMAGE)
+A final issue we ran into much later was that in cases where the image was at least moderately distorted, a single straight line could not accurately describe the location of a stave line on the paper, and so we had to keep the reconstructed lines from the detection algorithm rather than simply using their best-fit approximation.
 
 Now that we have a reliable method for detecting the staves, we can use this information greatly speed up the detection of other elements, by only looking in specific locations for them.  For example we know that a clef will only occur at the far left of a stave and so we only need to search a very small area of the page. It also allows us to give semantic meaning to many other musical features, such as determining the pitch of notes.
 
@@ -130,31 +148,14 @@ Now that we have a reliable method for detecting the staves, we can use this inf
 Despite their unique shape, clefs and time signatures do not have any particular characteristics that are easily exploitable to differentiate them, regardless of any eroding/dilating we may run first. This forced us to use a template matching algorithm to detect them. The way this is done is that we store an image for each feature that we want to detect - treble clef, bass clef, 4/4, 3/4, 2/4, 3/8, 6/8 time signatures, and run a separate
 template match on each of these.
 
-\paragraph{Extracting the results}
+Fortunately, clefs and times turned out to have very distinctive templates, which gave us very accurate template matching results.
 
-Although there is a clef at the beginning of each stave, and a time signature at the start of each music piece, there is a need to run the detection on the whole piece because additional clefs and signatures can be found at an arbitrary point in the staves.
-
-The matrix ‘returned’ by \verb!matchTemplate! is of size:
-
-\verb!(imageHeight - templateHeight + 1, imageWidth - templateWidth + 1)! .
-
-Each cell of the matrix is an area of size one storing a double corresponding to the value computed in regards of the comparison method used at the given pixel location in the image. Since they are stored in arrays, results are difficult to extract directly using an intuitive algorithm. Fortunately,there exists a built-in method of OpenCV, \verb!minMaxLoc!, which returns an object storing the maximum and minimum value in the matrix of this type, as well as their respective locations - both are stored because depending on the comparison method used, the best results will be stored either at the maximum value location, or the minimum one.
-
-With this method, we can extract a value that is then compared to a threshold, either calculated at the start of the method, or being set in terms of percentage of the first (therefore best) match, or a constant one if the comparison method is used in its normed way. If this value passes the threshold test, the associated location is a good match. The location is then added to the corresponding list (e.g. treble clefs list if we’re running the treble clef detection).
-
-/* Proofreading needed for the next paragraph, not sure it actually means anything in English */
-
-So far we have found the best match in the image. Unfortunately, the \verb!minMaxLoc! method does not remove the values from the matrix. We then have to set the values in the matrix to zero, at the just-found location but also around it to prevent another match just next to the previously found location, that would correspond to the same feature: we set all values in the areas around the point, in all directions and for the
-size of the template image to zero, and iteratively run the extraction algorithm again until the threshold test fails. We have then found all features for the given method.
-
-
-
-            \begin{figure}[ht!]
-                \centering
-                \includegraphics[width=1\textwidth]{./assets/detectedfeatures.jpg}
-                \caption{All detected features through clefs and time signatures detection}
-                \label{image:detectedfeatures}
-            \end{figure}
+\begin{figure}[ht!]
+	\centering
+	\includegraphics[width=1\textwidth]{./assets/detectedfeatures.jpg}
+	\caption{All detected features through clefs and time signatures detection}
+	\label{image:detectedfeatures}
+\end{figure}
 
 
 Due to the uniqueness of their shapes, this gives excellent results in accuracy, with only 10\% of difference in the values between the best positive match and the worst positive match, and 45\% between the best positive match the best negative match. Unfortunately, it is also very time consuming with images this large, which is the reason we try to avoid using template matching as much as possible in the different
@@ -172,13 +173,13 @@ with highlighting techniques like eroding/dilating, this did not give any consis
 \paragraph{Template matching}
 
 Our first attempt was to use template matching. However, we quickly ran into a variety of non-trivial problems. Firstly, notes can have a tail either above or below its head, which would require us to use multiple templates. Additionally, the tails may not always be exactly vertical due to image distortion, which means we would either have to include even more templates, or risk sacrificing
-detection quality by only matching against heads. Also, many features of sheet music look similar to note heads, as they are just a circular blob. This gave us a large nmber of false positives. Finally, different music notation programs use slightly different images for note heads, which would mean we need more templates still. Clearly, we needed a different approach.
+detection quality by only matching against heads. Also, many features of sheet music look similar to note heads, as they are just a circular blob. This gave us a large number of false positives. Finally, different music notation programs use slightly different images for note heads, which would mean we need more templates still. Clearly, we needed a different approach.
 
 \paragraph{FindContours}
 
 We settled on the following algorithm: after a very careful and measured eroding, we used the built-in 'findContours' method to detect all contours. Because the 'findContours' method is very accurate, we need to have a measured eroding that would get rid of all the noise without erasing any of the notes. Fortunately, since notes are almost round and compact, we can afford a very large
 eroding kernel, resulting in loads of features being simply erased, as well as all noise.
-Once a contour has been found, we used moments to recover the center out of them, as explained in the background. This approach can very quickly and accurately detect every single note on the page, with almost no false positives. It is also highly insensitive to noise because of the large erosion kernel.
+Once a contour has been found, we used moments to recover the center out of them (\nameref{sec:contour} \autoref{sec:contour}). This approach can very quickly and accurately detect every single note on the page, with almost no false positives. It is also highly insensitive to noise because of the large erosion kernel.
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=1\textwidth]{./assets/highlight.png}
@@ -207,8 +208,7 @@ position of the note and that of the neighbouring notes. Therefore, we run the t
 
 At first glance, beam detection may appear similar to stave detection. However, they are not necessarily horizontal which makes a horizontal projection impractical. Fortunately we can exploit the fact that they are very thick instead (compared to all other lines in sheet music).
 
-First, we eroded the image to get rid of the small noise and stave lines which may interfere with detecting beams. We then used Hough lines to try and detect the remaining lines, naming only the beam lines. Unfortunately, we ran into the problem where Hough lines cannot detect lines of significantly differing sizes, as explained in the background. Due to the
-significant processing overhead it introduced, we decided to find another approach.
+First, we eroded the image to get rid of the small noise and stave lines which may interfere with detecting beams. We then used Hough lines to try and detect the remaining lines, naming only the beam lines. Unfortunately, we ran into the problem where Hough lines cannot detect lines of significantly differing sizes (see \autoref{sec:hough}). Due to the significant processing overhead it introduced, we decided to find another approach.
 
 First, we applied a strong erosion to the image. This left us with only the most prominent features, namely the notes and beams. Then, using our prior knowledge of the location of notes, we black out all notes on the eroded image, leaving us with just beams.
 
@@ -253,5 +253,5 @@ The \verb!Piece! class holds information such as the clef, tempo and time signat
 
 \subsubsection{Playback}
 Playback was achieved in two steps. First we generated a MIDI file from our intermediary representation. This was a case of iterating through the nested lists using the helper functions provided by the Android MIDI Library. This library provided an interface to the MIDI format through the class \verb!MidiFile!, which represented a series of \verb!MidiTrack!s. Tracks were manipulated by inserting events, and
-a function \verb!MidiTrack.insertNote()! meant inserting either a rest or played note was straightforward. Once generated it was saved to the device.  [] once retrieved from the file system, it was played back using the Android JetPlayer Class.
+a function \verb!MidiTrack.insertNote()! meant inserting either a rest or played note was straightforward. Once generated it was saved to the device. It can then be retrieved from the file system and played back using the Android JetPlayer Class.
 
