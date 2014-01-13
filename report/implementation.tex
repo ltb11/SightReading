@@ -14,9 +14,6 @@ Once the language and libraries were chosen, we decided to start the design of t
 \item{Interpreting and playing back the music}
 \end{enumerate}
 
-(IMAGE)
-
-
 \subsection{The Android Application}
 
             \begin{figure}[ht!]
@@ -74,7 +71,12 @@ Secondly, the convention in computer vision is to use white-on-black images. How
 When we later transitioned from scanned pdf images onto real photographs we discovered a significant flaw with our preprocessing algorithm. On a photograph you are very likely to have shadows (including the shadow of the device taking the picture) and this means that some areas of the image are darker than others and therefore require a different threshold. We even found that on many images there did not even exist a single threshold value that could describe the entire
 image. Therefore, we needed a method of finding the correct threshold dynamically.
 
-(IMAGE) 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=120mm]{./assets/thresholding.png}
+    \caption{Running a global thresholding is not consistent}
+    \label{image:thresholding}
+\end{figure}
 
 We solved this by first dividing the image into small, equal sized sections and found the average color of each section. As the image is going to be mostly black (a music sheet is mostly white space, and we have inverted the image) this means that features will be significantly lighter than this average. We therefore increase the average by a fixed percentage and use that as our threshold for that given section. Then, the sections are recombined back into a final binary image. We are now ready to begin detecting features.
 
@@ -90,7 +92,7 @@ After this obvious approach had failed, we decided to look into the literature a
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=120mm]{./assets/projection.png}
+    \includegraphics[width=80mm]{./assets/projection.png}
     \caption{A horizontal projection (right) of the staves (left)}
     \label{image:projection}
 \end{figure}
@@ -125,11 +127,11 @@ then extracted from these projections and are ‘threaded’ back together, by c
 The second half of the problem turned out to be much simpler. We had to take this pool of lines and extract staves, ie. groups of 5 lines with even spacing and width. This was done by sorting the lines vertically and then selecting each and every pair of lines. The pair was assumed to be the first 2 lines of the stave, and then the algorithm would check for 3 more lines with the same spacing below that pair. If all 5 lines are detected, the lines
 are removed from the pool and saved as a stave.
 
-An additional problem we found was that on pages with 5 or more staves, the algorithm could incorrectly detect a set of 5 equally spaced lines from different staves. For example, the first line of each of the 5 staves might be recognised as a stave itself. We solved this trivially by specifying a maximum spacing between stave lines (see image \ref{brokenstaves}).
+An additional problem we found was that on pages with 5 or more staves, the algorithm could incorrectly detect a set of 5 equally spaced lines from different staves. For example, the first line of each of the 5 staves might be recognised as a stave itself. We solved this trivially by specifying a maximum spacing between stave lines (see image \ref{image:brokenstaves}).
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=120mm]{./assets/brokenStaves.jpg}
+    \includegraphics[width=90mm]{./assets/brokenStaves.jpg}
     \caption{Wrongly detected staves}
     \label{image:brokenstaves}
 \end{figure}
@@ -145,7 +147,7 @@ template match on each of these.
 
 Fortunately, clefs and times turned out to have very distinctive templates, which gave us very accurate template matching results.
 
-\begin{figure}[ht!]
+\begin{figure}[h!]
 	\centering
 	\includegraphics[width=1\textwidth]{./assets/detectedfeatures.jpg}
 	\caption{All detected features through clefs and time signatures detection}
@@ -175,7 +177,7 @@ detection quality by only matching against heads. Also, many features of sheet m
 We settled on the following algorithm: after a very careful and measured eroding, we used the built-in 'findContours' method to detect all contours. Because the 'findContours' method is very accurate, we need to have a measured eroding that would get rid of all the noise without erasing any of the notes. Fortunately, since notes are almost round and compact, we can afford a very large
 eroding kernel, resulting in loads of features being simply erased, as well as all noise.
 Once a contour has been found, we used moments to recover the center out of them (\nameref{sec:contour} \autoref{sec:contour}). This approach can very quickly and accurately detect every single note on the page, with almost no false positives. It is also highly insensitive to noise because of the large erosion kernel.
-\begin{figure}[ht!]
+\begin{figure}[h!]
     \centering
     \includegraphics[width=1\textwidth]{./assets/highlight.png}
     \caption{Highlight of the computation of erosion for the purpose of crotchets detection}
