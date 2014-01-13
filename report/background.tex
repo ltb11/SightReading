@@ -157,19 +157,19 @@ Eroding an image means to expand the black areas of the image, while dilating me
                 \caption{Erosion/Dilation}
                 \label{image:dilationerosion}
             \end{figure}
-To process, the algorithm requires a kernel. Intuitively, this kernel can be thought of as a matrix represents the area around each pixel to look into, centered on the aforementioned pixel. A change in shape and size can lead to totally different processing effects, depending on the quality of the image and the lighting conditions.
+For processing the algorithm that does thsi requires a kernel and iteratively goes through each pixel in the image. For each of them it runs the convolution with the specified kernel, making calculations depending on the surrounding pixels intensity as well as the kernel values, and returns a value that will state whether the given pixel becomes black or white. Intuitively, this kernel can be thought of as a matrix represents the area around each pixel to look into, centred on the pixel of interest. A change in the shape or size of the kernel can lead to totally different processing effects. The effect will also depend on the quality of the image and the lighting conditions.
 It is important to note that each eroding/dilating operation requires some thinking and testing about its kernel shape and size.
 
 \subsubsection{Projections}
 
-There are two basic types of projections: horizontal and vertical ones. A horizontal projection performs an operation on each row of the image. You end up with a new image of width 1 and the same height as the original image. In our case, we always average the values in the grayscale image channel.
+There are two basic types of projections: horizontal and vertical. A horizontal projection performs an operation on each row of the image. You end up with a new image of width 1 and the same height as the original image. In our case, we always average the values in the grayscale image channel.
 Similarly, a vertical projection performs the same operation on columns and outputs a new image of height 1 and the same width as the original image. The operation we use is also the average of the intensity values.
 
 (IMAGE)
 
 \subsubsection{Contours}
 
-A contour is a boundary between two areas of different color in an image. On a black and white image, this will separate the black from the white areas. The built-in method ‘findContours’ in the OpenCV library finds all contours in a given image, returned as a list of matrices, by following a complex algorithm that is outside the scope of this document. The contour can then be processed to find useful information such as its center of gravity.
+A contour is a boundary between two areas of different color in an image. On a black and white image, this will separate the black from the white areas. The built-in method ‘findContours’\cite{findContours} in the OpenCV library finds all contours in a given image, returned as a list of matrices, by following a complex algorithm that is outside the scope of this document. The contour can then be processed to find useful information such as its center of gravity.
 
 Intuitively, the center of gravity of a shape represents the point that a human would call its ‘center’. For a highly symmetric shape, like a circle or star, this will be located in the geometric center of the shape. For an uneven shape, like a hammer, the center of gravity may be quite far from the geometric center of that shape.
 
@@ -191,7 +191,7 @@ Hough transformations are feature-extraction techniques that work by transformin
 The Hough lines transformation highlights the location, direction and length of all lines on that image. Points above a given threshold are then extracted from this image and converted into line segments.
 
 It can be very useful for detecting long, thick lines in a source image but it does not perform well with short or thin lines. Also, because the algorithm is probabilistic, small lines that are next to a larger line may be considered noise and be ignored. Also, if a line is even slightly bent then it will register as several smaller lines or possibly not be detected at all. Finally, the algorithm is very slow as it checks every pixel in the
-image, which is a serious problem for an Android device as it has little processing power and runs in Java, an interpreted language.
+image, which is a serious problem for an Android device as it has little processing power.
 
 Hough circles is a similar algorithm that detects circles in an image. It has similar strengths and weaknesses to Hough lines.
 
