@@ -75,7 +75,7 @@ public class OurUtils {
 				Mat section = new Mat(sheet, new Range(i, yMax), new Range(j,
 						xMax));
 				double mean = Core.mean(section).val[0];
-				mean = Math.max(Math.min(mean - 20, 255), 0);
+				mean = Math.max(Math.min(mean * 0.9, 255), 0);
 				Imgproc.threshold(section, section, mean, 256,
 						Imgproc.THRESH_BINARY);
 
