@@ -50,15 +50,15 @@
             \end{figure}
         \subsubsection{Clef}
             The pitch of a note on a stave is dependent on the Clef appearing at the start of said stave. There are two types, as below.  
-            \begin{figure}[h]
+            \begin{figure}[h!]
                 \centering
-                \begin{subfigure}{0.5\textwidth}
+                \begin{subfigure}{0.4\textwidth}
                     \centering
                     \includegraphics[width=20mm]{./assets/trebleclef.png}
                     \caption{Treble Clef (or G Clef)}
                     \label{image:trebleclef}
                 \end{subfigure}
-                \begin{subfigure}{0.5\textwidth}
+                \begin{subfigure}{0.4\textwidth}
                     \centering
                     \includegraphics[width=20mm]{./assets/bassclef.png}
                     \caption{Bass Clef (or F Clef)}
@@ -67,10 +67,153 @@
                 \caption{The Clefs}
                 \label{image:clefs}
             \end{figure}
+        \subsubsection{Bar}
+            A bar is a division of time into a number of beats. Each bar is separated by a bar line.
+            Separation of music into bars makes music easier to follow.
+            \begin{figure}[h!]
+                \centering
+                \includegraphics[width=20mm]{./assets/barline.png}
+                \caption{Barline}
+                \label{image:barline}
+            \end{figure}
         \subsubsection{Time Signature}
+            Time signature indicates the number of beats in each bar. A time of 4/4 (or C - common time) indicates there should be four crotchets (a.k.a. quarter notes) in each bar; 3/4 indicates there should be 3 crotchets; 2/4 - two crotchets; 2/2 - 2 minims.
+            \begin{figure}[h!]
+                \centering
+                \includegraphics[width=70mm]{./assets/timesignatures.png}
+                \caption{Common Time Signatures}
+                \label{image:timesignatures}
+            \end{figure}
         \subsubsection{Beams}
+            Beams link together two or more consecutive notes to indicate a rythmic or melodic grouping, e.g. multiple notes for a single sung syllable. 
+            \begin{figure}[h!]
+                \centering
+                \includegraphics[width=20mm]{./assets/beam.png}
+                \caption{Beamed Notes}
+                \label{image:beam}
+            \end{figure}
         \subsubsection{Dots}
+            A dot after a note indicates that the note should be played for 1.5x normal duration, e.g. a dotted minim has the same duration value as a minim and a crotchet combined.
+            \begin{figure}[h!]
+                \centering
+                \includegraphics[width=20mm]{./assets/dotted.png}
+                \caption{Dotted Note}
+                \label{image:dotted}
+            \end{figure}
         \subsubsection{Accidentals}
-
+            Accidentals change the pitch of the note they are associated with. A sharp increases the pitch by a semitone (the difference between a B and a C). A flat decreases the pitch by a semitone. A natural accidental nullifies any changes to the pitch.
+            \begin{figure}[h!]
+                \centering
+                \begin{subfigure}{0.3\textwidth}
+                    \centering
+                    \includegraphics[width=20mm]{./assets/sharp.png}
+                    \caption{Sharp}
+                    \label{image:sharp}
+                \end{subfigure}
+                \begin{subfigure}{0.3\textwidth}
+                    \centering
+                    \includegraphics[width=20mm]{./assets/flat.png}
+                    \caption{Flat}
+                    \label{image:flat}
+                \end{subfigure}
+                \begin{subfigure}{0.3\textwidth}
+                    \centering
+                    \includegraphics[width=20mm]{./assets/natural.png}
+                    \caption{Natural}
+                    \label{image:natural}
+                \end{subfigure}
+                \caption{Accidentals}
+                \label{image:accidentals}
+            \end{figure}
 
     \subsection{Computer Vision and OMR}
+        \subsubsection{OpenCV}
+            OpenCV is an open source Computer Vision library. It is written in Native C++. We are using OpenCV4Android which allows us to work completely in Java. This then calls the original C++ implementation through the android Java Native Interface (JNI). We have used the OpenCV library for two things. Firstly to implement a camera, secondly to process the images.
+
+        \subsubsection{Representing Images}
+
+Bitmaps are perhaps the simplest method of representing an image. A bitmap is simply a 1 to 1 mapping for the value of each pixel in an image. Usually, bitmaps have multiple ‘channels’ to store multiple values for each pixel. The convention for digital photographs is to have 3 channels, one for Red, Blue, Green. This is known as the RGB format.
+
+However, many existing computer vision techniques work only on a single grayscale channel, or even on a binary (black and white) image. Therefore, pre-processing is sometimes required.
+
+        \subsubsection{Grayscale Conversion}
+
+Converting a full color image to grayscale is a relatively simple operation. For each pixel in the image, you simply find the average value of each color channel. (MATH) The new image can be represented by a single channel, which reduces the memory requirements 3-fold. Obviously, some information will be lost in this process as many different colors will map to the same grayscale value. However, sheet music does not assign any semantic meaning to different colors and so this is a
+non-issue for our project.
+
+        \subsubsection{Image Thresholding}
+
+Converting a grayscale image    to a binary (black and white) image is also a simple process. A threshold is chosen and all values below the threshold are set to black while all values above it are set to white. However, deciding on this threshold value is a non-trivial problem and is explored further in our implementation.   (MATH) 
+
+        \subsubsection{Erosion and Dilation}
+
+When you want to detect a specific feature of an image it can often help to highlight that feature through image processing. Erosion and dilation are two common ways in which this might be done.
+Eroding an image means to expand the black areas of the image, while dilating means to expand the white areas of the image. This has a wide variety of applications such as removing noise, filling small gaps and highlighting important features.
+To process, the algorithm requires a kernel. Intuitively, this kernel can be thought of as a matrix represents the area around each pixel to look into, centered on the aforementioned pixel. A change in shape and size can lead to totally different processing effects, depending on the quality of the image and the lighting conditions.
+It is important to note that each eroding/dilating operation requires some thinking and testing about its kernel shape and size.
+
+\subsubsection{Projections}
+
+There are two basic types of projections: horizontal and vertical ones. A horizontal projection performs an operation on each row of the image. You end up with a new image of width 1 and the same height as the original image. In our case, we always average the values in the grayscale image channel.
+Similarly, a vertical projection performs the same operation on columns and outputs a new image of height 1 and the same width as the original image. The operation we use is also the average of the intensity values.
+
+(IMAGE)
+
+\subsubsection{Contours}
+
+A contour is a boundary between two areas of different color in an image. On a black and white image, this will separate the black from the white areas. The built-in method ‘findContours’ in the OpenCV library finds all contours in a given image, returned as a list of matrices, by following a complex algorithm that is outside the scope of this document. The contour can then be processed to find useful information such as its center of gravity.
+
+Intuitively, the center of gravity of a shape represents the point that a human would call its ‘center’. For a highly symmetric shape, like a circle or star, this will be located in the geometric center of the shape. For an uneven shape, like a hammer, the center of gravity may be quite far from the geometric center of that shape.
+
+We can find the center of gravity of a contour using the following formulae:
+\begin{equation}
+    x = \frac{ m_{1,0}}{m_{0,0}}
+\end{equation}
+\begin{equation}
+    y = \frac{m_{0,1}}{m_{0,0}}
+\end{equation}
+where $m_{i,j}$ denotes the $i$th moment on $x$ and $j$th on $y$
+
+
+
+\subsubsection{Hough Transforms}
+
+Hough transformations are feature-extraction techniques that work by transforming the image into a new mathematical space where the desired feature is highlighted. The two most commonly used Hough transformations are Hough lines and Hough circles, which detect straight line segments and circles respectively.
+
+The Hough lines transformation highlights the location, direction and length of all lines on that image. Points above a given threshold are then extracted from this image and converted into line segments.
+
+It can be very useful for detecting long, thick lines in a source image but it does not perform well with short or thin lines. Also, because the algorithm is probabilistic, small lines that are next to a larger line may be considered noise and be ignored. Also, if a line is even slightly bent then it will register as several smaller lines or possibly not be detected at all. Finally, the algorithm is very slow as it checks every pixel in the
+image, which is a serious problem for an Android device as it has little processing power and runs in Java, an interpreted language.
+
+Hough circles is a similar algorithm that detects circles in an image. It has similar strengths and weaknesses to Hough lines.
+
+\subsubsection{Template Matching}
+
+Template matching is a technique for detecting complex, arbitrary patterns in a source image. It searches the source image for areas that best match a given ‘template’ image.
+
+It works by performing the following check on each pixel of the source image. Starting from that pixel, we select an area of the source image of equal size to our template. Then, we can check how well that area matches the template by comparing each pixel to its corresponding pixel on the template and then combining these results. 
+
+Once we have done this for each pixel in our source image, we can extract all the matches that are above a certain threshold. While doing this, we must consider that if one pixel is a good match, the pixels surrounding it are likely to be good matches too and so we require a minimum distance between any 2 matches.
+A visualisation of the best match found for 2 different templates
+
+Another important consideration is the selection of a pixel comparison method. It is perhaps counter-intuitive, but it is not enough to simply check which method gives the best matches. Rather, we need to find the method that gives the most distinct results, ie. the greatest difference between the least accurate positive match and the most accurate negative match. This is because the method uses a threshold value to determine
+which values constitute a match, and this threshold must fit within our tolerance gap.
+
+As expected from looking through the literature, we found that the ‘correlation-coefficient’ approach gave us the best results and we used it throughout the project.  
+
+(MATH)
+
+The major advantage of template matching is its ability to match an arbitrary pattern. While most other algorithms are highly specialised to detect a single feature like straight lines, template matching can find virtually any distinctive pattern in an image. However, this also presents its greatest drawback: it searches for a very specific pattern and is therefore very intolerant to slight variations in this pattern. It
+is also slow as it operates on each pixel in the image.
+
+For best results the technique should be used on a very specific and distinctive pattern. It should typically be used when more specialised solutions are not applicable.
+
+    \subsection{Android}
+When working with Android the provided paradigm for managing the flow of your application is through the use of Activities. As described in the android developer guide:
+
+\begin{quote} 'An activity is a single, focused thing that the user can do. Almost all activities interact with the user, so the Activity class takes care of creating a window for you in which you can place your UI' - \href{http://developer.android.com/reference/android/app/Activity.html}{Android Developer Guide}
+\end{quote}  
+
+The app starts with a main activity which can then cause other activities to be started to do different tasks. Activities are kept on the ‘back stack’, which operates on the normal first in last out (FILO) order. When a new activity is started it gets added to this ‘back stack’, when that activity finishes we go back to the activity before, similarly when the device back button is pressed. This means that by using
+activities in our app it enables the user to move through the app as they are used to using the back button as usual. Also if the app is minimised and then reopened it will retain its place.
+
