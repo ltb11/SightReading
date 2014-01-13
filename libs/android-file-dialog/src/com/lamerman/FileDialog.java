@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.Locale;
 
 import android.app.AlertDialog;
 import android.app.ListActivity;
