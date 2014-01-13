@@ -1,4 +1,4 @@
-\section{Background}
+﻿\section{Background}
     \subsection{Musical Notation}
         In order properly to understand the task of reading music, one must understand a few basic terms.
 
@@ -144,7 +144,12 @@ Converting a full color image to grayscale is a relatively simple operation. For
 
         \subsubsection{Image Thresholding}
 
-Converting a grayscale image to a binary (black and white) image is also a simple process. A threshold is chosen and all values below the threshold are set to black while all values above it are set to white. However, deciding on this threshold value is a non-trivial problem and is explored further in our implementation.   (MATH) 
+Converting a grayscale image    to a binary (black and white) image is also a simple process. A threshold is chosen and all values below the threshold are set to black while all values above it are set to white. However, deciding on this threshold value is a non-trivial problem and is explored further in our implementation.   
+\[ f(i,t) = \left\{ 
+  \begin{array}{l l}
+    255 & \quad \text{if } i \leq  t\\
+    0   & \quad \text{otherwise}
+  \end{array} \right.\]
 
         \subsubsection{Erosion and Dilation}
 
