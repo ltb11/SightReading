@@ -132,7 +132,7 @@
 
         \subsubsection{Representing Images}
 
-Bitmaps are perhaps the simplest method of representing an image. A bitmap is simply a 1 to 1 mapping for the value of each pixel in an image. Usually, bitmaps have multiple ‘channels’ to store multiple values for each pixel. The convention for digital photographs is to have 3 channels, one for Red, Blue, Green. This is known as the RGB format.
+Bitmaps are perhaps the simplest method of representing an image. A bitmap is simply a 1 to 1 mapping for the value of each pixel in an image. Usually, bitmaps have multiple 'channels' to store multiple values for each pixel. The convention for digital photographs is to have 3 channels, one for Red, Blue, Green. This is known as the RGB format.
 
 However, many existing computer vision techniques work only on a single grayscale channel, or even on a binary (black and white) image. Therefore, pre-processing is sometimes required.
 
@@ -183,7 +183,7 @@ Similarly, a vertical projection performs the same operation on columns and outp
 
 A contour is a boundary between two areas of different color in an image. On a black and white image, this will separate the black from the white areas. The built-in method \verb!findContours!\cite{findContours} in the OpenCV library finds all contours in a given image, returned as a list of matrices, by following a complex algorithm that is outside the scope of this document. The contour can then be processed to find useful information such as its center of gravity.
 
-Intuitively, the center of gravity of a shape represents the point that a human would call its ‘center’. For a highly symmetric shape, like a circle or star, this will be located in the geometric center of the shape. For an uneven shape, like a hammer, the center of gravity may be quite far from the geometric center of that shape.
+Intuitively, the center of gravity of a shape represents the point that a human would call its 'center'. For a highly symmetric shape, like a circle or star, this will be located in the geometric center of the shape. For an uneven shape, like a hammer, the center of gravity may be quite far from the geometric center of that shape.
 
 We can find the center of gravity of a contour using the following formulae:
 \begin{equation}
@@ -209,7 +209,7 @@ Hough circles is a similar algorithm that detects circles in an image. It has si
 
 \subsubsection{Template Matching} \label{sec:template}
 
-Template matching is a technique for detecting complex, arbitrary patterns in a source image. It searches the source image for areas that best match a given ‘template’ image.
+Template matching is a technique for detecting complex, arbitrary patterns in a source image. It searches the source image for areas that best match a given 'template' image.
 
 It works by performing the following check on each pixel of the source image. Starting from that pixel, we select an area of the source image of equal size to our template. Then, we can check how well that area matches the template by comparing each pixel to its corresponding pixel on the template and then combining these results. 
 
@@ -225,7 +225,7 @@ Once we have done this for each pixel in our source image, we can extract all th
 Another important consideration is the selection of a pixel comparison method. It is perhaps counter-intuitive, but it is not enough to simply check which method gives the best matches. Rather, we need to find the method that gives the most distinct results, ie. the greatest difference between the least accurate positive match and the most accurate negative match. This is because the method uses a threshold value to determine
 which values constitute a match, and this threshold must fit within our tolerance gap.
 
-As expected from looking through the literature, we found that the ‘correlation-coefficient’ approach gave us the best results and we used it throughout the project.  
+As expected from looking through the literature, we found that the 'correlation-coefficient' approach gave us the best results and we used it throughout the project.  
 It is given by the following equation:
 \begin{equation}
 	C(x,y) = \sum_{x'y'} T'(x',y') I(x+x',y+y')
@@ -245,6 +245,6 @@ When working with Android the provided paradigm for managing the flow of your ap
 \begin{quote} 'An activity is a single, focused thing that the user can do. Almost all activities interact with the user, so the Activity class takes care of creating a window for you in which you can place your UI' - \href{http://developer.android.com/reference/android/app/Activity.html}{Android Reference}
 \end{quote}  
 
-The app starts with a main activity which can then cause other activities to be started to do different tasks. Activities are kept on the ‘back stack’, which operates on the normal first in last out (FILO) order. When a new activity is started it gets added to this ‘back stack’, when that activity finishes we go back to the activity before, similarly when the device back button is pressed. This means that by using
+The app starts with a main activity which can then cause other activities to be started to do different tasks. Activities are kept on the 'back stack', which operates on the normal first in last out (FILO) order. When a new activity is started it gets added to this 'back stack', when that activity finishes we go back to the activity before, similarly when the device back button is pressed. This means that by using
 activities in our app it enables the user to move through the app as they are used to using the back button as usual. Also if the app is minimised and then reopened it will retain its place.
 
