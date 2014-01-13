@@ -30,6 +30,7 @@ public class Stave {
 	private Map<Point, Time> times;
 	private Point originalClef;
 	private Point startDetection;
+	private Map<Point, Shift> keySignature;
 
 	private List<Note> notes;
 
@@ -42,6 +43,7 @@ public class Stave {
 		clefs = new HashMap<Point, Clef>();
 		notes = new LinkedList<Note>();
 		times = new HashMap<Point, Time>();
+		keySignature = new HashMap<Point, Shift>();
 		originalClef = null;
 		startDetection = null;
 	}
@@ -155,19 +157,23 @@ public class Stave {
 
 	public void calculateNotePitch() {
 		for (Note n : notes) {
-			double nx = (n.center().x);
-			double ny = (n.center().y);
-			double y1 = getY(lines.get(0), nx);
-			double y2 = getY(lines.get(4), nx);
-			double gap = y2 - y1;
-
-			// 0-1 where 0 is top line, 1 is bottom
-			double pos = (ny - y1) / gap;
-			int line = (int) Math.round(8 - pos * 8);
-			NoteName name = OurUtils.getName(getClefAtPos(n.center()), line);
-			n.setName(name);
-			n.setOctave(OurUtils.getOctave(getClefAtPos(n.center()), line));
+			calculateNotePitchFor(n);
 		}
+	}
+	
+	private void calculateNotePitchFor(Note n) {
+		double nx = (n.center().x);
+		double ny = (n.center().y);
+		double y1 = getY(lines.get(0), nx);
+		double y2 = getY(lines.get(4), nx);
+		double gap = y2 - y1;
+
+		// 0-1 where 0 is top line, 1 is bottom
+		double pos = (ny - y1) / gap;
+		int line = (int) Math.round(8 - pos * 8);
+		NoteName name = OurUtils.getName(getClefAtPos(n.center()), line);
+		n.setName(name);
+		n.setOctave(OurUtils.getOctave(getClefAtPos(n.center()), line));
 	}
 
 	private double getY(StaveLine line, double x) {
@@ -193,12 +199,21 @@ public class Stave {
 
 		int duration = 0;
 		List<PlayedNote> notes = createPlayedNotes();
-		Map<NoteName, Shift> accidentals = new HashMap<NoteName, Shift>();
+		Map<NoteName, Shift> keySignatureConverted = new HashMap<NoteName, Shift>();
+		for (Point p : keySignature.keySet()) {
+			Note note = new Note(p, 1);
+			calculateNotePitchFor(note);
+			keySignatureConverted.put(note.toPlayedNote().name(), keySignature.get(p));
+		}
+		Map<NoteName, Shift> accidentals = new HashMap<NoteName, Shift>(keySignatureConverted);
 		for (PlayedNote n : notes) {
 
 			Log.i("NOTE", n.toString());
-			if (n.shift() != Shift.Natural)
+			if (n.shift() != Shift.Natural) {
+				if (accidentals.containsKey(n.name()))
+					accidentals.remove(n.name());
 				accidentals.put(n.name(), n.shift());
+			}
 			currentBar.addNote(n);
 			
 			if (accidentals.containsKey(n.name()))
@@ -209,7 +224,7 @@ public class Stave {
 				duration = 0;
 				currentBar = new Bar();
 				bars.add(currentBar);
-				accidentals = new HashMap<NoteName, Shift>();
+				accidentals = new HashMap<NoteName, Shift>(keySignatureConverted);
 			}
 		}
 
