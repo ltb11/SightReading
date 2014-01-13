@@ -2,6 +2,7 @@ package musicrepresentation;
 
 public class PlayedNote extends AbstractNote {
 	private final NoteName name;
+    private final Shift shift;
 	private final int octave;
 
 	public PlayedNote(NoteName name, int octave,
@@ -9,10 +10,11 @@ public class PlayedNote extends AbstractNote {
 		this(name,octave,duration,dots,AbstractNote.STANDARD_VELOCITY);
 	}
 
-	public PlayedNote(NoteName name, int octave,
+	public PlayedNote(NoteName name, int octave, Shift shift
 			Duration duration, int dots, int velocity) {
 		super(duration, dots, velocity);
 		this.name = name;
+		this.shift = shift;
 		this.octave = octave;
 	}
 
