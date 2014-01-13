@@ -42,7 +42,7 @@ public class Piece implements Iterable<Bar> {
            bars.add(currentBar);
            currentBar = new Bar();
        } else {
-           currentBar.add(note);
+           currentBar.addNote(note);
        }
     }
 
