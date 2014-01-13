@@ -11,7 +11,7 @@
 \contentsline {subsection}{\numberline {2.2}Computer Vision and OMR}{6}
 \contentsline {section}{\numberline {3}Design and Implementation}{7}
 \contentsline {section}{\numberline {4}Evaluation}{8}
-\contentsline {section}{\numberline {5}Conclusion}{9}
+\contentsline {section}{\numberline {5}Conclusion and Extensions}{9}
 \contentsline {section}{\numberline {6}Project Management}{10}
 \contentsline {section}{\numberline {7}Bibliography}{11}
 \contentsline {section}{\numberline {8}Appendix}{11}
