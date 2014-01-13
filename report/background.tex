@@ -3,19 +3,23 @@
         In order properly to understand the task of reading music, one must understand a few basic terms.
 
         \subsubsection{Pitch}
-            The pitch of a note is referred to by a one of the first 7 letters of the alphabet, i.e. \{C,D,E,F,G,A,B\}.
+            The pitch of a note is referred to by one of the first 7 letters of the alphabet, i.e. \{C,D,E,F,G,A,B\}.
             In scientific pitch notation, a number from 0 - 8 is added after the letter to indicate which octave the note is in.
             The lowest note possible in this notation, C0, represents a sound with frequency 16.35Hz, and the heighest possible, B8, has a frequency 7902.13Hz.
             A4 (frequency 440Hz) is considered an octave lower than A5 (frequency 880Hz), and an increase in octave represents a doubling of frequency in the sound produced.
         \subsubsection{Duration}
             In addition to pitch, notes also encode information about their duration, or how long the sound should be played. 
-            Rests indicate an absence of sound. Both these durations are encoded as in \ref{table:notes}
+            Rests indicate an absence of sound. Both these durations are encoded as in Table \ref{table:notes}
 
             \begin{table}[h]
                 \centering
-                \begin{tabular}{| c | c | c |}
+                \begin{tabular}{| >{\centering\arraybackslash}m{1in} | >{\centering\arraybackslash}m{1in} | >{\centering\arraybackslash}m{1in} |}
                     \hline
                     Name & Note & Rest \\ \hline
+                    Semibreve& 
+                            \includegraphics[width=20mm]{./assets/whole.png}
+                            &
+                            \includegraphics[width=20mm]{./assets/wholerest.png} \\ \hline
                     Minim& 
                             \includegraphics[width=20mm]{./assets/half.png}
                             &
@@ -36,18 +40,37 @@
                 \caption{Note and Rest Durations}
                 \label{table:notes}
             \end{table}
-
-
-               
         \subsubsection{Stave}
             A stave comprises five horizontal lines and four spaces. A note can sit either in a space or on a line, and the height of the note dictates its pitch.
             \begin{figure}[ht!]
-            \centering
-            \includegraphics[width=90mm]{./assets/staff.png}
-            \caption{The Stave}
-            \label{stave}
+                \centering
+                \includegraphics[width=90mm]{./assets/staff.png}
+                \caption{The Stave}
+                \label{image:stave}
             \end{figure}
         \subsubsection{Clef}
+            The pitch of a note on a stave is dependent on the Clef appearing at the start of said stave. There are two types, as below.  
+            \begin{figure}[h]
+                \centering
+                \begin{subfigure}{0.5\textwidth}
+                    \centering
+                    \includegraphics[width=20mm]{./assets/trebleclef.png}
+                    \caption{Treble Clef (or G Clef)}
+                    \label{image:trebleclef}
+                \end{subfigure}
+                \begin{subfigure}{0.5\textwidth}
+                    \centering
+                    \includegraphics[width=20mm]{./assets/bassclef.png}
+                    \caption{Bass Clef (or F Clef)}
+                    \label{image:bassclef}
+                \end{subfigure}
+                \caption{The Clefs}
+                \label{image:clefs}
+            \end{figure}
+        \subsubsection{Time Signature}
+        \subsubsection{Beams}
+        \subsubsection{Dots}
+        \subsubsection{Accidentals}
 
 
     \subsection{Computer Vision and OMR}
