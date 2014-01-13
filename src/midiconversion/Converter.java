@@ -1,14 +1,9 @@
 package midiconversion;
-
 import java.util.ArrayList;
-
 import musicrepresentation.AbstractNote;
 import musicrepresentation.Bar;
 import musicrepresentation.Chord;
 import musicrepresentation.Piece;
-
-import android.util.Log;
-
 import com.leff.midi.MidiFile;
 import com.leff.midi.MidiTrack;
 import com.leff.midi.event.meta.Tempo;
