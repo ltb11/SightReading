@@ -21,7 +21,7 @@ public class PlayedNote extends AbstractNote {
     @Override
     public int getPitch(){
         int noteVal = 0;
-        noteVal += octave * 12 + name.ordinal();
+        noteVal += octave * 12 + name.ordinal() + (shift.ordinal() - 2);
         return noteVal;
     }
 

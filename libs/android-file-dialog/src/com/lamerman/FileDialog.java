@@ -244,12 +244,12 @@ public class FileDialog extends ListActivity {
 				dirsPathMap.put(dirName, file.getPath());
 			} else {
 				final String fileName = file.getName();
-				final String fileNameLwr = fileName.toLowerCase();
+				final String fileNameLwr = fileName.toLowerCase(Locale.US);
 				// se ha um filtro de formatos, utiliza-o
 				if (formatFilter != null) {
 					boolean contains = false;
 					for (int i = 0; i < formatFilter.length; i++) {
-						final String formatLwr = formatFilter[i].toLowerCase();
+						final String formatLwr = formatFilter[i].toLowerCase(Locale.US);
 						if (fileNameLwr.endsWith(formatLwr)) {
 							contains = true;
 							break;
