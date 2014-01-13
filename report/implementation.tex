@@ -20,7 +20,12 @@ Once the language and libraries were chosen, we decided to start the design of t
 
 \subsection{The Android Application}
 
-A flowchart of activities in the application
+            \begin{figure}[ht!]
+                \centering
+                \includegraphics[width=150mm]{./assets/activitiesdiag.png}
+                \caption{A flowchart of activities in the application}
+                \label{image:activitydiag}
+            \end{figure}
 
 \subsubsection{Activity Layout}
 
@@ -37,13 +42,13 @@ The reason for using a new activity for each new action is that this allows each
 
 The other option is to press ‘Play’ which takes you to the file management dialog. Here, you can view all of your previously processed pieces. Selecting a saved piece will then take you to the playback activity where you can hear it. This dialog is pre-configured to open in the default save file directory and has a filter to only show the relevant files.
 
-We have used the FileDIalog library, detailed in the background section, to implement this functionality.
+We have used the FileDialog library, detailed in the background section, to implement this functionality.
 
 \subsubsection{Camera Considerations}
 We originally used the default android camera activity for taking the photographs, but later realised that we required additional features that this activity could not handle. Therefore, we implemented a new camera activity called SightReaderCameraView so that we could keep the theme of our app consistent and also have finer grained control on the camera options to maximise our detection accuracy.
 
 \subsubsection{Saving Files}
-[Diagram here]
+\[Diagram here\] 
 We need to save various files, both so the user can reaccess past music and also in order to deal with the limitations of device RAM.
 
 \subsection{Music Detection}
@@ -129,21 +134,33 @@ template match on each of these.
 \subparagraph{Extracting the results}
 
 Although there is a clef at the beginning of each stave, and a time signature at the start of each music piece, there is a need to run the detection on the whole piece because additional clefs and signatures can be found at an arbitrary point in the staves.
-The matrix ‘returned’ by ‘matchTemplate’ is of size (imageHeight - templateHeight + 1, imageWidth - templateWidth + 1). Each cell of the matrix is an area of size one storing a double corresponding to the value computed in regards of the comparison method used at the given pixel location in the image. Since they are stored in arrays, results are difficult to extract directly using an intuitive algorithm. Fortunately,
-there exists a built-in method of OpenCV, ‘minMaxLoc’, which returns an object storing the maximum and minimum value in the matrix of this type, as well as their respective locations - both are stored because depending on the comparison method used, the best results will be stored either at the maximum value location, or the minimum one.
-With this method, we can extract a value that is then compared to a threshold, either calculated at the start of the method, or being set in terms of percentage of the first (therefore best) match, or a constant one if the comparison method is used in its normed way. If this value passes the threshold test, the associated location is a good match. The location is then added to the corresponding list (e.g. treble clefs
-list if we’re running the treble clef detection).
+
+The matrix ‘returned’ by ‘matchTemplate’ is of size:
+
+\verb!(imageHeight - templateHeight + 1, imageWidth - templateWidth + 1)! .
+
+Each cell of the matrix is an area of size one storing a double corresponding to the value computed in regards of the comparison method used at the given pixel location in the image. Since they are stored in arrays, results are difficult to extract directly using an intuitive algorithm. Fortunately,there exists a built-in method of OpenCV, ‘minMaxLoc’, which returns an object storing the maximum and minimum value in the matrix of this type, as well as their respective locations - both are stored because depending on the comparison method used, the best results will be stored either at the maximum value location, or the minimum one.
+
+With this method, we can extract a value that is then compared to a threshold, either calculated at the start of the method, or being set in terms of percentage of the first (therefore best) match, or a constant one if the comparison method is used in its normed way. If this value passes the threshold test, the associated location is a good match. The location is then added to the corresponding list (e.g. treble clefs list if we’re running the treble clef detection).
+
 /* Proofreading needed for the next paragraph, not sure it actually means anything in English */
+
 So far we have found the best match in the image. Unfortunately, the ‘minMaxLoc’ method does not remove the values from the matrix. We then have to set the values in the matrix to zero, at the just-found location but also around it to prevent another match just next to the previously found location, that would correspond to the same feature: we set all values in the areas around the point, in all directions and for the
 size of the template image to zero, and iteratively run the extraction algorithm again until the threshold test fails. We have then found all features for the given method.
 
 
 
-All detected features through clefs and time signatures detection
+            \begin{figure}[ht!]
+                \centering
+                \includegraphics[width=1\textwidth]{./assets/detectedfeatures.jpg}
+                \caption{All detected features through clefs and time signatures detection}
+                \label{image:detectedfeatures}
+            \end{figure}
 
-Due to the uniqueness of their shapes, this gives excellent results in accuracy, with only 10% of difference in the values between the best positive match and the worst positive match, and 45% between the best positive match the best negative match. Unfortunately, it is also very time consuming with images this large, which is the reason we try to avoid using template matching as much as possible in the different
+
+Due to the uniqueness of their shapes, this gives excellent results in accuracy, with only 10\% of difference in the values between the best positive match and the worst positive match, and 45\% between the best positive match the best negative match. Unfortunately, it is also very time consuming with images this large, which is the reason we try to avoid using template matching as much as possible in the different
 methods of detection.
-mnm 
+
 \paragraph{Crotchets}
 
 There are many ways to detect crotchets. Unfortunately, most of them do not only recognise crotchets but also accidentals, beams, lyrics or sometimes just noise. We had to try many methods before finding a reliable one.
@@ -163,12 +180,22 @@ detection quality by only matching against heads. Also, many features of sheet m
 We settled on the following algorithm: after a very careful and measured eroding, we used the built-in 'findContours' method to detect all contours. Because the 'findContours' method is very accurate, we need to have a measured eroding that would get rid of all the noise without erasing any of the notes. Fortunately, since notes are almost round and compact, we can afford a very large
 eroding kernel, resulting in loads of features being simply erased, as well as all noise.
 Once a contour has been found, we used moments to recover the center out of them, as explained in the background. This approach can very quickly and accurately detect every single note on the page, with almost no false positives. It is also highly insensitive to noise because of the large erosion kernel.
-
-Highlight of the computation of erosion for the purpose of crotchets detection
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=1\textwidth]{./assets/highlight.png}
+    \caption{Highlight of the computation of erosion for the purpose of crotchets detection}
+    \label{image:highlight}
+\end{figure}
 
 We encountered some issues where beams would be mistaken for notes after the eroding, depending on the beam’s direction, slope, location and thickness.. Since it was sometimes very easy to mistake an eroded beam for a note, we also ran the same algorithm with a much lower erosion, leaving most of the beams intact. This allowed us to differentiate them from real notes,
 catching the false positives. Notes are only recorded if they register as a note on both levels of erosion.
-All detected crotchets are accurately detected through this algorithm
+
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=1\textwidth]{./assets/crotchetsdetected.png}
+    \caption{All detected crotchets are accurately detected through this algorithm}
+    \label{image:crotchetsdetected}
+\end{figure}
 
 The notes are then ordered by x coordinate, which aids the detection of some of the following features.
 
@@ -188,13 +215,18 @@ First, we applied a strong erosion to the image. This left us with only the most
 
 From here, we apply a vertical projection to the image, which picks out the x-dimension ranges of beams. Now that we know the x locations, for each x range we extract its vertical strip from the eroded image and we then perform a horizontal projection to also find their y locations.
 
-There is an additional problem to consider, double beams are a common feature in sheet music and we wanted to support their detection. However, some of these double beams may be quite small as shown in fig 
-(IMAGE)
+There is an additional problem to consider, double beams are a common feature in sheet music and we wanted to support their detection. However, some of these double beams may be quite small as shown in \ref{image:beamsdetected} 
+
 
 We solved this by taking the eroded image, after the first pass of the algorithm, and blacking out all the beams we detected in that pass. Then the detection can be run again to find the second beam in a double beam. This can be repeated again for triple beams and so on.
 
 
-All detected beams after running the method
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=1\textwidth]{./assets/beamsdetected.png}
+    \caption{All detected beams after running the method}
+    \label{image:beamsdetected}
+\end{figure}
 
 \paragraph{Quavers}
 
@@ -208,7 +240,12 @@ the stavelines. The difference in height is computed, using the accurate exact v
 
 Contours are well suited to this problem as dots necessarily have a border of white space around them - otherwise they would not be a dot.
 
-All detected features after running the whole application. For debugging purposes, a scale is printed as well. Each note color corresponds to a different duration of the note.
+\begin{figure}[ht!]
+    \centering
+    \includegraphics[width=1\textwidth]{./assets/detected.png}
+    \caption{All detected features after running the whole application. For debugging purposes, a scale is printed as well. Each note color corresponds to a different duration of the note.}
+    \label{image:detected}
+\end{figure}
 
 \subsection{Interpretation and Playback}
 \subsubsection{Intermediary representation}
