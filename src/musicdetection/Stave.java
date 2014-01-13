@@ -11,6 +11,7 @@ import musicrepresentation.AbstractNote;
 import musicrepresentation.Bar;
 import musicrepresentation.NoteName;
 import musicrepresentation.PlayedNote;
+import musicrepresentation.Shift;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -192,17 +193,23 @@ public class Stave {
 
 		int duration = 0;
 		List<PlayedNote> notes = createPlayedNotes();
+		Map<NoteName, Shift> accidentals = new HashMap<NoteName, Shift>();
 		for (PlayedNote n : notes) {
 
 			Log.i("NOTE", n.toString());
-
+			if (n.shift() != Shift.Natural)
+				accidentals.put(n.name(), n.shift());
 			currentBar.addNote(n);
-
+			
+			if (accidentals.containsKey(n.name()))
+				n.setShift(accidentals.get(n.name()));
+			
 			duration += n.getDuration();
 			if (duration >= AbstractNote.TEMP_44LENGTH) {
 				duration = 0;
 				currentBar = new Bar();
 				bars.add(currentBar);
+				accidentals = new HashMap<NoteName, Shift>();
 			}
 		}
 
