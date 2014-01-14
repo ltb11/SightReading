@@ -101,20 +101,17 @@ public class SightReaderActivity extends Activity {
 				// android library
 				Intent intent = new Intent(SightReaderActivity.this,
 						FileDialogActivity.class);
-				// maybe context should be getBaseContext()?
-				intent.putExtra(FileDialog.START_PATH, OurUtils.getPath(""));
-
 				// set user not able to select directories
-				intent.putExtra(FileDialog.CAN_SELECT_DIR, false);
+				intent.putExtra(FileDialogActivity.CAN_SELECT_DIR, false);
 				// set user not able to create files
-				intent.putExtra(FileDialog.SELECTION_MODE,
+				intent.putExtra(FileDialogActivity.SELECTION_MODE,
 						SelectionMode.MODE_OPEN);
-
 				// restrict file types visible
-				intent.putExtra(FileDialog.FORMAT_FILTER, new String[] { "sr" });
-
+				intent.putExtra(FileDialogActivity.FORMAT_FILTER,
+						new String[] { "midi" });
+				// set default directory for dialog
+				intent.putExtra(FileDialogActivity.START_PATH, OurUtils.getPath(""));
 				startActivityForResult(intent, 0);
-
 			}
 		});
 

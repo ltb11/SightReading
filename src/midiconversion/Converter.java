@@ -1,14 +1,9 @@
 package midiconversion;
-
 import java.util.ArrayList;
-
 import musicrepresentation.AbstractNote;
 import musicrepresentation.Bar;
 import musicrepresentation.Chord;
 import musicrepresentation.Piece;
-
-import android.util.Log;
-
 import com.leff.midi.MidiFile;
 import com.leff.midi.MidiTrack;
 import com.leff.midi.event.meta.Tempo;
@@ -19,7 +14,7 @@ public class Converter{
     public static MidiFile Convert(Piece piece){
         MidiTrack tempoTrack = new MidiTrack();
         MidiTrack noteTrack  = new MidiTrack();
-        int PPQ = 96;
+        int PPQ = 960;
 
         TimeSignature ts = new TimeSignature();
         Tempo t = new Tempo();
@@ -29,20 +24,20 @@ public class Converter{
         tempoTrack.insertEvent(ts);
         tempoTrack.insertEvent(t);
           
-        int crotchetLength = 60000 / (bpm * PPQ);
-        int nextNote = crotchetLength;
+        int nextNote = 0;
         for(Bar bar : piece){
             for(Chord chord: bar){
                 int channel = 0; 
+                int length = 0;
                 for(AbstractNote note: chord){
-                    int duration = note.getDuration();
-                    Log.d("Conrad", ""+duration);
-                    duration /= AbstractNote.CROTCHET_DURATION;
-                    int length = (int) crotchetLength * duration;
+                    double duration = (double) note.getDuration();
+                    duration /= AbstractNote.CROTCHET_DURATION ;
+                    length = (int) (duration*PPQ/2);
                     noteTrack.insertNote(channel,note.getPitch(),note.getVelocity(), nextNote,length);
                     channel++; 
                 }
-                nextNote += chord.shortestNote();
+                nextNote += length;
+                //chord functionality goes back above
             }
         }
         

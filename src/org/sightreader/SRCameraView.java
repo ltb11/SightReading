@@ -92,9 +92,10 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		configured = true;
 		Parameters params = mCamera.getParameters();
 		Size pictureSize = getBestPictureSize(params);
+		Size previewSize = getBestPreviewSize(params);
 
 		params.setPictureSize(pictureSize.width, pictureSize.height);
-		params.setPreviewSize(pictureSize.width, pictureSize.height);
+		params.setPreviewSize(previewSize.width, previewSize.height);
 
 		Size test = params.getPictureSize();
 
@@ -174,6 +175,29 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		this.callback = cameraActivity;
 	}
 
+	private Camera.Size getBestPreviewSize(Camera.Parameters parameters) {
+		Camera.Size result = null;
+
+		for (Camera.Size size : parameters.getSupportedPreviewSizes()) {
+			Log.i("SIZE", "" + size.width + "  " + size.height);
+			if (result == null) {
+				result = size;
+			} else {
+				int resultArea = result.width * result.height;
+				int newArea = size.width * size.height;
+
+				if (newArea > resultArea) {
+					result = size;
+				}
+
+				if (size.width >= 2000)
+					break;
+			}
+		}
+
+		return (result);
+	}
+    
 	private Camera.Size getBestPictureSize(Camera.Parameters parameters) {
 		Camera.Size result = null;
 

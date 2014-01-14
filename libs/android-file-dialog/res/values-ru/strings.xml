@@ -9,4 +9,5 @@
     <string name="cancel">Отмена</string>
     <string name="create">Сохранить</string>
     <string name="no_data">Нет данных</string>
+    <string name="rowdescription">Нет данных</string>
 </resources>
