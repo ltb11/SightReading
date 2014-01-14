@@ -23,6 +23,7 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 import org.sightreader.SightReaderActivity;
+import android.content.Context;
 
 import utils.Interval;
 import utils.OurUtils;
@@ -31,32 +32,19 @@ import android.util.Log;
 
 public class MusicDetector {
 
-	public static final Mat masterTrebleClef = OurUtils.readImage(OurUtils
-			.getPath("assets/GClef.png"));
-	public static final Mat masterFourFour = OurUtils.readImage(OurUtils
-			.getPath("assets/44.png"));
-	public static final Mat masterFlat_inter = OurUtils.readImage(OurUtils
-			.getPath("assets/flat_inter.png"));
-	public static final Mat masterFlat_on = OurUtils.readImage(OurUtils
-			.getPath("assets/flat_on.png"));
-	public static final Mat masterSharp_on = OurUtils.readImage(OurUtils
-			.getPath("assets/sharp_on.png"));
-	public static final Mat masterSharp = OurUtils.readImage(OurUtils
-			.getPath("assets/sharp.png"));
-	public static final Mat masterNatural_on = OurUtils.readImage(OurUtils
-			.getPath("assets/Natural_on.png"));
-	public static final Mat masterHalf_note = OurUtils.readImage(OurUtils
-			.getPath("assets/half_note.png"));
-	public static final Mat masterHalf_note_on = OurUtils.readImage(OurUtils
-			.getPath("assets/half_note_on.png"));
-	public static final Mat masterWhole_note_on = OurUtils.readImage(OurUtils
-			.getPath("assets/whole_note_on.png"));
-	public static final Mat masterWhole_note = OurUtils.readImage(OurUtils
-			.getPath("assets/whole_note.png"));
-	private static final Mat masterQuaverRest = OurUtils.readImage(OurUtils
-			.getPath("assets/quaver_rest.png"));
-	private static final Mat masterNoteRest = OurUtils.readImage(OurUtils
-			.getPath("assets/note_rest.png"));
+	public static Mat masterTrebleClef; 
+	public static Mat masterFourFour;
+	public static Mat masterFlat_inter;
+	public static Mat masterFlat_on;
+	public static Mat masterSharp_on; 
+	public static Mat masterSharp;
+	public static Mat masterNatural_on;
+	public static Mat masterHalf_note; 
+	public static Mat masterHalf_note_on;
+	public static Mat masterWhole_note_on;
+	public static Mat masterWhole_note;
+	private static Mat masterQuaverRest;
+	private static Mat masterNoteRest;
 
 	private final List<Mat> master_half_notes = new LinkedList<Mat>();
 	private final List<Mat> master_whole_notes = new LinkedList<Mat>();
@@ -106,9 +94,22 @@ public class MusicDetector {
 	 * Initialises music detector object and throws error if the preprocessing
 	 * of the image fails
 	 **/
-	public MusicDetector(final Mat input) throws NoMusicDetectedException {
+	public MusicDetector(final Mat input, Context ctx) throws NoMusicDetectedException {
 		workingSheet = preprocess(input);
 		Log.d("Guillaume", "After preprocessing, width: " + workingSheet.cols());
+        this.masterTrebleClef = OurUtils.loadAsset("GClef.png",ctx);
+        this.masterFourFour = OurUtils.loadAsset("44.png",ctx);
+        this.masterFlat_inter = OurUtils.loadAsset("flat_inter.png",ctx);
+        this.masterFlat_on = OurUtils.loadAsset("flat_on.png",ctx);
+        this.masterSharp_on = OurUtils.loadAsset("sharp_on.png",ctx);
+        this.masterSharp = OurUtils.loadAsset("sharp.png",ctx);
+        this.masterNatural_on = OurUtils.loadAsset("natural_on.png",ctx);
+        this.masterHalf_note = OurUtils.loadAsset("half_note.png",ctx);
+        this.masterHalf_note_on = OurUtils.loadAsset("half_note_on.png",ctx);
+        this.masterWhole_note_on = OurUtils.loadAsset("whole_note_on.png",ctx);
+        this.masterWhole_note = OurUtils.loadAsset("whole_note.png",ctx);
+        this.masterQuaverRest = OurUtils.loadAsset("quaver_rest.png",ctx);
+        this.masterNoteRest = OurUtils.loadAsset("note_rest.png",ctx);
 		zerosForTM .setTo(new Scalar(0, 0, 0));
 		master_half_notes.add(masterHalf_note);
 		master_half_notes.add(masterHalf_note_on);
@@ -1099,5 +1100,6 @@ public class MusicDetector {
 					/ 2), new Point(p.x + dotWidth / 2, p.y + dotHeight / 2),
 					new Scalar(0, 255, 128), 6);
 	}
+    
 
 }

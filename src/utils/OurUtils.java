@@ -1,7 +1,9 @@
 package utils;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ import org.opencv.core.Point;
 import org.opencv.core.Range;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.android.Utils;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
@@ -34,6 +37,9 @@ import org.opencv.imgproc.Moments;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.content.res.AssetManager;
+import android.content.res.Resources;
+import android.content.Context;
 import android.graphics.Matrix;
 import android.os.Environment;
 import android.util.Log;
@@ -223,6 +229,21 @@ public class OurUtils {
 		return false;
 	}
 
+    public static Mat loadAsset(String src,Context context){
+        AssetManager assetManager = context.getAssets();
+        InputStream istr = null;
+        try {
+            istr = assetManager.open(src);
+        } catch (IOException e ){
+            e.printStackTrace();
+        }
+        Bitmap bmp = BitmapFactory.decodeStream(istr);
+        Mat m  = new Mat();
+        Utils.bitmapToMat(bmp,m);
+        return m;
+
+    }
+     
 	public static Point isInCircle(Point centre, double radius, Mat ref) {
 		// checks the pixels within a square of side length=radius
 		// of the point where a note is suspected to be. If the area is only

@@ -153,7 +153,7 @@ public class SightReaderActivity extends Activity {
 
 		MusicDetector detector = null;
 		try {
-			detector = new MusicDetector(input);
+			detector = new MusicDetector(input,getApplicationContext());
 			detector.detect();
 			output = detector.print();
 			OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));
