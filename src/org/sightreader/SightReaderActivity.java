@@ -101,20 +101,17 @@ public class SightReaderActivity extends Activity {
 				// android library
 				Intent intent = new Intent(SightReaderActivity.this,
 						FileDialogActivity.class);
-				// maybe context should be getBaseContext()?
-				intent.putExtra(FileDialog.START_PATH, OurUtils.getPath(""));
-
 				// set user not able to select directories
-				intent.putExtra(FileDialog.CAN_SELECT_DIR, false);
+				intent.putExtra(FileDialogActivity.CAN_SELECT_DIR, false);
 				// set user not able to create files
-				intent.putExtra(FileDialog.SELECTION_MODE,
+				intent.putExtra(FileDialogActivity.SELECTION_MODE,
 						SelectionMode.MODE_OPEN);
-
 				// restrict file types visible
-				intent.putExtra(FileDialog.FORMAT_FILTER, new String[] { "sr" });
-
+				intent.putExtra(FileDialogActivity.FORMAT_FILTER,
+						new String[] { "midi" });
+				// set default directory for dialog
+				intent.putExtra(FileDialogActivity.START_PATH, OurUtils.getPath(""));
 				startActivityForResult(intent, 0);
-
 			}
 		});
 
@@ -125,7 +122,7 @@ public class SightReaderActivity extends Activity {
 				String toTest = "INPUT.png";
 				String midi = "baaBaa.midi";
 				testImage(toTest, OurUtils.getDestImage(toTest), midi);
-				//finish();
+				// finish();
 			}
 		});
 
@@ -133,14 +130,18 @@ public class SightReaderActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
-				String[] tests = {"Distorted.jpg", "Baabaa.jpg",
-						"Baabaa 13-11-13 2.jpg"};
+				String[] tests = { "Distorted.jpg", "Baabaa.jpg",
+						"Baabaa 13-11-13 2.jpg" };
 				testProg(tests);
 			}
 		});
 
 	}
-/**Prints debug information on the given image, and saves a MIDI file of the piece**/
+
+	/**
+	 * Prints debug information on the given image, and saves a MIDI file of the
+	 * piece
+	 **/
 	private void testImage(String src, String dstImage, String destMid) {
 		String srcPath = OurUtils.getPath("input/" + src);
 		Mat input = OurUtils.readImage(srcPath);
@@ -154,12 +155,12 @@ public class SightReaderActivity extends Activity {
 			detector = new MusicDetector(input);
 			detector.detect();
 			output = detector.print();
-			OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));                                                                                                                                                                                                                                                                                          
-			
+			OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));
+
 		} catch (NoMusicDetectedException e) {
 			Log.d("Guillaume", "No music detected here!");
 		}
-		
+
 		Piece piece = detector.toPiece();
 		MidiFile f = Converter.Convert(piece);
 		Playback.saveMidiFile(f, destMid);
