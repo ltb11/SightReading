@@ -106,7 +106,8 @@ public class OurUtils {
 		int startY = (int) Math.max(0, start.y - height);
 		int endX = (int) Math.min(mat.width(), start.x + width);
 		int endY = (int) Math.min(mat.height(), start.y + height);
-		MusicDetector.zerosForTM.submat(0, endY - startY, 0, endX - startX).copyTo(mat.submat(startY, endY, startX, endX));
+		MusicDetector.zerosForTM.submat(0, endY - startY, 0, endX - startX)
+				.copyTo(mat.submat(startY, endY, startX, endX));
 	}
 
 	public static void makeColour(Mat sheet, Point topLeft, int width,
@@ -559,7 +560,8 @@ public class OurUtils {
 			return Duration.Quaver;
 		if (duration == 0.25)
 			return Duration.SemiQuaver;
-		return null;
+		Log.d("Guillaume", "Unknown note duration: " + duration);
+		return Duration.Crotchet;
 	}
 
 	public static void saveTempImage(Bitmap bitmap, String fName) {
@@ -669,6 +671,16 @@ public class OurUtils {
 			}
 		}
 		return true;
+	}
+
+	public static boolean isADuplicate(Line l, List<Line> beams) {
+		for (Line line : beams) {
+			if (distanceBetweenTwoPoints(line.start(), l.start()) < 5
+					&& distanceBetweenTwoPoints(line.end(), l.end()) < 5) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/** Use this to save midi images ad .sr connector when files are generated */

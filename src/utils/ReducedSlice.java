@@ -13,7 +13,7 @@ public class ReducedSlice {
 	
 	private final Mat mat;
 	private List<Section> sections;
-	private static final int THRESHOLD = 90;
+	private static final int THRESHOLD = 110; //90
 	private final Point topLeft;
 	private final Point bottomRight;
 
