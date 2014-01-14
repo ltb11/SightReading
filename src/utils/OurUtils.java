@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.lang.StringBuilder;
 
 import musicdetection.Clef;
 import musicdetection.Line;
@@ -237,12 +238,14 @@ public class OurUtils {
         } catch (IOException e ){
             e.printStackTrace();
         }
-        Bitmap bmp = BitmapFactory.decodeStream(istr);
-        Mat m  = new Mat();
+        Bitmap tmp = BitmapFactory.decodeStream(istr);
+        Bitmap bmp = tmp.copy(Bitmap.Config.ARGB_8888,true);
+        Mat m  = new Mat(bmp.getHeight(),bmp.getWidth(),0);
         Utils.bitmapToMat(bmp,m);
+        Log.e("Will","Are they the same height? : " + (m.height() == bmp.getHeight()?"Yes":"No"));
         return m;
-
     }
+
      
 	public static Point isInCircle(Point centre, double radius, Mat ref) {
 		// checks the pixels within a square of side length=radius

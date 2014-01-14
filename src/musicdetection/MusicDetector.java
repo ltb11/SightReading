@@ -261,6 +261,11 @@ public class MusicDetector {
 					s.staveGap() * 8);
 			Mat clefArea = workingSheet.submat(s.yRange(workingSheet.rows()),
 					new Range(0, workingSheet.cols() / 5));
+            Log.e("Will","Are they the same type? : " + (clefArea.type() == trebleClef.type()?"Yes":"No"));
+            Log.e("Will","Image type" + clefArea.type());
+            Log.e("Will","Template type" + trebleClef.type());
+            trebleClef.convertTo(trebleClef,0);
+            Log.e("Will","Are they the same type now???? : " + (clefArea.type() == trebleClef.type()?"Yes":"No"));
 			Imgproc.matchTemplate(clefArea, trebleClef, result,
 					Imgproc.TM_CCOEFF);
 			Log.d("Guillaume", "matchTemplate mat type: " + result.type());
