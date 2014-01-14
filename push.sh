@@ -1,0 +1,5 @@
+#!/bin/sh
+LOCATION=/home/wrd11/documents/SightReading/build/apk/SightReading-debug-unaligned.apk
+PACKAGE=org.sightreader
+
+sudo adb install $LOCATION || (sudo adb uninstall $PACKAGE && sudo adb install $LOCATION)
