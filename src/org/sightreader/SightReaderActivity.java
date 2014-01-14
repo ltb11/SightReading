@@ -74,6 +74,7 @@ public class SightReaderActivity extends Activity {
 
 		// Make sure the necessary folders exist
 		(new File(OurUtils.getPath("") + File.separator + "input")).mkdirs();
+		(new File(OurUtils.getPath("") + File.separator + "midi")).mkdirs();
 		(new File(OurUtils.getPath("") + File.separator + "output")).mkdirs();
 		(new File(OurUtils.getPath("") + File.separator + "assets")).mkdirs();
 	}
