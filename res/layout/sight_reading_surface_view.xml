@@ -61,25 +61,12 @@
                     android:layout_gravity="center"
                     android:text="@string/scan" />
 
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.5" >
-
-                </FrameLayout>
-
                 <Button
                     android:id="@+id/play"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/play" />
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" >
-                </FrameLayout>
 
             </LinearLayout>
 

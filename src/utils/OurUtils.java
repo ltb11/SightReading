@@ -242,7 +242,9 @@ public class OurUtils {
         Bitmap bmp = tmp.copy(Bitmap.Config.ARGB_8888,true);
         Mat m  = new Mat(bmp.getHeight(),bmp.getWidth(),0);
         Utils.bitmapToMat(bmp,m);
-        Log.e("Will","Are they the same height? : " + (m.height() == bmp.getHeight()?"Yes":"No"));
+        writeImage(m,getPath("assets/")+src);
+        m = readImage(getPath("assets/")+src);
+        (new File(getPath("assets"),src)).delete();
         return m;
     }
 
@@ -322,7 +324,7 @@ public class OurUtils {
 	/*****************************************
 	 ************* OTHER METHODS *************
 	 ****************************************/
-
+ 
 	public static Bitmap RotateBitmap(Bitmap source, float angle) {
 		Matrix matrix = new Matrix();
 		matrix.postRotate(angle);

@@ -41,26 +41,13 @@
         android:baselineAligned="false"
         android:layout_weight="1" >
 
-        <FrameLayout
-            android:layout_width="0dip"
+        <org.sightreader.SRCameraView
+            android:id="@+id/sight_reading_camera_view"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:padding="20dp" >
+            android:visibility="gone" />
 
-            <org.sightreader.SRCameraView
-                android:id="@+id/sight_reading_camera_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone" />
 
-        </FrameLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="5dp" >
     </LinearLayout>
 
 </LinearLayout>
