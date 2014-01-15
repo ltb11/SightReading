@@ -123,7 +123,7 @@ public class SightReaderActivity extends Activity {
 				String toTest = "INPUT.png";
 				String midi = "baaBaa.midi";
 				testImage(toTest, OurUtils.getDestImage(toTest), midi);
-				finish();
+				//finish();
 			}
 		});
 
@@ -161,7 +161,6 @@ public class SightReaderActivity extends Activity {
 		} catch (NoMusicDetectedException e) {
 			Log.d("Guillaume", "No music detected here!");
 		}
-		/*
 		try {
 			Piece piece = detector.toPiece();
 			MidiFile f = Converter.Convert(piece);
@@ -170,7 +169,7 @@ public class SightReaderActivity extends Activity {
 			Playback.playMidiFile("baaBaa.midi");
 		} catch (Exception e) {
 			Log.d("Guillaume", "It crashed");
-		}*/
+		}
 
 	}
 
@@ -191,7 +190,7 @@ public class SightReaderActivity extends Activity {
 			else
 				Log.v("Guillaume", s + " fully parsed");
 		}
-		finish();
+		//finish();
 	}
 
 }

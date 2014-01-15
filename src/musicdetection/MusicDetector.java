@@ -467,8 +467,8 @@ public class MusicDetector {
 			for (Note n : s.notes()) {
 				Mat accidentalArea = getAccidentalArea(n);
 				detectFlats(accidentalArea, n, s);
-				// detectSharps(accidentalArea, n, s);
-				// detectNaturals(accidentalArea,n);
+				detectSharps(accidentalArea, n, s);
+				//detectNaturals(accidentalArea,n);
 			}
 		}
 	}
