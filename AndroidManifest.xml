@@ -49,11 +49,13 @@
         </activity>
         <activity
             android:name="ProcessingActivity"
-            android:label="ProcessingActivity" >
+            android:label="ProcessingActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name="FileDialogActivity"
-            android:label="FileDialogActivity" >
+            android:label="FileDialogActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name="PlaybackActivity"
