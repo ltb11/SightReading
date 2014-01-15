@@ -3,16 +3,12 @@ package org.sightreader;
 import java.util.List;
 
 import org.opencv.android.JavaCameraView;
-import org.opencv.android.Utils;
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
 
-import utils.OurUtils;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.PictureCallback;
@@ -24,7 +20,6 @@ import android.view.Surface;
 public class SRCameraView extends JavaCameraView implements PictureCallback {
 
 	private static final String TAG = "SRCameraView";
-	private String mPictureFileName;
 	private int mRotation;
 	private CameraActivity callback;
 	private boolean configured = false;
@@ -67,9 +62,8 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		return mCamera.getParameters().getPreviewSize();
 	}
 
-	public void takePicture(final String fileName, int rotation) {
+	public void takePicture(int rotation) {
 		Log.i(TAG, "Taking picture");
-		mPictureFileName = fileName;
 		mRotation = rotation;
 		// Postview and jpeg are sent in the same buffers if the queue is not
 		// empty when performing a capture.
@@ -107,7 +101,7 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 
 	@Override
 	public void onPictureTaken(byte[] data, Camera camera) {
-		Log.i(TAG, "Saving a bitmap to file");
+		Log.i(TAG, "Decoding camera data");
 		// The camera preview was automatically stopped. Start it again.
 		mCamera.startPreview();
 		mCamera.setPreviewCallback(this);
@@ -116,55 +110,36 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 		Log.i(TAG, "before decode " + (System.currentTimeMillis() - startTime));
 		Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
 		Log.i(TAG, "after decode " + (System.currentTimeMillis() - startTime));
-		Mat tmp = new Mat(bitmap.getWidth(), bitmap.getHeight(), CvType.CV_8UC1);
+		Matrix matrix = new Matrix();
 
-		Utils.bitmapToMat(bitmap, tmp);
-		OurUtils.saveTempImage(bitmap, "INPUT");
-		Log.i(TAG, "after bitmat to map "
-				+ (System.currentTimeMillis() - startTime));
 		// Log.i("CAM",""+camera.equals(mCamera));
 		// Log.i("FINAL_CAMERA_SIZE",size.width+"  "+size.height);
 		// Log.i("BITMAP_SIZE", bitmap.getWidth() + "  " + bitmap.getHeight());
 
-		Mat mRgbaT;
-
 		switch (mRotation) {
 		case Surface.ROTATION_0:
-			mRgbaT = tmp.t();
-			Core.flip(tmp.t(), mRgbaT, 1);
+			matrix.postRotate(90);
 			break;
 		case Surface.ROTATION_90:
-			mRgbaT = tmp;
 			break;
 		case Surface.ROTATION_180:
-			mRgbaT = tmp.t();
-			Core.flip(tmp.t(), mRgbaT, 0);
+			matrix.postRotate(270);
 			break;
 		case Surface.ROTATION_270:
-			mRgbaT = tmp;
-			Core.flip(tmp, mRgbaT, 1);
-			Core.flip(mRgbaT, mRgbaT, 0);
+			matrix.postRotate(180);
 			break;
-		default:
-			mRgbaT = tmp;
 		}
-		Log.i(TAG, "after rotation decode "
-				+ (System.currentTimeMillis() - startTime));
-		if (mRotation == Surface.ROTATION_0
-				|| mRotation == Surface.ROTATION_180) {
-			Bitmap bitmap2 = Bitmap.createBitmap(bitmap.getHeight(),
-					bitmap.getWidth(), bitmap.getConfig());
-			Utils.matToBitmap(mRgbaT, bitmap2);
-			DisplayPhotoActivity.image = bitmap2;
-		} else {
-			Utils.matToBitmap(mRgbaT, bitmap);
-			DisplayPhotoActivity.image = bitmap;
-		}
-		Log.i(TAG, "after mat to bitmap "
-				+ (System.currentTimeMillis() - startTime));
-		
-		OurUtils.saveTempImage(bitmap, "INPUTROT");
-		
+
+		Bitmap rotatedBitmap = Bitmap.createBitmap(bitmap, 0, 0,
+				bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+		Log.i(TAG, "after rotate " + (System.currentTimeMillis() - startTime));
+
+		// TODO this maybe should change to a save and load because i think it
+		// may cause memory problems?
+		DisplayPhotoActivity.image = rotatedBitmap;
+
+		// OurUtils.saveTempImage(bitmap, "INPUTROT");
+
 		if (callback != null) {
 			Intent i = new Intent(callback, DisplayPhotoActivity.class);
 			callback.startActivity(i);
@@ -197,7 +172,7 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 
 		return (result);
 	}
-    
+
 	private Camera.Size getBestPictureSize(Camera.Parameters parameters) {
 		Camera.Size result = null;
 

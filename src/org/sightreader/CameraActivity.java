@@ -15,7 +15,6 @@ import org.opencv.imgproc.Imgproc;
 import utils.OurUtils;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -73,8 +72,9 @@ public class CameraActivity extends Activity implements OnTouchListener,
 			Log.e("TEST", "Cannot connect to OpenCV Manager in cam");
 		}
 
-		(new File(OurUtils.getPath("") + File.separator + "input")).mkdirs();
-		(new File(OurUtils.getPath("") + File.separator + "output")).mkdirs();
+		// (new File(OurUtils.getPath("") + File.separator + "input")).mkdirs();
+		// (new File(OurUtils.getPath("") + File.separator +
+		// "output")).mkdirs();
 		(new File(OurUtils.getPath("") + File.separator + "assets")).mkdirs();
 		(new File(OurUtils.getPath("") + File.separator + "captured")).mkdirs();
 
@@ -89,8 +89,8 @@ public class CameraActivity extends Activity implements OnTouchListener,
 		done = (Button) findViewById(R.id.buttonCameraDone);
 		done.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				if (totalImages > 0) {
-					ProcessingActivity.SetPageNum(totalImages);
+				if (getTotalImages() > 0) {
+					ProcessingActivity.SetPageNum(getTotalImages());
 					CameraActivity.reset();
 
 					Intent i = new Intent(CameraActivity.this,
@@ -109,14 +109,7 @@ public class CameraActivity extends Activity implements OnTouchListener,
 
 	private void updateText() {
 		TextView text = (TextView) findViewById(R.id.savedPagesText);
-		text.setText("  You have saved " + totalImages + " pages");
-	}
-
-	public static void savePage(Bitmap bitmap) {
-		totalImages++;
-		String fName = "page" + totalImages;
-
-		OurUtils.saveTempImage(bitmap, fName);
+		text.setText("  You have saved " + getTotalImages() + " pages");
 	}
 
 	public CameraActivity() {
@@ -164,37 +157,46 @@ public class CameraActivity extends Activity implements OnTouchListener,
 	@Override
 	public boolean onTouch(View v, MotionEvent event) {
 		mOpenCvCameraView.setCallback(this);
-		mOpenCvCameraView.takePicture("page" + (totalImages + 1) + ".jpg",
-				rotation);
+		mOpenCvCameraView.takePicture(rotation);
 
 		return false;
 	}
 
-	public static Mat correctOrientation(Activity activity, Mat mRgba) {
+	public Mat correctOrientation(Activity activity, Mat rgba) {
 		rotation = activity.getWindowManager().getDefaultDisplay()
 				.getRotation();
+
+		Mat rgbaT;
+
 		switch (rotation) {
 		case Surface.ROTATION_0:
-			Mat mRgbaT = mRgba.t();
-			Core.flip(mRgba.t(), mRgbaT, 1);
-			Imgproc.resize(mRgbaT, mRgbaT, mRgba.size());
-			return mRgbaT;
+			rgbaT = rgba.t();
+			Core.flip(rgba.t(), rgbaT, 1);
+			Imgproc.resize(rgbaT, rgbaT, rgba.size());
+			return rgbaT;
 		case Surface.ROTATION_90:
-			return mRgba;
+			return rgba;
 		case Surface.ROTATION_180:
-			Mat mRgbaT1 = mRgba.t();
-			Core.flip(mRgba.t(), mRgbaT1, 0);
-			Imgproc.resize(mRgbaT1, mRgbaT1, mRgba.size());
-			return mRgbaT1;
+			rgbaT = rgba.t();
+			Core.flip(rgba.t(), rgbaT, 0);
+			Imgproc.resize(rgbaT, rgbaT, rgba.size());
+			return rgbaT;
 		case Surface.ROTATION_270:
-			Mat mRgbaT11 = mRgba;
-			Core.flip(mRgba, mRgbaT11, 1);
-			Core.flip(mRgbaT11, mRgbaT11, 0);
-			Imgproc.resize(mRgbaT11, mRgbaT11, mRgba.size());
-			return mRgbaT11;
+			rgbaT = rgba;
+			Core.flip(rgba, rgbaT, 1);
+			Core.flip(rgbaT, rgbaT, 0);
+			return rgbaT;
 		}
 
 		// TODO compensate for mirror if front facing camera
-		return mRgba;
+		return rgba;
+	}
+
+	public static int getTotalImages() {
+		return totalImages;
+	}
+
+	public static void incrementTotalImages() {
+		totalImages++;
 	}
 }

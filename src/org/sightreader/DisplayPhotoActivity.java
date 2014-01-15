@@ -1,5 +1,6 @@
 package org.sightreader;
 
+import utils.OurUtils;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -37,6 +38,11 @@ public class DisplayPhotoActivity extends Activity {
 		initialiseButtons();
 	}
 
+	public void onDestroy() {
+		super.onDestroy();
+		image = null;
+	}
+
 	private void initialiseButtons() {
 		accept = (Button) findViewById(R.id.buttonCameraKeepImage);
 		accept.setOnClickListener(new View.OnClickListener() {
@@ -57,8 +63,21 @@ public class DisplayPhotoActivity extends Activity {
 	}
 
 	private void keepImage() {
-		CameraActivity.savePage(image);
+		savePage(image, CameraActivity.getTotalImages());
+		CameraActivity.incrementTotalImages();
 		finish();
+	}
+
+	public static void savePage(Bitmap bitmap, int totalImages) {
+		Log.i(TAG, "Saving bitmap to file");
+		long startTime = System.currentTimeMillis();
+		Log.i(TAG, "before save " + (System.currentTimeMillis() - startTime));
+
+		String fName = "page" + totalImages;
+
+		OurUtils.saveTempImage(bitmap, fName);
+		
+		Log.i(TAG, "after save " + (System.currentTimeMillis() - startTime));
 	}
 
 }
