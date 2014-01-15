@@ -15,13 +15,13 @@ public class FileDialogActivity extends FileDialog {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-	    if (keyCode == KeyEvent.KEYCODE_BACK) {
-	    	super.finish();
-	        return true;
-	    }
-	    return super.onKeyDown(keyCode, event);
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
+			super.finish();
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
 	}
-	
+
 	@Override
 	public synchronized void onActivityResult(final int requestCode,
 			int resultCode, final Intent data) {
@@ -37,4 +37,5 @@ public class FileDialogActivity extends FileDialog {
 			super.finish();
 		}
 	}
+
 }
