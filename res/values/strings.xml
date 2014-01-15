@@ -4,6 +4,7 @@
     <string name="SR">Sight Reader</string>
     <string name="scan">Scan</string>
     <string name="play">Play</string>
+    <string name="pause">Pause</string>
     <string name="done">Done</string>
     <string name="test">Test</string>
     <string name="playback">Playback</string>
