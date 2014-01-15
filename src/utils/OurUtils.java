@@ -709,6 +709,10 @@ public class OurUtils {
 		return false;
 	}
 
+	public static boolean isAQuaverRest(Point p, Stave s) {
+		return Math.abs(s.staveGapAtPos(p) + s.getTopYAtPos(p) - p.y) < s.staveGapAtPos(p) / 2;
+	}
+
 	/** Use this to save midi images ad .sr connector when files are generated */
 	/*
 	 * public static void saveSRFiles(MidiFile midi, List<Bitmap> images, String
