@@ -1,77 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <LinearLayout
-        android:baselineAligned="false"
-        android:id="@+id/globalLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:descendantFocusability="beforeDescendants"
-	    android:focusableInTouchMode="true"
-	    android:clickable="true"
-	    android:focusable="true" >
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="wrap_content"
+        android:layout_height="0dip"
+        android:layout_weight="0.4"
+        android:src="@drawable/sightreaderlogo"
+        android:contentDescription="@string/sightreaderlogocontent" />
 
-        <LinearLayout
-            android:id="@+id/first_column"
-            android:layout_width="0dip"
-            android:layout_height="match_parent"
-            android:layout_weight="1.0"
-            android:orientation="vertical" >
+    <Button
+        android:id="@+id/play"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/play" />
 
-            <LinearLayout
-                android:id="@+id/title_layout"
-                android:layout_width="match_parent"
-                android:layout_height="0dip"
-                android:layout_weight="0.8"
-                android:gravity="center_vertical"
-                android:orientation="vertical" >
+    <Button
+        android:id="@+id/scan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="@string/scan" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" >
-
-                    <Button
-                        android:id="@+id/test"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/test" />
-
-                    <Button
-                        android:id="@+id/parse"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/parse" />
-
-                </LinearLayout>
-
-                <ImageView
-                    android:id="@+id/imageView1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="0dip"
-                    android:layout_weight="0.5"
-                    android:src="@drawable/sightreaderlogo" />
-
-                <Button
-                    android:id="@+id/scan"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/scan" />
-
-                <Button
-                    android:id="@+id/play"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="@string/play" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </LinearLayout>
-
+    <Button
+        android:id="@+id/parse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/parse"
+        android:layout_gravity="center_horizontal" />
 </LinearLayout>

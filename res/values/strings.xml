@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quit">Quit</string>
+    <string name="SR">Sight Reader</string>
+    <string name="scan">Scan</string>
+    <string name="play">Play</string>
+    <string name="done">Done</string>
+    <string name="test">Test</string>
+    <string name="playback">Playback</string>
+    <string name="reset">Reset</string>
+    <string name="keep">Keep this image?</string>
+    <string name="confirm">  Yes  </string>
+    <string name="retry">Try Again</string>
+    <string name="processing">Processing</string>
+    <string name="default_file_name">complexStaves.png</string>
+    <string name="default_image_description">This is the default image to be scanned and played</string>
+    <string name="camera_description">Image of a camera</string>
+    <string name="scanning">Scanning&#8230;</string>
+    <string name="parse">Parse File</string>
+    <string name="saved">You have saved X pages</string>
+    <string name="photoprompt">Tap to take a photo</string>
+    <string name="sightreaderlogocontent">Sight Reader</string>
+</resources>

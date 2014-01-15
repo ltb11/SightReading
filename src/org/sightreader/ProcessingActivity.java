@@ -26,16 +26,14 @@ import com.leff.midi.MidiFile;
 
 public class ProcessingActivity extends Activity {
 
-	public static final String TAG = "SRCameraActivity";
-	public static EditText currentFileName;
-	public final static long startTime = System.currentTimeMillis();
+	public static final String TAG = "ProcessingActivity";
 
-	private AlertDialog noMusic;
+    private AlertDialog noMusic;
 	private AlertDialog noFile;
 	private AlertDialog noFinal;
 	private AlertDialog unknown;
 	private static int imageNum = 0;
-	private static int pageNum;
+	private static int pageNum = 1;
 
 	public static void SetPageNum(int pageNum) {
 		ProcessingActivity.pageNum = pageNum;
@@ -120,7 +118,6 @@ public class ProcessingActivity extends Activity {
 
 				try {
 					Mat input = loadImage();
-					// OurUtils.writeImage(input,OurUtils.getPath("output/")+"test.png");
 					if (input == null) {
 						Log.e("PROC", "image loaded but null");
 					}
@@ -132,8 +129,8 @@ public class ProcessingActivity extends Activity {
 					Mat output = detector.print();
 					OurUtils.writeImage(output, OurUtils.getPath("output/done.png")); 
 					
-					//Piece piece = detector.toPiece();
-					//pieces.add(piece);
+					Piece piece = detector.toPiece();
+					pieces.add(piece);
 
 				} catch (FileNotFoundException e) {
 					Log.e("PROC", "page " + imageNum + " is missing");
@@ -178,6 +175,7 @@ public class ProcessingActivity extends Activity {
 					unknown.show();
 				}
 			else {
+                reset();
 				Intent i = new Intent(ProcessingActivity.this,
 						PlaybackActivity.class);
 				startActivity(i);
@@ -185,8 +183,7 @@ public class ProcessingActivity extends Activity {
 		}
 
 		private Mat loadImage() throws FileNotFoundException {
-			Mat mat = OurUtils.loadTempMat(imageNum);
-			return mat;
+            return OurUtils.loadTempMat(imageNum);
 		}
 
 		private boolean nextImageExists() {
@@ -198,6 +195,12 @@ public class ProcessingActivity extends Activity {
 				return null;
 			return pieces.get(0);
 		}
+
+        private void reset(){
+            noMusicDet = false;
+            fileNF = false;
+            finalPieceNull = false;
+        }
 
 	}
 }

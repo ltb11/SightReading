@@ -1,17 +1,38 @@
 package utils;
 
+import android.content.Context;
+import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.os.Environment;
+import android.util.Log;
+
+import org.opencv.android.Utils;
+import org.opencv.core.Core;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
+import org.opencv.core.Range;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.core.Size;
+import org.opencv.highgui.Highgui;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
+
 import java.io.File;
-import java.io.InputStream;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.lang.StringBuilder;
 
 import musicdetection.Clef;
 import musicdetection.Line;
@@ -21,29 +42,6 @@ import musicdetection.Stave;
 import musicdetection.StaveLine;
 import musicrepresentation.Duration;
 import musicrepresentation.NoteName;
-
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.Point;
-import org.opencv.core.Range;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
-import org.opencv.android.Utils;
-import org.opencv.core.Size;
-import org.opencv.highgui.Highgui;
-import org.opencv.imgproc.Imgproc;
-import org.opencv.imgproc.Moments;
-
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.content.res.AssetManager;
-import android.content.res.Resources;
-import android.content.Context;
-import android.graphics.Matrix;
-import android.os.Environment;
-import android.util.Log;
 
 public class OurUtils {
 
@@ -605,7 +603,7 @@ public class OurUtils {
 	}
 
 	public static Mat loadTempMat(int imageNum) throws FileNotFoundException {
-		String fName = "page" + (imageNum + 1) + ".png";
+		String fName = "tmp.png";
 		String pName = getPath("temp/");
 		Mat mat = readImage(pName + fName);
 		if (mat == null)
@@ -653,13 +651,12 @@ public class OurUtils {
 
 	public static List<Point> pointListSubtraction(List<Point> ps1,
 			List<Point> ps2, double threshholdDistance) {
-		List<Point> output = ps1;
-		for (Point x : ps1) {
+        for (Point x : ps1) {
 			if (containsPoint(ps2, x, threshholdDistance) != null) {
-				output.remove(x);
+				ps1.remove(x);
 			}
 		}
-		return output;
+		return ps1;
 	}
 
 	public static Point containsPoint(List<Point> ps, Point p,
@@ -688,9 +685,8 @@ public class OurUtils {
 		if (allWhite)
 			return true;
 		sub = eroded.submat(centerY + staveGap / 2, centerY + 2 * staveGap,
-				centerX - staveGap, centerX);
+                centerX - staveGap, centerX);
 		horizontalProj = horizontalProjection(sub);
-		allWhite = true;
 		for (int i = 0; i < horizontalProj.rows(); i++) {
 			if (horizontalProj.get(i, 0)[0] < 10) {
 				return false;
@@ -709,15 +705,17 @@ public class OurUtils {
 		return false;
 	}
 
-	/** Use this to save midi images ad .sr connector when files are generated */
-	/*
-	 * public static void saveSRFiles(MidiFile midi, List<Bitmap> images, String
-	 * saveName) { SRFileBuilder builder = new SRFileBuilder(saveName);
-	 * Iterator<Bitmap> imagesIterator = images.iterator(); for (int i = 1;
-	 * imagesIterator.hasNext(); i++) { saveImage(imagesIterator.next(),
-	 * getPath(IMAGE_FOLDER), saveName + i);
-	 * builder.addImagePath(getPath(IMAGE_FOLDER) + saveName + i + ".png"); }
-	 * Playback.saveMidiFile(midi, saveName); builder.setMidiPath(saveName);
-	 * builder.build(); }
-	 */
+/*
+	public static void saveSRFiles(MidiFile midi, List<Bitmap> images, String saveName) {
+        SRFileBuilder builder = new SRFileBuilder(saveName);
+	    Iterator<Bitmap> imagesIterator = images.iterator();
+        for (int i = 1; imagesIterator.hasNext(); i++) {
+            saveImage(imagesIterator.next(),getPath(IMAGE_FOLDER), saveName + i);
+	        builder.addImagePath(getPath(IMAGE_FOLDER) + saveName + i + ".png");
+        }
+	        Playback.saveMidiFile(midi, saveName);
+            builder.setMidiPath(saveName);
+	        builder.build();
+    }*/
+
 }
