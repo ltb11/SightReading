@@ -123,7 +123,7 @@ public class SightReaderActivity extends Activity {
 				String toTest = "INPUT.png";
 				String midi = "baaBaa.midi";
 				testImage(toTest, OurUtils.getDestImage(toTest), midi);
-				// finish();
+				finish();
 			}
 		});
 
@@ -161,12 +161,16 @@ public class SightReaderActivity extends Activity {
 		} catch (NoMusicDetectedException e) {
 			Log.d("Guillaume", "No music detected here!");
 		}
+		/*
+		try {
+			Piece piece = detector.toPiece();
+			MidiFile f = Converter.Convert(piece);
+			Playback.saveMidiFile(f, destMid);
 
-		Piece piece = detector.toPiece();
-		MidiFile f = Converter.Convert(piece);
-		Playback.saveMidiFile(f, destMid);
-
-		Playback.playMidiFile("baaBaa.midi");
+			Playback.playMidiFile("baaBaa.midi");
+		} catch (Exception e) {
+			Log.d("Guillaume", "It crashed");
+		}*/
 
 	}
 
