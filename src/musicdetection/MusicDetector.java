@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import musicrepresentation.Bar;
 import musicrepresentation.Piece;
@@ -25,11 +23,11 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 import org.sightreader.SightReaderActivity;
-import android.content.Context;
 
 import utils.Interval;
 import utils.OurUtils;
 import utils.SheetStrip;
+import android.content.Context;
 import android.util.Log;
 
 public class MusicDetector {
@@ -57,6 +55,9 @@ public class MusicDetector {
 	private static final int beamToNoteTolerance = 30;
 	private static final int beamJoinTolerance = 8;
 	private static final int beamHorizontalThresholdTolerance = 6;
+
+	private static final int[] keySignatureFlats = new int[] { 4, 1, 5, 2, 6,
+			3, 7 };
 
 	private Mat trebleClef;
 	private Mat fourFour;
@@ -88,6 +89,7 @@ public class MusicDetector {
 	private List<Point> naturals = new LinkedList<Point>();
 	private List<Point> quaverRests = new LinkedList<Point>();
 	private List<Point> noteRests = new LinkedList<Point>();
+	private Map<Point, Shift> keySignature = new HashMap<Point, Shift>();
 
 	private Map<Point, Note> dots = new HashMap<Point, Note>();
 	public static Mat zerosForTM = new Mat(new Size(1000, 1000), 5);
@@ -103,19 +105,26 @@ public class MusicDetector {
 		// OurUtils.writeImage(workingSheet,
 		// OurUtils.getPath("pres/preprocessedImage.png"));
 		Log.d("Guillaume", "After preprocessing, width: " + workingSheet.cols());
-		this.masterTrebleClef = OurUtils.loadAsset("GClef.png", ctx);
-		this.masterFourFour = OurUtils.loadAsset("44.png", ctx);
-		this.masterFlat_inter = OurUtils.loadAsset("flat_inter.png", ctx);
-		this.masterFlat_on = OurUtils.loadAsset("flat_on.png", ctx);
-		this.masterSharp_on = OurUtils.loadAsset("sharp_on.png", ctx);
-		this.masterSharp = OurUtils.loadAsset("sharp.png", ctx);
-		this.masterNatural_on = OurUtils.loadAsset("natural_on.png", ctx);
-		this.masterHalf_note = OurUtils.loadAsset("half_note.png", ctx);
-		this.masterHalf_note_on = OurUtils.loadAsset("half_note_on.png", ctx);
-		this.masterWhole_note_on = OurUtils.loadAsset("whole_note_on.png", ctx);
-		this.masterWhole_note = OurUtils.loadAsset("whole_note.png", ctx);
-		this.masterQuaverRest = OurUtils.loadAsset("quaver_rest.png", ctx);
-		this.masterNoteRest = OurUtils.loadAsset("note_rest.png", ctx);
+		MusicDetector.masterTrebleClef = OurUtils.loadAsset("GClef.png", ctx);
+		MusicDetector.masterFourFour = OurUtils.loadAsset("44.png", ctx);
+		MusicDetector.masterFlat_inter = OurUtils.loadAsset("flat_inter.png",
+				ctx);
+		MusicDetector.masterFlat_on = OurUtils.loadAsset("flat_on.png", ctx);
+		MusicDetector.masterSharp_on = OurUtils.loadAsset("sharp_on.png", ctx);
+		MusicDetector.masterSharp = OurUtils.loadAsset("sharp.png", ctx);
+		MusicDetector.masterNatural_on = OurUtils.loadAsset("natural_on.png",
+				ctx);
+		MusicDetector.masterHalf_note = OurUtils
+				.loadAsset("half_note.png", ctx);
+		MusicDetector.masterHalf_note_on = OurUtils.loadAsset(
+				"half_note_on.png", ctx);
+		MusicDetector.masterWhole_note_on = OurUtils.loadAsset(
+				"whole_note_on.png", ctx);
+		MusicDetector.masterWhole_note = OurUtils.loadAsset("whole_note.png",
+				ctx);
+		MusicDetector.masterQuaverRest = OurUtils.loadAsset("quaver_rest.png",
+				ctx);
+		MusicDetector.masterNoteRest = OurUtils.loadAsset("note_rest.png", ctx);
 		zerosForTM.setTo(new Scalar(0, 0, 0));
 		master_half_notes.add(masterHalf_note);
 		master_half_notes.add(masterHalf_note_on);
@@ -444,6 +453,44 @@ public class MusicDetector {
 		}
 	}
 
+	private void detectKeySignature() {
+		for (Stave s : staves) {
+			Mat result = new Mat();
+			flat_on = OurUtils.resizeImage(masterFlat_on, s.staveGap());
+			int flats_detected = 0;
+			boolean detected = false;
+			// Not up to n.center().x because of half-notes that are
+			// detected as flat if too close
+			do {
+				detected = false;
+				Mat accidentalArea = workingSheet
+						.submat(new Range(
+								(int) (s.topLine().start().y + (keySignatureFlats[flats_detected] - 2)
+										/ 2 * s.staveGap()),
+								(int) (s.topLine().start().y + (keySignatureFlats[flats_detected] + 2)
+										/ 2 * s.staveGap())),
+								new Range((int) s.originalClef().x
+										+ trebleClef.cols(), (int) s
+										.originalClef().x
+										+ trebleClef.cols()
+										+ 100));
+				Imgproc.matchTemplate(accidentalArea, flat_on, result,
+						Imgproc.TM_CCOEFF_NORMED);
+				Point minLoc;
+				if (Core.minMaxLoc(result).minVal < -0.5) {
+					minLoc = Core.minMaxLoc(result).minLoc;
+					keySignature.put(minLoc, Shift.Flat);
+					s.addToKeySignature(Shift.Flat);
+					detected = true;
+					/*
+					 * Point p is minLoc in the coordinate system of the
+					 * original image, not the accidentalArea
+					 */
+				}
+			} while (detected);
+		}
+	}
+
 	/**
 	 * Returns a submatrix to the left of a given note bounded in the y
 	 * direction by n.y plus or minus the stave gap and in the x direction
@@ -497,7 +544,9 @@ public class MusicDetector {
 					&& !OurUtils.isInAnyRectangle(trebleClefs,
 							trebleClef.width(), trebleClef.height(), p)
 					&& !OurUtils.isInAnyRectangle(fourFours, fourFour.width(),
-							fourFour.height(), p)) {
+							fourFour.height(), p)
+					&& !OurUtils.isInAnyRectangle(flats, flat_on.cols(),
+							flat_on.rows(), p)) {
 				flats.add(p);
 				n.setShift(Shift.Flat);
 			}
@@ -1146,6 +1195,9 @@ public class MusicDetector {
 		for (Point p : flats)
 			Core.rectangle(sheet, p, new Point(p.x + flat_on.cols(), p.y
 					+ flat_on.rows()), new Scalar(255, 0, 127), 4);
+		for (Point p : keySignature.keySet())
+			Core.rectangle(sheet, p, new Point(p.x + flat_on.cols(), p.y
+					+ flat_on.rows()), new Scalar(127, 0, 127), 4);
 	}
 
 	private void printSharps(Mat sheet) {
