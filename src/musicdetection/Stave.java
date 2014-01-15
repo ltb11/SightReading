@@ -30,7 +30,7 @@ public class Stave {
 	private Map<Point, Time> times;
 	private Point originalClef;
 	private Point startDetection;
-	private Map<Point, Shift> keySignature;
+	private Map<NoteName, Shift> keySignature;
 
 	private List<Note> notes;
 
@@ -43,7 +43,7 @@ public class Stave {
 		clefs = new HashMap<Point, Clef>();
 		notes = new LinkedList<Note>();
 		times = new HashMap<Point, Time>();
-		keySignature = new HashMap<Point, Shift>();
+		keySignature = new HashMap<NoteName, Shift>();
 		originalClef = null;
 		startDetection = null;
 	}
@@ -68,8 +68,29 @@ public class Stave {
 	}
 
 	public boolean isOnStaveLine(Line l) {
-		return (Math.abs(topLine().start().y - l.start().y) < staveGap / 3 && l.length > topLine().length / 10
-				|| Math.abs(bottomLine().start().y - l.start().y) < staveGap / 3 && l.length > bottomLine().length / 10);
+		return (Math.abs(topLine().start().y - l.start().y) < staveGap / 3
+				&& l.length > topLine().length / 10 || Math.abs(bottomLine()
+				.start().y - l.start().y) < staveGap / 3
+				&& l.length > bottomLine().length / 10);
+	}
+
+	// Only implemented for flats
+	public void addToKeySignature(Shift flat) {
+		switch (keySignature.keySet().size()) {
+		case 0:
+			keySignature.put(NoteName.B, flat);
+			break;
+		case 1:
+			keySignature.put(NoteName.E, flat);
+			break;
+		case 2:
+			keySignature.put(NoteName.A, flat);
+			break;
+		default:
+			Log.d("Guillaume",
+					"This should not be printed @Stave.addToKeySignature. keySignature size: "
+							+ keySignature.keySet().size());
+		}
 	}
 
 	public Point startDetection() {
@@ -109,8 +130,8 @@ public class Stave {
 		return new Range((int) Math.max(0, topLine().start().y - 4 * staveGap),
 				(int) Math.min(maxRows, bottomLine().start().y + 4 * staveGap));
 	}
-	
-	public Range closeYRange(int maxRows){
+
+	public Range closeYRange(int maxRows) {
 		return new Range((int) Math.max(0, topLine().start().y),
 				(int) Math.min(maxRows, bottomLine().start().y));
 	}
@@ -160,7 +181,7 @@ public class Stave {
 			calculateNotePitchFor(n);
 		}
 	}
-	
+
 	private void calculateNotePitchFor(Note n) {
 		double nx = (n.center().x);
 		double ny = (n.center().y);
@@ -199,13 +220,8 @@ public class Stave {
 
 		int duration = 0;
 		List<PlayedNote> notes = createPlayedNotes();
-		Map<NoteName, Shift> keySignatureConverted = new HashMap<NoteName, Shift>();
-		for (Point p : keySignature.keySet()) {
-			Note note = new Note(p, 1);
-			calculateNotePitchFor(note);
-			keySignatureConverted.put(note.toPlayedNote().name(), keySignature.get(p));
-		}
-		Map<NoteName, Shift> accidentals = new HashMap<NoteName, Shift>(keySignatureConverted);
+		Map<NoteName, Shift> accidentals = new HashMap<NoteName, Shift>(
+				keySignature);
 		for (PlayedNote n : notes) {
 
 			Log.i("NOTE", n.toString());
@@ -215,16 +231,16 @@ public class Stave {
 				accidentals.put(n.name(), n.shift());
 			}
 			currentBar.addNote(n);
-			
+
 			if (accidentals.containsKey(n.name()))
 				n.setShift(accidentals.get(n.name()));
-			
+
 			duration += n.getDuration();
 			if (duration >= AbstractNote.TEMP_44LENGTH) {
 				duration = 0;
 				currentBar = new Bar();
 				bars.add(currentBar);
-				accidentals = new HashMap<NoteName, Shift>(keySignatureConverted);
+				accidentals = new HashMap<NoteName, Shift>(keySignature);
 			}
 		}
 

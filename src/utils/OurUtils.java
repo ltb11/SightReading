@@ -1,7 +1,9 @@
 package utils;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -9,6 +11,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.lang.StringBuilder;
 
 import musicdetection.Clef;
 import musicdetection.Line;
@@ -27,6 +30,7 @@ import org.opencv.core.Point;
 import org.opencv.core.Range;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.android.Utils;
 import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
@@ -34,6 +38,9 @@ import org.opencv.imgproc.Moments;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.content.res.AssetManager;
+import android.content.res.Resources;
+import android.content.Context;
 import android.graphics.Matrix;
 import android.os.Environment;
 import android.util.Log;
@@ -106,7 +113,8 @@ public class OurUtils {
 		int startY = (int) Math.max(0, start.y - height);
 		int endX = (int) Math.min(mat.width(), start.x + width);
 		int endY = (int) Math.min(mat.height(), start.y + height);
-		MusicDetector.zerosForTM.submat(0, endY - startY, 0, endX - startX).copyTo(mat.submat(startY, endY, startX, endX));
+		MusicDetector.zerosForTM.submat(0, endY - startY, 0, endX - startX)
+				.copyTo(mat.submat(startY, endY, startX, endX));
 	}
 
 	public static void makeColour(Mat sheet, Point topLeft, int width,
@@ -223,6 +231,25 @@ public class OurUtils {
 		return false;
 	}
 
+    public static Mat loadAsset(String src,Context context){
+        AssetManager assetManager = context.getAssets();
+        InputStream istr = null;
+        try {
+            istr = assetManager.open(src);
+        } catch (IOException e ){
+            e.printStackTrace();
+        }
+        Bitmap tmp = BitmapFactory.decodeStream(istr);
+        Bitmap bmp = tmp.copy(Bitmap.Config.ARGB_8888,true);
+        Mat m  = new Mat(bmp.getHeight(),bmp.getWidth(),0);
+        Utils.bitmapToMat(bmp,m);
+        writeImage(m,getPath("assets/")+src);
+        m = readImage(getPath("assets/")+src);
+        (new File(getPath("assets"),src)).delete();
+        return m;
+    }
+
+     
 	public static Point isInCircle(Point centre, double radius, Mat ref) {
 		// checks the pixels within a square of side length=radius
 		// of the point where a note is suspected to be. If the area is only
@@ -298,7 +325,7 @@ public class OurUtils {
 	/*****************************************
 	 ************* OTHER METHODS *************
 	 ****************************************/
-
+ 
 	public static Bitmap RotateBitmap(Bitmap source, float angle) {
 		Matrix matrix = new Matrix();
 		matrix.postRotate(angle);
@@ -559,7 +586,8 @@ public class OurUtils {
 			return Duration.Quaver;
 		if (duration == 0.25)
 			return Duration.SemiQuaver;
-		return null;
+		Log.d("Guillaume", "Unknown note duration: " + duration);
+		return Duration.Crotchet;
 	}
 
 	public static void saveTempImage(Bitmap bitmap, String fName) {
@@ -669,6 +697,20 @@ public class OurUtils {
 			}
 		}
 		return true;
+	}
+
+	public static boolean isADuplicate(Line l, List<Line> beams) {
+		for (Line line : beams) {
+			if (distanceBetweenTwoPoints(line.start(), l.start()) < 5
+					&& distanceBetweenTwoPoints(line.end(), l.end()) < 5) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean isAQuaverRest(Point p, Stave s) {
+		return Math.abs(s.staveGapAtPos(p) + s.getTopYAtPos(p) - p.y) < s.staveGapAtPos(p) / 2;
 	}
 
 	/** Use this to save midi images ad .sr connector when files are generated */

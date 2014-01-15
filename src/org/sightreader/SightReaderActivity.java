@@ -74,6 +74,7 @@ public class SightReaderActivity extends Activity {
 
 		// Make sure the necessary folders exist
 		(new File(OurUtils.getPath("") + File.separator + "input")).mkdirs();
+		(new File(OurUtils.getPath("") + File.separator + "midi")).mkdirs();
 		(new File(OurUtils.getPath("") + File.separator + "output")).mkdirs();
 		(new File(OurUtils.getPath("") + File.separator + "assets")).mkdirs();
 	}
@@ -119,10 +120,10 @@ public class SightReaderActivity extends Activity {
 		findViewById(R.id.parse).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				String toTest = "INPUT.png";
+				String toTest = "StarWars.jpg";
 				String midi = "baaBaa.midi";
 				testImage(toTest, OurUtils.getDestImage(toTest), midi);
-				// finish();
+				//finish();
 			}
 		});
 
@@ -152,7 +153,7 @@ public class SightReaderActivity extends Activity {
 
 		MusicDetector detector = null;
 		try {
-			detector = new MusicDetector(input);
+			detector = new MusicDetector(input,getApplicationContext());
 			detector.detect();
 			output = detector.print();
 			OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));
@@ -160,12 +161,15 @@ public class SightReaderActivity extends Activity {
 		} catch (NoMusicDetectedException e) {
 			Log.d("Guillaume", "No music detected here!");
 		}
+		try {
+			Piece piece = detector.toPiece();
+			MidiFile f = Converter.Convert(piece);
+			Playback.saveMidiFile(f, destMid);
 
-		Piece piece = detector.toPiece();
-		MidiFile f = Converter.Convert(piece);
-		Playback.saveMidiFile(f, destMid);
-
-		Playback.playMidiFile("baaBaa.midi");
+			Playback.playMidiFile("baaBaa.midi");
+		} catch (Exception e) {
+			Log.d("Guillaume", "It crashed");
+		}
 
 	}
 
@@ -186,7 +190,7 @@ public class SightReaderActivity extends Activity {
 			else
 				Log.v("Guillaume", s + " fully parsed");
 		}
-		finish();
+		//finish();
 	}
 
 }

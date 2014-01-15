@@ -3,13 +3,6 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.8" >
-
-    </FrameLayout>
-
     <TextView
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
@@ -23,11 +16,5 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center" />
-
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1" >
-    </FrameLayout>
 
 </LinearLayout>
