@@ -146,7 +146,19 @@ public class MusicDetector {
 		for (SheetStrip strip : strips) {
 			lines.addAll(strip.FindLines());
 		}
-
+		
+		// --------------------------
+		Mat allLines = rawInput.clone();
+		Imgproc.cvtColor(allLines, allLines, Imgproc.COLOR_GRAY2BGR);
+		for(StaveLine line:lines) { 
+			for (Line l : line.getLines()) {
+				Core.line(allLines, l.start(), l.end(), new Scalar(0,0,255)); 
+				continue;
+			} 
+		}
+		OurUtils.writeImage(allLines, OurUtils.getPath("temp/ALL_STAVE_LINES.png"));
+		// --------------------------
+		
 		Log.i("PROC", "detecting staves");
 		detectStaves(lines);
 

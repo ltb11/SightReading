@@ -132,8 +132,8 @@ public class ProcessingActivity extends Activity {
 					Mat output = detector.print();
 					OurUtils.writeImage(output, OurUtils.getPath("output/done.png")); 
 					
-					//Piece piece = detector.toPiece();
-					//pieces.add(piece);
+					Piece piece = detector.toPiece();
+					pieces.add(piece);
 
 				} catch (FileNotFoundException e) {
 					Log.e("PROC", "page " + imageNum + " is missing");

@@ -43,7 +43,7 @@ public class OurUtils {
 	private static final double staveGapTolerance = 0.2;
 	public static final String sdPath = Environment
 			.getExternalStorageDirectory().getAbsolutePath() + "/DCIM/";
-	public static final int totalVerticalSlices = 30;
+	public static final int totalVerticalSlices = 20;
 	public static final double STANDARD_IMAGE_WIDTH = 2500;
 
 	public static final String DATA_FOLDER = "data";
@@ -75,7 +75,14 @@ public class OurUtils {
 				Mat section = new Mat(sheet, new Range(i, yMax), new Range(j,
 						xMax));
 				double mean = Core.mean(section).val[0];
-				mean = Math.max(Math.min(mean * 0.9, 255), 0);
+				
+				// reduce the mean a little
+				double m1 = mean*0.75; double m2 = mean-15;
+				mean = mean-14;//Math.min(m1,m2);
+				Log.i("PREPROC",m1+"  -  "+m2);
+				
+				// clamp it
+				mean = Math.max(Math.min(mean, 255), 0);
 				Imgproc.threshold(section, section, mean, 256,
 						Imgproc.THRESH_BINARY);
 
@@ -559,7 +566,8 @@ public class OurUtils {
 			return Duration.Quaver;
 		if (duration == 0.25)
 			return Duration.SemiQuaver;
-		return null;
+		Log.d("Guillaume", "Note unknown! Duration: " + duration);
+		return Duration.Crotchet;
 	}
 
 	public static void saveTempImage(Bitmap bitmap, String fName) {
