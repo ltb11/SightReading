@@ -82,9 +82,9 @@ public class OurUtils {
 				double mean = Core.mean(section).val[0];
 				
 				// reduce the mean a little
-				double m1 = mean*0.75; double m2 = mean-15;
-				mean = mean-12;//Math.min(m1,m2);
-				Log.i("PREPROC",m1+"  -  "+m2);
+				//double m1 = mean*0.75; double m2 = mean-15;
+				mean = mean-16;//Math.min(m1,m2);
+				//Log.i("PREPROC",m1+"  -  "+m2);
 				
 				// clamp it
 				mean = Math.max(Math.min(mean, 255), 0);
