@@ -125,52 +125,6 @@ public class SightReaderActivity extends Activity {
 			}
 		});
 
-		// Set up button to test parsing
-		findViewById(R.id.parse).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				String toTest = "page1.png";
-				String midi = "baaBaa.midi";
-				testImage(toTest, OurUtils.getDestImage(toTest), midi);
-				// finish();
-			}
-		});
-
 	}
 
-	/**
-	 * Prints debug information on the given image, and saves a MIDI file of the
-	 * piece
-	 **/
-	private void testImage(String src, String dstImage, String destMid) {
-		String srcPath = OurUtils.getPath("input/" + src);
-		Mat input = OurUtils.readImage(srcPath);
-		Log.d("Guillaume",
-				"Original image width before scaling: " + input.cols());
-		Mat output = input.clone();
-		Imgproc.cvtColor(output, output, Imgproc.COLOR_GRAY2BGR);
-
-		MusicDetector detector = null;
-		try {
-			detector = new MusicDetector(input, getApplicationContext());
-			detector.detect();
-			output = detector.print();
-			OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));
-
-		} catch (NoMusicDetectedException e) {
-			Log.d("Guillaume", "No music detected here!");
-		}
-		try {
-			Piece piece = detector.toPiece();
-			MidiFile f = Converter.Convert(piece);
-			Playback.saveMidiFile(f, destMid);
-
-			Playback.playMidiFile("baaBaa.midi");
-		} catch (Exception e) {
-			Log.d("Guillaume", "It crashed");
-		}
-
-	}
-
-		// finish();
 }

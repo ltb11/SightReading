@@ -107,8 +107,8 @@ public class ProcessingActivity extends Activity {
 		private boolean noMusicDet = false;
 		private boolean fileNF = false;
 		private boolean finalPieceNull = false;
-        private String  tmpFolder = "temp/"
-        private String  tmpMidiFile = "output.midi"
+        private String  tmpFolder = "temp/";
+        private String  tmpMidiFile = "output.midi";
 
 		@Override
 		protected String doInBackground(String... arg0) {
