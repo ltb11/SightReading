@@ -33,6 +33,7 @@ public class SightReaderActivity extends Activity {
     private Button scan;
 	private Button play;
     private static final int CAMERA_REQUEST = 1888;
+    private static final int FILE_DIALOG_REQUEST = 1066;
 	public final static long startTime = System.currentTimeMillis();
 
 	private BaseLoaderCallback mOpenCVCallBack = new BaseLoaderCallback(this) {
@@ -83,6 +84,12 @@ public class SightReaderActivity extends Activity {
                     ProcessingActivity.class);
             startActivity(i);
         }
+		if (requestCode ==  FILE_DIALOG_REQUEST && resultCode == RESULT_OK) {
+			String filePath = data.getStringExtra(FileDialogActivity.RESULT_PATH);
+			Intent intent = new Intent(SightReaderActivity.this, PlaybackActivity.class);
+			intent.putExtra(PlaybackActivity.FILE_PATH, filePath);
+			startActivity(intent);
+        } 	
     }
 
 	private void initialiseButtons() {
@@ -114,7 +121,7 @@ public class SightReaderActivity extends Activity {
 						new String[] { "midi" });
 				// set default directory for dialog
 				intent.putExtra(FileDialogActivity.START_PATH, OurUtils.getPath("midi/"));
-				startActivityForResult(intent, 0);
+				startActivityForResult(intent, FILE_DIALOG_REQUEST);
 			}
 		});
 

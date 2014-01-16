@@ -107,6 +107,8 @@ public class ProcessingActivity extends Activity {
 		private boolean noMusicDet = false;
 		private boolean fileNF = false;
 		private boolean finalPieceNull = false;
+        private String  tmpFolder = "temp/"
+        private String  tmpMidiFile = "output.midi"
 
 		@Override
 		protected String doInBackground(String... arg0) {
@@ -159,7 +161,7 @@ public class ProcessingActivity extends Activity {
 			}
 
 			MidiFile midi = Converter.Convert(finalPiece);
-			Playback.saveMidiFile(midi, "temp/", "output.midi");
+			Playback.saveMidiFile(midi, tmpFolder ,tmpMidiFile);
 
 			return "Executed";
 		}
@@ -179,6 +181,7 @@ public class ProcessingActivity extends Activity {
 			else {
 				Intent i = new Intent(getApplicationContext(),
 						PlaybackActivity.class);
+                i.putExtra(PlaybackActivity.FILE_PATH,OurUtils.getPath(tmpFolder+tmpMidiFile));
 				startActivity(i);
 				finish();
 			}

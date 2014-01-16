@@ -20,9 +20,8 @@ public class Playback {
 		playMidiFile("midi/", fileName);
 	}
 
-	public static MediaPlayer getMidiFile(String folder, String fileName) {
-		String path = OurUtils.getPath(folder);
-		File f = new File(path, fileName);
+	public static MediaPlayer getMidiFile(String filePath) {
+		File f = new File(filePath);
 
 		try {
 			FileInputStream fis = new FileInputStream(f);
@@ -42,7 +41,7 @@ public class Playback {
 	}
 
 	public static void playMidiFile(String folder, String fileName) {
-		MediaPlayer player = getMidiFile(folder, fileName);
+		MediaPlayer player = getMidiFile(OurUtils.getPath(folder + fileName));
 		player.start();
 		Log.i("Playback", "Playback started: " + fileName);
 

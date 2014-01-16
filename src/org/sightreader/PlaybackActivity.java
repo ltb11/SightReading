@@ -21,8 +21,8 @@ public class PlaybackActivity extends Activity {
 	private MediaPlayer player;
     private SeekBar seekBar;
 	private boolean playing = false;
-	private String folderName = "temp/";
-	private String midiFileName = "output.midi";
+	private String filePath;
+	public static final String FILE_PATH = "FILEPATH";
 	File midiFile;
 	private Handler mHandler;
     private Runnable mRunnable;
@@ -36,9 +36,10 @@ public class PlaybackActivity extends Activity {
 		Log.i(TAG, "playback creating");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.sight_reading_playback_view);
-
-
-		player = Playback.getMidiFile(folderName, midiFileName);
+        
+        Intent intent = getIntent();
+        filePath = intent.getStringExtra("FILEPATH"); 
+		player = Playback.getMidiFile(filePath);
 		
 		// String path = OurUtils.getPath(folderName);
 		// midiFile = new File(path, midiFileName);

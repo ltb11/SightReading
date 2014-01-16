@@ -3,6 +3,7 @@ package org.sightreader;
 import android.app.Activity;
 import android.content.Intent;
 import android.view.KeyEvent;
+import android.util.Log;
 
 import com.lamerman.FileDialog;
 
@@ -21,21 +22,5 @@ public class FileDialogActivity extends FileDialog {
 		}
 		return super.onKeyDown(keyCode, event);
 	}
-
-	@Override
-	public synchronized void onActivityResult(final int requestCode,
-			int resultCode, final Intent data) {
-		if (resultCode == Activity.RESULT_OK) {
-			// user selected file
-			String filePath = data.getStringExtra(FileDialog.RESULT_PATH);
-			Intent intent = new Intent(getApplicationContext(), PlaybackActivity.class);
-			intent.putExtra("FILEPATH", filePath);
-			startActivity(intent);
-		} else if (resultCode == Activity.RESULT_CANCELED) {
-			// user selected back button
-			// this should go back to start screen
-			super.finish();
-		}
-	}
-
+    
 }
