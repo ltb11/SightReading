@@ -45,7 +45,8 @@
         </activity>
         <activity
             android:name="DisplayPhotoActivity"
-            android:label="DisplayPhotoActivity" >
+            android:label="DisplayPhotoActivity"
+            android:screenOrientation="portrait" >
         </activity>
         <activity
             android:name="ProcessingActivity"
