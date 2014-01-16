@@ -13,7 +13,7 @@
 
     <uses-sdk
         android:minSdkVersion="9"
-        android:targetSdkVersion="17" />
+        android:targetSdkVersion="19" />
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -40,15 +40,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="CameraActivity"
-            android:label="CameraActivity" >
-        </activity>
-        <activity
-            android:name="DisplayPhotoActivity"
-            android:label="DisplayPhotoActivity"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
+
             android:name="ProcessingActivity"
             android:label="ProcessingActivity"
             android:screenOrientation="portrait" >

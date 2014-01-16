@@ -11,16 +11,21 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
+
+import android.os.Handler;
 
 public class PlaybackActivity extends Activity {
 
 	public static final String TAG = "SRPlaybackActivity";
-	public final static long startTime = System.currentTimeMillis();
 	private MediaPlayer player;
+    private SeekBar seekBar;
 	private boolean playing = false;
 	private String folderName = "temp/";
 	private String midiFileName = "output.midi";
 	File midiFile;
+	private Handler mHandler;
+        private Runnable mRunnable;
 
 	// private Button accept;
 	// private Button discard;
@@ -32,11 +37,25 @@ public class PlaybackActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.sight_reading_playback_view);
 
-		initialiseButtons();
 
 		player = Playback.getMidiFile(folderName, midiFileName);
+		
 		// String path = OurUtils.getPath(folderName);
 		// midiFile = new File(path, midiFileName);
+		
+        initialiseButtons();
+        mHandler = new Handler();
+        mRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if(player != null){
+                    int mCurrentPosition = player.getCurrentPosition() /1000;
+                    seekBar.setProgress(mCurrentPosition);
+                }
+                mHandler.postDelayed(this,1000);
+            }
+        };
+        mRunnable.run();
 	}
 
 	private void initialiseButtons() {
@@ -47,14 +66,14 @@ public class PlaybackActivity extends Activity {
 						if (player.isPlaying()) {
 							playing = false;
 							player.pause();
-							// player.stop();
+                    ((Button) findViewById(R.id.playbackButton)).setText(R.string.play);
 							findViewById(R.id.playbackButton)
 									.setBackgroundResource(
 											R.drawable.media_play);
 						} else {
 							playing = true;
 							player.start();
-							findViewById(R.id.playbackButton)
+                    ((Button)findViewById(R.id.playbackButton)).setText(R.string.pause);
 									.setBackgroundResource(
 											R.drawable.media_pause);
 						}
@@ -88,6 +107,27 @@ public class PlaybackActivity extends Activity {
 		// midiFile.delete();
 		// }
 		// });
+
+        seekBar = (SeekBar) findViewById(R.id.seekBar);
+        seekBar.setMax(player.getDuration());
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                if(player != null && b) player.seekTo(i * 1000);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
 
 	}
 }

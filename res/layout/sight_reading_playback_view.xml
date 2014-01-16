@@ -3,33 +3,43 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/playback"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1" >
 
-        <ImageButton
-            android:id="@+id/playbackButton"
+        <TextView
+            android:id="@+id/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|top"
+            android:text="@string/playback"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_margin="20dip" />
+
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/seekBar"
+            android:layout_gravity="center" />
+
+        <Button
+            android:id="@+id/playback_resetApp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|bottom"
+            android:text="@string/reset"
+            android:layout_marginRight="20dip"
+            android:layout_marginBottom="20dip" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/play"
+            android:id="@+id/playbackButton"
             android:layout_gravity="center"
-            android:src="@android:drawable/ic_media_play" />
+            android:layout_marginTop="50dip" />
 
     </FrameLayout>
-
-    <Button
-        android:id="@+id/playback_resetApp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/reset" />
 
 </LinearLayout>

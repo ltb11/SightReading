@@ -1,11 +1,17 @@
 package org.sightreader;
 
-import java.io.File;
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
 
-import midiconversion.Converter;
-import musicdetection.MusicDetector;
-import musicdetection.NoMusicDetectedException;
-import musicrepresentation.Piece;
+import com.lamerman.SelectionMode;
+import com.leff.midi.MidiFile;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
@@ -14,27 +20,21 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.File;
+import midiconversion.Converter;
+import musicdetection.MusicDetector;
+import musicdetection.NoMusicDetectedException;
+import musicrepresentation.Piece;
 import playback.Playback;
 import utils.OurUtils;
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.EditText;
-import com.lamerman.SelectionMode;
-import com.leff.midi.MidiFile;
 
 public class SightReaderActivity extends Activity {
 	public static final String TAG = "SightReaderActivity";
-	public static EditText currentFileName;
-	private Button scan;
+    private Button scan;
 	private Button play;
+    private static final int CAMERA_REQUEST = 1888;
 	public final static long startTime = System.currentTimeMillis();
 
-	// load the OpenCV library
 	private BaseLoaderCallback mOpenCVCallBack = new BaseLoaderCallback(this) {
 		@Override
 		public void onManagerConnected(int status) {
@@ -77,27 +77,31 @@ public class SightReaderActivity extends Activity {
 		(new File(OurUtils.getPath("") + File.separator + "assets")).mkdirs();
 	}
 
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK){
+            Intent i = new Intent(SightReaderActivity.this,
+                    ProcessingActivity.class);
+            startActivity(i);
+        }
+    }
+
 	private void initialiseButtons() {
 		// Set up the button which takes you to the camera
 		scan = (Button) findViewById(R.id.scan);
 		scan.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				Intent i = new Intent(SightReaderActivity.this,
-						CameraActivity.class);
-				startActivity(i);
-			}
+            @Override
+            public void onClick(View view) {
+                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                File file = new File(OurUtils.getPath("temp/tmp.png"));
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+                startActivityForResult(cameraIntent, CAMERA_REQUEST);
+            }
 		});
 
 		// Set up the button which takes you to playback
 		play = (Button) findViewById(R.id.play);
 		play.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				// to get the file dialogue library use the below command:
-				// svn checkout
-				// http://android-file-dialog.googlecode.com/svn/trunk/
-				// android-file-dialog-read-only
-				// then import the project to eclipse and add the project to the
-				// android library
 				Intent intent = new Intent(SightReaderActivity.this,
 						FileDialogActivity.class);
 				// set user not able to select directories
@@ -109,7 +113,7 @@ public class SightReaderActivity extends Activity {
 				intent.putExtra(FileDialogActivity.FORMAT_FILTER,
 						new String[] { "midi" });
 				// set default directory for dialog
-				intent.putExtra(FileDialogActivity.START_PATH,
+				intent.putExtra(FileDialogActivity.START_PATH, OurUtils.getPath("midi/"));
 						OurUtils.getPath("temp/"));
 				startActivityForResult(intent, 0);
 			}
@@ -123,16 +127,6 @@ public class SightReaderActivity extends Activity {
 				String midi = "baaBaa.midi";
 				testImage(toTest, OurUtils.getDestImage(toTest), midi);
 				// finish();
-			}
-		});
-
-		findViewById(R.id.test).setOnClickListener(new View.OnClickListener() {
-
-			@Override
-			public void onClick(View v) {
-				String[] tests = { "Distorted.jpg", "Baabaa.jpg",
-						"Baabaa 13-11-13 2.jpg" };
-				testProg(tests);
 			}
 		});
 
@@ -172,24 +166,5 @@ public class SightReaderActivity extends Activity {
 
 	}
 
-	public void testProg(String[] tests) {
-		for (String s : tests) {
-			String dstImage = OurUtils.getDestImage(s);
-			testImage(s, dstImage, OurUtils.getDestMid(s));
-			Mat ref = OurUtils.readImage(OurUtils.getPath("ref/" + dstImage));
-			Imgproc.cvtColor(ref, ref, Imgproc.COLOR_GRAY2BGR);
-			Mat toTest = OurUtils.readImage(OurUtils.getPath("output/"
-					+ dstImage));
-			Imgproc.cvtColor(toTest, toTest, Imgproc.COLOR_GRAY2BGR);
-			Mat dest = new Mat();
-			Core.bitwise_xor(ref, toTest, dest);
-			if (Core.norm(dest, Core.NORM_INF) != 0)
-				Log.d("Guillaume", s
-						+ " not fully parsed. Pixels not identical");
-			else
-				Log.v("Guillaume", s + " fully parsed");
-		}
 		// finish();
-	}
-
 }
