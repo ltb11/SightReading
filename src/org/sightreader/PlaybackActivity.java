@@ -67,15 +67,10 @@ public class PlaybackActivity extends Activity {
 							playing = false;
 							player.pause();
                     ((Button) findViewById(R.id.playbackButton)).setText(R.string.play);
-							findViewById(R.id.playbackButton)
-									.setBackgroundResource(
-											R.drawable.media_play);
 						} else {
 							playing = true;
 							player.start();
                     ((Button)findViewById(R.id.playbackButton)).setText(R.string.pause);
-									.setBackgroundResource(
-											R.drawable.media_pause);
 						}
 					}
 				});

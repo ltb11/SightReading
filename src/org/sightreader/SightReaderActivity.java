@@ -114,7 +114,6 @@ public class SightReaderActivity extends Activity {
 						new String[] { "midi" });
 				// set default directory for dialog
 				intent.putExtra(FileDialogActivity.START_PATH, OurUtils.getPath("midi/"));
-						OurUtils.getPath("temp/"));
 				startActivityForResult(intent, 0);
 			}
 		});
