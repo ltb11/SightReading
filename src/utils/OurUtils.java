@@ -92,6 +92,7 @@ public class OurUtils {
 	}
 
 	public static Mat resizeImage(Mat image, double newHeight) {
+		//TODO this occasionally crashes the app
 		double newWidth = newHeight * image.cols() / image.rows();
 		Size newSize = new Size(newWidth, newHeight);
 

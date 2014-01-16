@@ -35,8 +35,8 @@ public class PlaybackActivity extends Activity {
 		initialiseButtons();
 
 		player = Playback.getMidiFile(folderName, midiFileName);
-		String path = OurUtils.getPath(folderName);
-		midiFile = new File(path, midiFileName);
+		// String path = OurUtils.getPath(folderName);
+		// midiFile = new File(path, midiFileName);
 	}
 
 	private void initialiseButtons() {
@@ -44,9 +44,10 @@ public class PlaybackActivity extends Activity {
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						if (playing) {
+						if (player.isPlaying()) {
 							playing = false;
-							player.stop();
+							player.pause();
+							// player.stop();
 							findViewById(R.id.playbackButton)
 									.setBackgroundResource(
 											R.drawable.media_play);
@@ -64,28 +65,29 @@ public class PlaybackActivity extends Activity {
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
+						// player.stop();
+						// findViewById(R.id.playbackButton)
+						// .setBackgroundResource(R.drawable.media_play);
+						// player.start();
 						finish();
-						// Intent i = new Intent(PlaybackActivity.this,
-						// SightReaderActivity.class);
-						// startActivity(i);
 					}
 				});
 
-		accept = (Button) findViewById(R.id.buttonCameraKeepImage);
-		accept.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				String path = OurUtils.getPath(folderName);
-				File save = new File(path, "new text");
-				midiFile.renameTo(save);
-			}
-		});
-
-		discard = (Button) findViewById(R.id.buttonCameraDiscardImage);
-		discard.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				midiFile.delete();
-			}
-		});
+		// accept = (Button) findViewById(R.id.buttonCameraKeepImage);
+		// accept.setOnClickListener(new View.OnClickListener() {
+		// public void onClick(View v) {
+		// String path = OurUtils.getPath(folderName);
+		// File save = new File(path, "new text");
+		// midiFile.renameTo(save);
+		// }
+		// });
+		//
+		// discard = (Button) findViewById(R.id.buttonCameraDiscardImage);
+		// discard.setOnClickListener(new View.OnClickListener() {
+		// public void onClick(View v) {
+		// midiFile.delete();
+		// }
+		// });
 
 	}
 }

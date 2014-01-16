@@ -109,7 +109,8 @@ public class SightReaderActivity extends Activity {
 				intent.putExtra(FileDialogActivity.FORMAT_FILTER,
 						new String[] { "midi" });
 				// set default directory for dialog
-				intent.putExtra(FileDialogActivity.START_PATH, OurUtils.getPath(""));
+				intent.putExtra(FileDialogActivity.START_PATH,
+						OurUtils.getPath("temp/"));
 				startActivityForResult(intent, 0);
 			}
 		});
@@ -121,7 +122,7 @@ public class SightReaderActivity extends Activity {
 				String toTest = "StarWars.jpg";
 				String midi = "baaBaa.midi";
 				testImage(toTest, OurUtils.getDestImage(toTest), midi);
-				//finish();
+				// finish();
 			}
 		});
 
@@ -151,7 +152,7 @@ public class SightReaderActivity extends Activity {
 
 		MusicDetector detector = null;
 		try {
-			detector = new MusicDetector(input,getApplicationContext());
+			detector = new MusicDetector(input, getApplicationContext());
 			detector.detect();
 			output = detector.print();
 			OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));
@@ -188,7 +189,7 @@ public class SightReaderActivity extends Activity {
 			else
 				Log.v("Guillaume", s + " fully parsed");
 		}
-		//finish();
+		// finish();
 	}
 
 }

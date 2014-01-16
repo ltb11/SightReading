@@ -54,7 +54,6 @@ public class ProcessingActivity extends Activity {
 		imageNum = 0;
 
 		new ProcessingTask().execute("");
-
 	}
 
 	private void initialiseAlerts() {
@@ -181,7 +180,6 @@ public class ProcessingActivity extends Activity {
 					unknown.show();
 				}
 			else {
-				// Intent i = new Intent(ProcessingActivity.this,
 				Intent i = new Intent(getApplicationContext(),
 						PlaybackActivity.class);
 				startActivity(i);
