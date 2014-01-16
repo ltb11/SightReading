@@ -61,7 +61,7 @@ public class DisplayPhotoActivity extends Activity {
 	}
 
 	private void keepImage() {
-		savePage(image, CameraActivity.getTotalImages());
+		savePage(image, CameraActivity.getTotalImages() + 1);
 		CameraActivity.incrementTotalImages();
 		finish();
 	}

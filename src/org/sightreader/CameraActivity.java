@@ -96,6 +96,7 @@ public class CameraActivity extends Activity implements OnTouchListener,
 					Intent i = new Intent(CameraActivity.this,
 							ProcessingActivity.class);
 					startActivity(i);
+					finish();
 				} else {
 					// TODO
 				}

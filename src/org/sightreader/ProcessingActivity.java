@@ -34,7 +34,7 @@ public class ProcessingActivity extends Activity {
 	private AlertDialog noFile;
 	private AlertDialog noFinal;
 	private AlertDialog unknown;
-	private static int imageNum = 0;
+	private static int imageNum;
 	private static int pageNum;
 
 	public static void SetPageNum(int pageNum) {
@@ -50,7 +50,8 @@ public class ProcessingActivity extends Activity {
 
 		initialiseButtons();
 		initialiseAlerts();
-		// noMusic.show();
+
+		imageNum = 0;
 
 		new ProcessingTask().execute("");
 
@@ -125,15 +126,17 @@ public class ProcessingActivity extends Activity {
 						Log.e("PROC", "image loaded but null");
 					}
 
-					MusicDetector detector = new MusicDetector(input,getApplicationContext());
+					MusicDetector detector = new MusicDetector(input,
+							getApplicationContext());
 					detector.detect();
-					
+
 					// TODO:
 					Mat output = detector.print();
-					OurUtils.writeImage(output, OurUtils.getPath("output/done.png")); 
-					
-					//Piece piece = detector.toPiece();
-					//pieces.add(piece);
+					OurUtils.writeImage(output,
+							OurUtils.getPath("output/done.png"));
+
+					// Piece piece = detector.toPiece();
+					// pieces.add(piece);
 
 				} catch (FileNotFoundException e) {
 					Log.e("PROC", "page " + imageNum + " is missing");
@@ -178,9 +181,11 @@ public class ProcessingActivity extends Activity {
 					unknown.show();
 				}
 			else {
-				Intent i = new Intent(ProcessingActivity.this,
+				// Intent i = new Intent(ProcessingActivity.this,
+				Intent i = new Intent(getApplicationContext(),
 						PlaybackActivity.class);
 				startActivity(i);
+				finish();
 			}
 		}
 
