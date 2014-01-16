@@ -121,6 +121,7 @@ public class SRCameraView extends JavaCameraView implements PictureCallback {
 			matrix.postRotate(90);
 			break;
 		case Surface.ROTATION_90:
+			matrix.postRotate(0);
 			break;
 		case Surface.ROTATION_180:
 			matrix.postRotate(270);

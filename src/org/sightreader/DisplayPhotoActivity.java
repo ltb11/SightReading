@@ -27,7 +27,7 @@ public class DisplayPhotoActivity extends Activity {
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		Log.i(TAG, "called onCamCreate");
+		Log.i(TAG, "called onCreate DisplayPhotoActivity");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.sight_reading_image_view);
 
@@ -76,7 +76,7 @@ public class DisplayPhotoActivity extends Activity {
 		String fName = "page" + totalImages;
 
 		OurUtils.saveTempImage(bitmap, fName);
-		
+
 		Log.i(TAG, "after save " + (System.currentTimeMillis() - startTime));
 	}
 
