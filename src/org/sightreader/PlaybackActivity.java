@@ -25,7 +25,7 @@ public class PlaybackActivity extends Activity {
 	private String midiFileName = "output.midi";
 	File midiFile;
 	private Handler mHandler;
-        private Runnable mRunnable;
+    private Runnable mRunnable;
 
 	// private Button accept;
 	// private Button discard;
@@ -48,16 +48,17 @@ public class PlaybackActivity extends Activity {
         mRunnable = new Runnable() {
             @Override
             public void run() {
+                Log.i(TAG, "trying to update");
                 if(player != null){
                     int mCurrentPosition = player.getCurrentPosition() /1000;
                     seekBar.setProgress(mCurrentPosition);
+                    Log.i(TAG, "totally should have updated");
                 }
                 mHandler.postDelayed(this,1000);
             }
         };
         mRunnable.run();
 	}
-
 	private void initialiseButtons() {
 		findViewById(R.id.playbackButton).setOnClickListener(
 				new View.OnClickListener() {
@@ -80,9 +81,8 @@ public class PlaybackActivity extends Activity {
 					@Override
 					public void onClick(View v) {
 						player.pause();
-						findViewById(R.id.playbackButton)
-								.setBackgroundResource(R.drawable.media_play);
-						player.seekTo(0);
+						((Button) findViewById(R.id.playbackButton)).setText(R.string.play);
+                        player.seekTo(0);
 						// finish();
 					}
 				});
@@ -104,8 +104,11 @@ public class PlaybackActivity extends Activity {
 		// });
 
         seekBar = (SeekBar) findViewById(R.id.seekBar);
-        seekBar.setMax(player.getDuration());
-
+        player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            public void onPrepared(MediaPlayer song){
+                seekBar.setMax(song.getDuration()); 
+            }
+        });
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
