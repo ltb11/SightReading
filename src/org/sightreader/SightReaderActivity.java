@@ -120,7 +120,7 @@ public class SightReaderActivity extends Activity {
 		findViewById(R.id.parse).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				String toTest = "StarWars.jpg";
+				String toTest = "page1.png";
 				String midi = "baaBaa.midi";
 				testImage(toTest, OurUtils.getDestImage(toTest), midi);
 				//finish();

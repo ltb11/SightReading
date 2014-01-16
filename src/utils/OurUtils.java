@@ -74,7 +74,7 @@ public class OurUtils {
 
 		int width = sheet.cols();
 		int height = sheet.rows();
-		int sep = 250;
+		int sep = 700;
 		for (int j = 0; j < width; j += sep) {
 			for (int i = 0; i < height; i += sep) {
 				int xMax = Math.min(j + sep, width);
@@ -85,7 +85,7 @@ public class OurUtils {
 				
 				// reduce the mean a little
 				double m1 = mean*0.75; double m2 = mean-15;
-				mean = mean-14;//Math.min(m1,m2);
+				mean = mean-12;//Math.min(m1,m2);
 				Log.i("PREPROC",m1+"  -  "+m2);
 				
 				// clamp it
