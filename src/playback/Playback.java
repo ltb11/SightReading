@@ -6,20 +6,20 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import utils.OurUtils;
+import android.media.MediaPlayer;
+import android.util.Log;
+
 import com.leff.midi.MidiFile;
 import com.leff.midi.MidiTrack;
 import com.leff.midi.event.NoteOff;
 import com.leff.midi.event.NoteOn;
 import com.leff.midi.event.meta.Tempo;
 
-import utils.OurUtils;
-import android.media.MediaPlayer;
-import android.util.Log;
-
 public class Playback {
 
 	public static void playMidiFile(String fileName) {
-		playMidiFile("midi/",fileName);
+		playMidiFile("midi/", fileName);
 	}
 
 	public static MediaPlayer getMidiFile(String folder, String fileName) {
@@ -33,28 +33,30 @@ public class Playback {
 			MediaPlayer mediaPlayer = new MediaPlayer();
 			mediaPlayer.setDataSource(fd);
 			mediaPlayer.prepare();
+
+			fis.close();
 			return mediaPlayer;
-			//fis.close();
 		} catch (Exception e) {
 			Log.e("Playback", e.toString());
 			return null;
 		}
 
 	}
-	
+
 	public static void playMidiFile(String folder, String fileName) {
-		MediaPlayer player = getMidiFile(folder,fileName);
+		MediaPlayer player = getMidiFile(folder, fileName);
 		player.start();
 		Log.i("Playback", "Playback started: " + fileName);
 
 	}
-	
+
 	public static void saveMidiFile(MidiFile midi, String fileName) {
 		saveMidiFile(midi, "midi/", fileName);
 
 	}
-	
-	public static void saveMidiFile(MidiFile midi, String folder, String fileName) {
+
+	public static void saveMidiFile(MidiFile midi, String folder,
+			String fileName) {
 		String path = OurUtils.getPath(folder);
 		File output = new File(path, fileName);
 		try {

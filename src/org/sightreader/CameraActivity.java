@@ -14,6 +14,8 @@ import org.opencv.imgproc.Imgproc;
 
 import utils.OurUtils;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -36,6 +38,8 @@ public class CameraActivity extends Activity implements OnTouchListener,
 	private Mat mRgba;
 	static int rotation = 0;
 	private static int totalImages = 0;
+
+	private AlertDialog noPages;
 
 	private Button done;
 
@@ -96,6 +100,7 @@ public class CameraActivity extends Activity implements OnTouchListener,
 					Intent i = new Intent(CameraActivity.this,
 							ProcessingActivity.class);
 					startActivity(i);
+					finish();
 				} else {
 					// TODO
 				}

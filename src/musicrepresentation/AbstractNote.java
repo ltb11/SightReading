@@ -1,6 +1,5 @@
 package musicrepresentation;
 
-import android.util.Log;
 
 public abstract class AbstractNote {
    private final Duration duration;

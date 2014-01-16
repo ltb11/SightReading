@@ -28,7 +28,7 @@ public class FileDialogActivity extends FileDialog {
 		if (resultCode == Activity.RESULT_OK) {
 			// user selected file
 			String filePath = data.getStringExtra(FileDialog.RESULT_PATH);
-			Intent intent = new Intent(getBaseContext(), PlaybackActivity.class);
+			Intent intent = new Intent(getApplicationContext(), PlaybackActivity.class);
 			intent.putExtra("FILEPATH", filePath);
 			startActivity(intent);
 		} else if (resultCode == Activity.RESULT_CANCELED) {

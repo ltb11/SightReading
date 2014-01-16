@@ -15,7 +15,6 @@ import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
 import playback.Playback;
-
 import utils.OurUtils;
 import android.app.Activity;
 import android.content.Intent;
@@ -25,7 +24,6 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
-import com.lamerman.FileDialog;
 import com.lamerman.SelectionMode;
 import com.leff.midi.MidiFile;
 
@@ -111,7 +109,8 @@ public class SightReaderActivity extends Activity {
 				intent.putExtra(FileDialogActivity.FORMAT_FILTER,
 						new String[] { "midi" });
 				// set default directory for dialog
-				intent.putExtra(FileDialogActivity.START_PATH, OurUtils.getPath(""));
+				intent.putExtra(FileDialogActivity.START_PATH,
+						OurUtils.getPath("temp/"));
 				startActivityForResult(intent, 0);
 			}
 		});
@@ -123,7 +122,7 @@ public class SightReaderActivity extends Activity {
 				String toTest = "page1.png";
 				String midi = "baaBaa.midi";
 				testImage(toTest, OurUtils.getDestImage(toTest), midi);
-				//finish();
+				// finish();
 			}
 		});
 
@@ -153,7 +152,7 @@ public class SightReaderActivity extends Activity {
 
 		MusicDetector detector = null;
 		try {
-			detector = new MusicDetector(input,getApplicationContext());
+			detector = new MusicDetector(input, getApplicationContext());
 			detector.detect();
 			output = detector.print();
 			OurUtils.writeImage(output, OurUtils.getPath("output/" + dstImage));
@@ -190,7 +189,7 @@ public class SightReaderActivity extends Activity {
 			else
 				Log.v("Guillaume", s + " fully parsed");
 		}
-		//finish();
+		// finish();
 	}
 
 }
