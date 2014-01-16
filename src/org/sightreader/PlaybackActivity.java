@@ -22,8 +22,8 @@ public class PlaybackActivity extends Activity {
 	private String midiFileName = "output.midi";
 	File midiFile;
 
-	private Button accept;
-	private Button discard;
+	// private Button accept;
+	// private Button discard;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -65,11 +65,11 @@ public class PlaybackActivity extends Activity {
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
-						// player.stop();
-						// findViewById(R.id.playbackButton)
-						// .setBackgroundResource(R.drawable.media_play);
-						// player.start();
-						finish();
+						player.pause();
+						findViewById(R.id.playbackButton)
+								.setBackgroundResource(R.drawable.media_play);
+						player.seekTo(0);
+						// finish();
 					}
 				});
 
