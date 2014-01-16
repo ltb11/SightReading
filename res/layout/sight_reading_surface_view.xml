@@ -16,7 +16,7 @@
 
         <LinearLayout
             android:id="@+id/first_column"
-            android:layout_width="wrap_content"
+            android:layout_width="0dip"
             android:layout_height="match_parent"
             android:layout_weight="1.0"
             android:orientation="vertical" >
@@ -24,7 +24,7 @@
             <LinearLayout
                 android:id="@+id/title_layout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dip"
                 android:layout_weight="0.8"
                 android:gravity="center_vertical"
                 android:orientation="vertical" >
@@ -50,7 +50,7 @@
                 <ImageView
                     android:id="@+id/imageView1"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="0dip"
                     android:layout_weight="0.5"
                     android:src="@drawable/sightreaderlogo" />
 
@@ -61,25 +61,12 @@
                     android:layout_gravity="center"
                     android:text="@string/scan" />
 
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="0.5" >
-
-                </FrameLayout>
-
                 <Button
                     android:id="@+id/play"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="@string/play" />
-
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1" >
-                </FrameLayout>
 
             </LinearLayout>
 

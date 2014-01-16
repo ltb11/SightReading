@@ -125,7 +125,7 @@ public class ProcessingActivity extends Activity {
 						Log.e("PROC", "image loaded but null");
 					}
 
-					MusicDetector detector = new MusicDetector(input);
+					MusicDetector detector = new MusicDetector(input,getApplicationContext());
 					detector.detect();
 					
 					// TODO:

@@ -137,7 +137,8 @@ public class FileDialog extends ListActivity {
 			}
 		});
 
-		selectionMode = getIntent().getIntExtra(SELECTION_MODE, SelectionMode.MODE_CREATE);
+		selectionMode = getIntent().getIntExtra(SELECTION_MODE,
+				SelectionMode.MODE_CREATE);
 
 		formatFilter = getIntent().getStringArrayExtra(FORMAT_FILTER);
 
@@ -166,7 +167,8 @@ public class FileDialog extends ListActivity {
 			@Override
 			public void onClick(View v) {
 				if (mFileName.getText().length() > 0) {
-					getIntent().putExtra(RESULT_PATH, currentPath + "/" + mFileName.getText());
+					getIntent().putExtra(RESULT_PATH,
+							currentPath + "/" + mFileName.getText());
 					setResult(RESULT_OK, getIntent());
 					finish();
 				}
@@ -220,36 +222,34 @@ public class FileDialog extends ListActivity {
 		}
 		myPath.setText(getText(R.string.location) + ": " + currentPath);
 
-		if (!currentPath.equals(ROOT)) {
+//		if (!currentPath.equals(ROOT)) {
+//			item.add(ROOT);
+//			addItem(ROOT, R.drawable.folder);
+//			path.add(ROOT);
+//
+//			item.add("../");
+//			addItem("../", R.drawable.folder);
+//			path.add(f.getParent());
+//			parentPath = f.getParent();
+//		}
 
-			item.add(ROOT);
-			addItem(ROOT, R.drawable.folder);
-			path.add(ROOT);
-
-			item.add("../");
-			addItem("../", R.drawable.folder);
-			path.add(f.getParent());
-			parentPath = f.getParent();
-
-		}
-
-		TreeMap<String, String> dirsMap = new TreeMap<String, String>();
-		TreeMap<String, String> dirsPathMap = new TreeMap<String, String>();
+//		TreeMap<String, String> dirsMap = new TreeMap<String, String>();
+//		TreeMap<String, String> dirsPathMap = new TreeMap<String, String>();
 		TreeMap<String, String> filesMap = new TreeMap<String, String>();
 		TreeMap<String, String> filesPathMap = new TreeMap<String, String>();
 		for (File file : files) {
 			if (file.isDirectory()) {
-				String dirName = file.getName();
-				dirsMap.put(dirName, dirName);
-				dirsPathMap.put(dirName, file.getPath());
+//				String dirName = file.getName();
+//				dirsMap.put(dirName, dirName);
+//				dirsPathMap.put(dirName, file.getPath());
 			} else {
 				final String fileName = file.getName();
-				final String fileNameLwr = fileName.toLowerCase(Locale.US);
+				final String fileNameLwr = fileName.toLowerCase();
 				// se ha um filtro de formatos, utiliza-o
 				if (formatFilter != null) {
 					boolean contains = false;
 					for (int i = 0; i < formatFilter.length; i++) {
-						final String formatLwr = formatFilter[i].toLowerCase(Locale.US);
+						final String formatLwr = formatFilter[i].toLowerCase();
 						if (fileNameLwr.endsWith(formatLwr)) {
 							contains = true;
 							break;
@@ -266,17 +266,19 @@ public class FileDialog extends ListActivity {
 				}
 			}
 		}
-		item.addAll(dirsMap.tailMap("").values());
+//		item.addAll(dirsMap.tailMap("").values());
 		item.addAll(filesMap.tailMap("").values());
-		path.addAll(dirsPathMap.tailMap("").values());
+//		path.addAll(dirsPathMap.tailMap("").values());
 		path.addAll(filesPathMap.tailMap("").values());
 
-		SimpleAdapter fileList = new SimpleAdapter(this, mList, R.layout.file_dialog_row, new String[] {
-				ITEM_KEY, ITEM_IMAGE }, new int[] { R.id.fdrowtext, R.id.fdrowimage });
+		SimpleAdapter fileList = new SimpleAdapter(this, mList,
+				R.layout.file_dialog_row,
+				new String[] { ITEM_KEY, ITEM_IMAGE }, new int[] {
+						R.id.fdrowtext, R.id.fdrowimage });
 
-		for (String dir : dirsMap.tailMap("").values()) {
-			addItem(dir, R.drawable.folder);
-		}
+//		for (String dir : dirsMap.tailMap("").values()) {
+//			addItem(dir, R.drawable.folder);
+//		}
 
 		for (String file : filesMap.tailMap("").values()) {
 			addItem(file, R.drawable.file);
@@ -319,15 +321,20 @@ public class FileDialog extends ListActivity {
 					selectButton.setEnabled(true);
 				}
 			} else {
-				new AlertDialog.Builder(this).setIcon(R.drawable.icon)
-						.setTitle("[" + file.getName() + "] " + getText(R.string.cant_read_folder))
-						.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+				new AlertDialog.Builder(this)
+						.setIcon(R.drawable.icon)
+						.setTitle(
+								"[" + file.getName() + "] "
+										+ getText(R.string.cant_read_folder))
+						.setPositiveButton("OK",
+								new DialogInterface.OnClickListener() {
 
-							@Override
-							public void onClick(DialogInterface dialog, int which) {
+									@Override
+									public void onClick(DialogInterface dialog,
+											int which) {
 
-							}
-						}).show();
+									}
+								}).show();
 			}
 		} else {
 			selectedFile = file;

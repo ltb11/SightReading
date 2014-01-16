@@ -16,6 +16,13 @@ public abstract class AbstractNote {
         this.dots = dots;
         this.velocity=velocity;
    }
+   /**
+    *  Returns a value of the duration in terms of multiples of hemidemisemi something quavers <br>
+    *  1024 = minim <br>
+    *  512 = crotchet <br>
+    *  256 = quaver <br>
+    *  128 = semi-quaver <br>
+    */
    public int getDuration(){
         int val = value(duration);
         for(int i = dots; i != 0; --i){
@@ -26,7 +33,6 @@ public abstract class AbstractNote {
     
     private int value(Duration duration){
         int value = 32 * 512; //smallest possible division of a note is 1/512, ain't nobody got time for fractions...
-        Log.d("Guillaume", ""+duration);
         int ord = duration.ordinal();
         while(ord > 0){
             value /= 2;
