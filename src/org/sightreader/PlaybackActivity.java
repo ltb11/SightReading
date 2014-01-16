@@ -72,6 +72,7 @@ public class PlaybackActivity extends Activity {
 
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         seekBar.setMax(player.getDuration());
+
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
