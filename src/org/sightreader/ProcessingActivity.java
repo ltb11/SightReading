@@ -140,7 +140,7 @@ public class ProcessingActivity extends Activity {
 					fileNF = true;
 					return "Failed";
 
-				} catch (NoMusicDetectedException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 					success = false;
 					noMusicDet = true;

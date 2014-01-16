@@ -51,7 +51,7 @@ public class MusicDetector {
 	private final List<Mat> master_whole_notes = new LinkedList<Mat>();
 
 	public static final int beamLengthTolerance = 30;
-	public static final int noteMinDistance = 25;
+	public static final int noteMinDistance = 30;
 
 	private static final int beamToNoteTolerance = 30;
 	private static final int beamJoinTolerance = 8;
@@ -94,7 +94,7 @@ public class MusicDetector {
 	private Map<Point, Shift> keySignature = new HashMap<Point, Shift>();
 	private List<Point> barLines = new LinkedList<Point>();
 	private Map<Point, Note> dots = new HashMap<Point, Note>();
-	
+
 	public static Mat zerosForTM = new Mat(new Size(1000, 1000), 5);
 
 	/**
@@ -121,8 +121,8 @@ public class MusicDetector {
 				.loadAsset("half_note.png", ctx);
 		MusicDetector.masterHalf_note_on = OurUtils.loadAsset(
 				"half_note_on.png", ctx);
-        	MusicDetector.masterBarLine = OurUtils.loadAsset("barLine.png",ctx);
-        
+		MusicDetector.masterBarLine = OurUtils.loadAsset("barLine.png", ctx);
+
 		MusicDetector.masterWhole_note = OurUtils.loadAsset("whole_note.png",
 				ctx);
 		MusicDetector.masterQuaverRest = OurUtils.loadAsset("quaver_rest.png",
@@ -165,19 +165,20 @@ public class MusicDetector {
 		for (SheetStrip strip : strips) {
 			lines.addAll(strip.FindLines());
 		}
-		
+
 		// --------------------------
 		Mat allLines = rawInput.clone();
 		Imgproc.cvtColor(allLines, allLines, Imgproc.COLOR_GRAY2BGR);
-		for(StaveLine line:lines) { 
+		for (StaveLine line : lines) {
 			for (Line l : line.getLines()) {
-				Core.line(allLines, l.start(), l.end(), new Scalar(0,0,255)); 
+				Core.line(allLines, l.start(), l.end(), new Scalar(0, 0, 255));
 				continue;
-			} 
+			}
 		}
-		OurUtils.writeImage(allLines, OurUtils.getPath("temp/ALL_STAVE_LINES.png"));
+		OurUtils.writeImage(allLines,
+				OurUtils.getPath("temp/ALL_STAVE_LINES.png"));
 		// --------------------------
-		
+
 		Log.i("PROC", "detecting staves");
 		detectStaves(lines);
 
@@ -216,7 +217,11 @@ public class MusicDetector {
 		Log.v("Guillaume",
 				"Note detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
-
+		startTimeOfEachMethod = System.currentTimeMillis();
+		detectQuaverRests();
+		Log.v("Guillaume",
+				"Quaver Rests detection time: "
+						+ (System.currentTimeMillis() - startTimeOfEachMethod));
 		Log.i("PROC", "detecting flats");
 		startTimeOfEachMethod = System.currentTimeMillis();
 		detectAccidentals();
@@ -246,11 +251,6 @@ public class MusicDetector {
 				"Quavers detection time: "
 						+ (System.currentTimeMillis() - startTimeOfEachMethod));
 		startTimeOfEachMethod = System.currentTimeMillis();
-		detectQuaverRests();
-		Log.v("Guillaume",
-				"Quaver Rests detection time: "
-						+ (System.currentTimeMillis() - startTimeOfEachMethod));
-		startTimeOfEachMethod = System.currentTimeMillis();
 		detectNoteRests();
 		Log.v("Guillaume",
 				"Note Rests detection time: "
@@ -264,10 +264,10 @@ public class MusicDetector {
 		startTimeOfEachMethod = System.currentTimeMillis();
 
 		detectBarLines();
-		Log.v("Guillaume", "Bar line detection time: "
-				+ (System.currentTimeMillis() - startTimeOfEachMethod));
-		
-		
+		Log.v("Guillaume",
+				"Bar line detection time: "
+						+ (System.currentTimeMillis() - startTimeOfEachMethod));
+
 		Log.i("PROC", "detection complete");
 		startTimeOfEachMethod = System.currentTimeMillis()
 				- SightReaderActivity.startTime;
@@ -553,7 +553,7 @@ public class MusicDetector {
 		Imgproc.matchTemplate(accidentalArea, flat_on, result,
 				Imgproc.TM_CCOEFF_NORMED);
 		Point minLoc;
-		if (Core.minMaxLoc(result).minVal < -0.4) {
+		if (Core.minMaxLoc(result).minVal < -0.6) {
 			minLoc = Core.minMaxLoc(result).minLoc;
 			/*
 			 * Point p is minLoc in the coordinate system of the original image,
@@ -567,7 +567,9 @@ public class MusicDetector {
 					&& !OurUtils.isInAnyRectangle(fourFours, fourFour.width(),
 							fourFour.height(), p)
 					&& !OurUtils.isInAnyRectangle(flats, flat_on.cols(),
-							flat_on.rows(), p)) {
+							flat_on.rows(), p)
+							&& !OurUtils.isInAnyRectangle(quaverRests, quaverRest.width(),
+									quaverRest.height(), p)) {
 				flats.add(p);
 				n.setShift(Shift.Flat);
 			}
@@ -611,21 +613,23 @@ public class MusicDetector {
 		// OurUtils.pointListSubtraction(halfNotes, ps2, threshholdDistance)
 
 	}
-	
-	private void detectBarLines(){
+
+	private void detectBarLines() {
 		Mat result = new Mat();
-		for (Stave s: staves){
-			barLine = OurUtils.resizeImage(masterBarLine, s.staveGap()*6);
-			Mat barLineArea  = workingSheet.submat(s.yRange(workingSheet
-					.rows()), new Range(0, workingSheet.cols()));
+		for (Stave s : staves) {
+			barLine = OurUtils.resizeImage(masterBarLine, s.staveGap() * 6);
+			Mat barLineArea = workingSheet.submat(
+					s.yRange(workingSheet.rows()),
+					new Range(0, workingSheet.cols()));
 			Imgproc.matchTemplate(barLineArea, barLine, result,
 					Imgproc.TM_CCOEFF_NORMED);
 			Point minLoc = Core.minMaxLoc(result).minLoc;
 			double minVal = Core.minMaxLoc(result).minVal;
-			double minAllowed = 0.90*minVal;
+			double minAllowed = 0.90 * minVal;
 			while (minVal < minAllowed) {
 				Point p = new Point(minLoc.x, s.startYRange() + minLoc.y);
-				if (!OurUtils.isThereANoteAtThisPosition(new Point(p.x,p.y+staveGap*4), s)){ 
+				if (!OurUtils.isThereANoteAtThisPosition(new Point(p.x, p.y
+						+ staveGap * 4), s)) {
 					barLines.add(p);
 				}
 				OurUtils.zeroInMatrix(result, minLoc, (int) barLine.cols(),
@@ -633,9 +637,8 @@ public class MusicDetector {
 				minLoc = Core.minMaxLoc(result).minLoc;
 				minVal = Core.minMaxLoc(result).minVal;
 			}
-			
+
 		}
-		
 
 	}
 
@@ -911,9 +914,14 @@ public class MusicDetector {
 	 */
 	private void detectNotes() {
 		Mat eroded = workingSheet.clone();
+		/*
+		 * Imgproc.erode(eroded, eroded, Imgproc.getStructuringElement(
+		 * Imgproc.MORPH_RECT, new Size(3 * staveGap / 4, 3 * staveGap / 4)));
+		 */
 		Imgproc.erode(eroded, eroded, Imgproc.getStructuringElement(
-				Imgproc.MORPH_RECT,
-				new Size(3 * staveGap / 4, 3 * staveGap / 4)));
+				Imgproc.MORPH_RECT, new Size(staveGap / 2, staveGap / 2)));
+		Imgproc.erode(eroded, eroded, Imgproc.getStructuringElement(
+				Imgproc.MORPH_RECT, new Size(staveGap / 4, staveGap / 4)));
 		OurUtils.writeImage(eroded, OurUtils.getPath("output/eroded.png"));
 		// OurUtils.writeImage(eroded,
 		// OurUtils.getPath("pres/erodedForNotes1.png"));
@@ -922,6 +930,13 @@ public class MusicDetector {
 		List<Note> allNotesOne = new LinkedList<Note>();
 		for (Stave s : staves)
 			allNotesOne.addAll(detectNoteOnPart(eroded, s));
+		eroded = workingSheet.clone();
+		Imgproc.erode(eroded, eroded, Imgproc.getStructuringElement(
+				Imgproc.MORPH_RECT, new Size(staveGap / 2, staveGap / 2)));
+		Imgproc.erode(eroded, eroded, Imgproc.getStructuringElement(
+				Imgproc.MORPH_RECT, new Size(staveGap / 4, staveGap / 4)));
+		OurUtils.writeImage(eroded,
+				OurUtils.getPath("output/erosionTryNotes.png"));
 		/*
 		 * Imgproc.cvtColor(copy, copy, Imgproc.COLOR_GRAY2BGR);
 		 * Core.rectangle(copy, new Point(staves.get(2).startDetection().x,
@@ -933,7 +948,7 @@ public class MusicDetector {
 		// OurUtils.getPath("pres/erodedForNotes1withHL.png"));
 		eroded = workingSheet.clone();
 		Imgproc.erode(eroded, eroded, Imgproc.getStructuringElement(
-				Imgproc.MORPH_RECT, new Size(staveGap / 2, staveGap / 2)));
+				Imgproc.MORPH_RECT, new Size(staveGap / 3, staveGap / 3)));
 		// OurUtils.writeImage(eroded,
 		// OurUtils.getPath("pres/erodedForNotes2.png"));
 		OurUtils.writeImage(eroded, OurUtils.getPath("output/eroded2.png"));
@@ -952,7 +967,12 @@ public class MusicDetector {
 		// OurUtils.getPath("pres/erodedForNotes2withHL.png"));
 		for (Note n1 : allNotesOne) {
 			for (Note n2 : allNotesTwo) {
-				if (OurUtils.distanceBetweenTwoPoints(n1.center(), n2.center()) < 10) {
+				if (OurUtils.distanceBetweenTwoPoints(n1.center(), n2.center()) < 10
+						&& !OurUtils.isThereANoteAtThisPosition(
+								n1.center(),
+								OurUtils.whichStaveDoesAPointBelongTo(
+										n1.center(), staves,
+										workingSheet.rows()))) {
 					notes.add(n1);
 					OurUtils.whichStaveDoesAPointBelongTo(n1.center(), staves,
 							workingSheet.rows()).addNote(n1);
@@ -1027,7 +1047,8 @@ public class MusicDetector {
 			public int compare(MatOfPoint lhs, MatOfPoint rhs) {
 				Rect r1 = Imgproc.boundingRect(lhs);
 				Rect r2 = Imgproc.boundingRect(rhs);
-				return (int) (r2.area() - r1.area());
+				// return (int) (r2.area() - r1.area());
+				return r1.width - r2.width;
 			}
 		});
 		List<Moments> mu = new ArrayList<Moments>(contours.size());
@@ -1150,7 +1171,7 @@ public class MusicDetector {
 		printTrebleClefs(output);
 		printNotes(output);
 		printFlats(output);
-		// printSharps(output);
+		printSharps(output);
 		printDots(output);
 		printBeams(output);
 		printScale(output);
@@ -1260,14 +1281,17 @@ public class MusicDetector {
 					/ 2), new Point(p.x + dotWidth / 2, p.y + dotHeight / 2),
 					new Scalar(0, 255, 128), 6);
 	}
-	
-	private void printBarLines(Mat sheet){
-		for (Point p :  barLines){
-			Point barLineStart =  new Point(p.x+barLine.cols()*0.444, p.y+barLine.rows()*0.159);
-			Point barLineEnd = new Point (p.x+barLine.cols()*0.531,p.y+barLine.rows()*0.841);
-			//^^these random numbers are the point where the actual bar line starts on the template
-			Core.rectangle(sheet, barLineStart, 
-					barLineEnd, new Scalar(0,0,255),2);
+
+	private void printBarLines(Mat sheet) {
+		for (Point p : barLines) {
+			Point barLineStart = new Point(p.x + barLine.cols() * 0.444, p.y
+					+ barLine.rows() * 0.159);
+			Point barLineEnd = new Point(p.x + barLine.cols() * 0.531, p.y
+					+ barLine.rows() * 0.841);
+			// ^^these random numbers are the point where the actual bar line
+			// starts on the template
+			Core.rectangle(sheet, barLineStart, barLineEnd, new Scalar(0, 0,
+					255), 2);
 		}
 	}
 
