@@ -11,21 +11,13 @@ import android.view.WindowManager;
 import android.widget.Button;
 
 import com.lamerman.SelectionMode;
-import com.leff.midi.MidiFile;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
-import midiconversion.Converter;
-import musicdetection.MusicDetector;
-import musicdetection.NoMusicDetectedException;
-import musicrepresentation.Piece;
-import playback.Playback;
+
 import utils.OurUtils;
 
 public class SightReaderActivity extends Activity {

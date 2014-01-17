@@ -21,4 +21,6 @@
     <string name="saved">You have saved X pages</string>
     <string name="photoprompt">Tap to take a photo</string>
     <string name="sightreaderlogocontent">Sight Reader</string>
+    <string name="changeTrack">Change MIDI</string>
+    <string name="save">Save MIDI</string>
 </resources>
