@@ -66,7 +66,7 @@ public class ProcessingActivity extends Activity {
 						}).create();
 
 		noFile = new AlertDialog.Builder(ProcessingActivity.this)
-				.setTitle("File Not found exeption")
+				.setTitle("File Not found exception")
 				.setMessage("Please try again")
 				.setPositiveButton("Back",
 						new DialogInterface.OnClickListener() {
@@ -76,7 +76,7 @@ public class ProcessingActivity extends Activity {
 						}).create();
 
 		noFinal = new AlertDialog.Builder(ProcessingActivity.this)
-				.setTitle("Final peice was null")
+				.setTitle("Final piece was null")
 				.setMessage("Please try again")
 				.setPositiveButton("Back",
 						new DialogInterface.OnClickListener() {
@@ -86,7 +86,7 @@ public class ProcessingActivity extends Activity {
 						}).create();
 
 		unknown = new AlertDialog.Builder(ProcessingActivity.this)
-				.setTitle("Unknown Exeption")
+				.setTitle("Unknown Exception")
 				.setMessage("Please try again")
 				.setPositiveButton("Back",
 						new DialogInterface.OnClickListener() {
@@ -131,7 +131,7 @@ public class ProcessingActivity extends Activity {
 					// TODO:
 					Mat output = detector.print();
 					OurUtils.writeImage(output,
-							OurUtils.getPath("output/done.png"));
+							OurUtils.getPath("assets/output.png"));
 
 					Piece piece = detector.toPiece();
 					pieces.add(piece);
@@ -182,6 +182,7 @@ public class ProcessingActivity extends Activity {
 				Intent i = new Intent(getApplicationContext(),
 						PlaybackActivity.class);
                 i.putExtra(PlaybackActivity.FILE_PATH,OurUtils.getPath(tmpFolder+tmpMidiFile));
+                i.putExtra(PlaybackActivity.PROCESSING_FLAG,"true");
 				startActivity(i);
 				finish();
 			}

@@ -599,9 +599,15 @@ public class OurUtils {
 		return Duration.Crotchet;
 	}
 
+    public static void mv(String src,String dest){
+        File sd = new File(src);
+        File od = new File(dest);
+        sd.renameTo(od);
+    }
+
 	public static void saveTempImage(Bitmap bitmap, String fName) {
 		String pName = getPath("temp/");
-		saveImage(bitmap, pName, fName);
+		saveImage(bitmap,pName, fName);
 
 	}
 
@@ -623,7 +629,7 @@ public class OurUtils {
 
 	}
 
-	private static void saveImage(Bitmap bitmap, String pName, String fName) {
+	public static void saveImage(Bitmap bitmap, String pName, String fName) {
 		File dir = new File(pName);
 		if (!dir.exists())
 			dir.mkdirs();
