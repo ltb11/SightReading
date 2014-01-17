@@ -16,11 +16,13 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 
+import com.actionbarsherlock.app.SherlockActivity;
+
 import java.io.File;
 
 import utils.OurUtils;
 
-public class SightReaderActivity extends Activity {
+public class SightReaderActivity extends SherlockActivity {
 	public static final String TAG = "SightReaderActivity";
     private Button scan;
 	private Button play;
