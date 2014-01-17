@@ -10,6 +10,7 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.KeyEvent;
 import android.widget.Button;
 import android.widget.SeekBar;
 
@@ -17,18 +18,19 @@ import android.os.Handler;
 
 public class PlaybackActivity extends Activity {
 
+	public static final String FILE_PATH = "FILEPATH";
 	public static final String TAG = "SRPlaybackActivity";
 	private MediaPlayer player;
     private SeekBar seekBar;
 	private boolean playing = false;
 	private String filePath;
-	public static final String FILE_PATH = "FILEPATH";
 	File midiFile;
 	private Handler mHandler;
     private Runnable mRunnable;
 
-	// private Button accept;
-	// private Button discard;
+	private Button accept;
+	private Button discard;
+	private Button playbackButton;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -51,28 +53,41 @@ public class PlaybackActivity extends Activity {
             public void run() {
                 Log.i(TAG, "trying to update");
                 if(player != null){
-                    int mCurrentPosition = player.getCurrentPosition() /1000;
+                    int mCurrentPosition = player.getCurrentPosition();
                     seekBar.setProgress(mCurrentPosition);
-                    Log.i(TAG, "totally should have updated");
+                    Log.i(TAG, "totally should have updated: " + mCurrentPosition);
+                    Log.i(TAG, "totally should have updated: " + seekBar.getMax());
                 }
-                mHandler.postDelayed(this,1000);
+                mHandler.postDelayed(mRunnable,10);
             }
         };
-        mRunnable.run();
+
 	}
+
+    @Override
+	public void onDestroy() {
+        player.stop();
+        mHandler.removeCallbacks(mRunnable);
+        player.release();
+        super.onDestroy();
+	}
+
 	private void initialiseButtons() {
-		findViewById(R.id.playbackButton).setOnClickListener(
+        playbackButton = (Button) findViewById(R.id.playbackButton);
+		playbackButton.setOnClickListener(
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						if (player.isPlaying()) {
 							playing = false;
+                            mHandler.removeCallbacks(mRunnable);
 							player.pause();
-                    ((Button) findViewById(R.id.playbackButton)).setText(R.string.play);
+                            playbackButton.setText(R.string.play);
 						} else {
 							playing = true;
+                            mHandler.post(mRunnable);
 							player.start();
-                    ((Button)findViewById(R.id.playbackButton)).setText(R.string.pause);
+                            playbackButton.setText(R.string.pause);
 						}
 					}
 				});
@@ -82,8 +97,10 @@ public class PlaybackActivity extends Activity {
 					@Override
 					public void onClick(View v) {
 						player.pause();
-						((Button) findViewById(R.id.playbackButton)).setText(R.string.play);
+						playbackButton.setText(R.string.play);
                         player.seekTo(0);
+                        mHandler.removeCallbacks(mRunnable);
+                        seekBar.setProgress(0);
 						// finish();
 					}
 				});
@@ -108,12 +125,13 @@ public class PlaybackActivity extends Activity {
         player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             public void onPrepared(MediaPlayer song){
                 seekBar.setMax(song.getDuration()); 
+                mRunnable.run();
             }
         });
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                if(player != null && b) player.seekTo(i * 1000);
+                if(player != null && b) player.seekTo(i);
             }
 
             @Override
@@ -126,7 +144,6 @@ public class PlaybackActivity extends Activity {
 
             }
         });
-
-
 	}
+
 }
