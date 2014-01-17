@@ -19,9 +19,6 @@ import android.widget.SeekBar;
 import com.lamerman.SelectionMode;
 import com.leff.midi.MidiFile;
 
-import java.io.File;
-import java.io.IOException;
-
 import playback.Playback;
 import utils.OurUtils;
 

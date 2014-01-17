@@ -1,18 +1,5 @@
 package org.sightreader;
 
-import java.io.FileNotFoundException;
-import java.util.LinkedList;
-import java.util.List;
-
-import midiconversion.Converter;
-import musicdetection.MusicDetector;
-import musicdetection.NoMusicDetectedException;
-import musicrepresentation.Piece;
-
-import org.opencv.core.Mat;
-
-import playback.Playback;
-import utils.OurUtils;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -20,9 +7,20 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.EditText;
 
 import com.leff.midi.MidiFile;
+
+import org.opencv.core.Mat;
+
+import java.io.FileNotFoundException;
+import java.util.LinkedList;
+import java.util.List;
+
+import midiconversion.Converter;
+import musicdetection.MusicDetector;
+import musicrepresentation.Piece;
+import playback.Playback;
+import utils.OurUtils;
 
 public class ProcessingActivity extends Activity {
 
