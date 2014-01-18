@@ -6,6 +6,7 @@
     <string name="reset">Reset</string>
     <string name="processing">Processing</string>
     <string name="sightreaderlogocontent">Sight Reader</string>
+    <string name="sheetMusicContent">Sheet Music</string>
     <string name="changeTrack">Change MIDI</string>
     <string name="save">Save MIDI</string>
 </resources>

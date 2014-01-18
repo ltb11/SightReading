@@ -31,30 +31,23 @@
         android:theme="@style/MyAppTheme" >
         <activity
             android:name="SightReaderActivity"
-            android:label="@string/app_name"
-            >
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-
             android:name="ProcessingActivity"
-            android:label="ProcessingActivity"
-            >
+            android:label="ProcessingActivity">
         </activity>
         <activity
             android:name="FileDialogActivity"
-            android:label="FileDialogActivity"
-            >
+            android:label="FileDialogActivity">
         </activity>
         <activity
             android:name="PlaybackActivity"
-            android:label="PlaybackActivity"
-            >
+            android:label="PlaybackActivity">
         </activity>
     </application>
-
 </manifest>
