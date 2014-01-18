@@ -45,7 +45,7 @@ public class PlaybackActivity extends Activity {
     private ImageView sheetMusic;
 	private Button save;
     private Button changeTrack;
-	private Button discard;
+	private Button reset;
 	private Button playbackButton;
 
     /** Called when the activity is first created. */
