@@ -24,26 +24,29 @@ import utils.OurUtils;
 
 public class PlaybackActivity extends Activity {
 
+	public static final String TAG = "SRPlaybackActivity";
+
 	public static final String FILE_PATH = "FILEPATH";
     public static final String PROCESSING_FLAG = "FROMPROCESS";
-	public static final String TAG = "SRPlaybackActivity";
+    private static final int FILE_DIALOG_REQUEST = 1066;
+
+    private String pathToSave;
+    private String imagePath;
+	private String filePath;
+    
 	private MediaPlayer player;
     private MidiFile midi;
-    private SeekBar seekBar;
-	private String filePath;
+    private Bitmap bmp;
 	private Handler mHandler;
     private Runnable mRunnable;
-    public static final int FILE_DIALOG_REQUEST = 1066;
-    private String pathToSave;
-    private ImageView sheetMusic;
-    boolean fromProcessing;
+    private boolean fromProcessing;
 
-    private Bitmap bmp;
+    private SeekBar seekBar;
+    private ImageView sheetMusic;
 	private Button save;
     private Button changeTrack;
 	private Button discard;
 	private Button playbackButton;
-    private String imagePath;
 
     /** Called when the activity is first created. */
 	@Override
@@ -62,6 +65,35 @@ public class PlaybackActivity extends Activity {
 		// midiFile = new File(path, midiFileName);
 		
         initialiseButtons();
+        initialiseSeekBar();
+        loadSheetMusic();
+	}
+    
+    private void initialiseSeekBar(){
+        seekBar = (SeekBar) findViewById(R.id.seekBar);
+        player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            public void onPrepared(MediaPlayer song){
+                seekBar.setMax(song.getDuration()); 
+                mRunnable.run();
+            }
+        });
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                if(player != null && b) player.seekTo(i);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
         mHandler = new Handler();
         mRunnable = new Runnable() {
             @Override
@@ -73,8 +105,7 @@ public class PlaybackActivity extends Activity {
                 mHandler.postDelayed(mRunnable,10);
             }
         };
-
-	}
+    }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         if (requestCode ==  FILE_DIALOG_REQUEST && resultCode == RESULT_OK) {
@@ -106,11 +137,8 @@ public class PlaybackActivity extends Activity {
 						}
 					}
 				});
-        sheetMusic = (ImageView) findViewById(R.id.sheetmusic);
-        loadSheetMusic();
-
-		findViewById(R.id.playback_resetApp).setOnClickListener(
-				new View.OnClickListener() {
+        reset = (Button) findViewById(R.id.playback_resetApp);
+		reset.setOnClickListener(new View.OnClickListener() {
 					@Override
 					public void onClick(View v) {
                         pause();
@@ -146,21 +174,7 @@ public class PlaybackActivity extends Activity {
                 alert.show();
             }
         });
-		// accept = (Button) findViewById(R.id.buttonCameraKeepImage);
-		// accept.setOnClickListener(new View.OnClickListener() {
-		// public void onClick(View v) {
-		// String path = OurUtils.getPath(folderName);
-		// File save = new File(path, "new text");
-		// midiFile.renameTo(save);
-		// }
-		// });
-		//
-		// discard = (Button) findViewById(R.id.buttonCameraDiscardImage);
-		// discard.setOnClickListener(new View.OnClickListener() {
-		// public void onClick(View v) {
-		// midiFile.delete();
-		// }
-		// });
+
 		changeTrack = (Button) findViewById(R.id.changeTrack);
         changeTrack.setOnClickListener(
                 new View.OnClickListener() {
@@ -176,38 +190,18 @@ public class PlaybackActivity extends Activity {
                         startActivityForResult(intent, FILE_DIALOG_REQUEST);
                     }
                 });
+
         if(fromProcessing){
             changeTrack.setVisibility(View.GONE);
         } else {
             save.setVisibility(View.GONE);
         }
 
-        seekBar = (SeekBar) findViewById(R.id.seekBar);
-        player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            public void onPrepared(MediaPlayer song){
-                seekBar.setMax(song.getDuration()); 
-                mRunnable.run();
-            }
-        });
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                if(player != null && b) player.seekTo(i);
-            }
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
 	}
 
     private void loadSheetMusic() {
+        sheetMusic = (ImageView) findViewById(R.id.sheetmusic);
         imagePath = filePath.substring(filePath.lastIndexOf("/")+1,filePath.lastIndexOf(".")) + ".png";
         bmp = BitmapFactory.decodeFile(OurUtils.getPath("assets/" + imagePath));
         sheetMusic.setImageBitmap(bmp);
