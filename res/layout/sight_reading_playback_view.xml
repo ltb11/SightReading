@@ -8,6 +8,7 @@
         android:layout_height="0dip"
         android:id="@+id/sheetmusic"
         android:layout_gravity="center_horizontal"
+        android:contentDesctiption="@string/sheetMusicContent"
         android:layout_weight="0.6" />
 
     <SeekBar
