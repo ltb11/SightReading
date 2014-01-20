@@ -25,4 +25,5 @@
     <string name="save">Save MIDI</string>
     <string name="drawer_open">Open the drawer</string>
     <string name="drawer_close">Close the drawer</string>
+    <string name="choose_file">Choose a file</string>
 </resources>

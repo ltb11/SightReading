@@ -4,13 +4,13 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -41,6 +41,8 @@ public class SightReaderActivity extends Activity {
     private String[] mOptions;
     private ListView mDrawerListView;
     private ActionBarDrawerToggle mDrawerToggle;
+    private CharSequence mDrawerTitle;
+    private CharSequence mTitle;
 
 	private BaseLoaderCallback mOpenCVCallBack = new BaseLoaderCallback(this) {
 		@Override
@@ -69,7 +71,7 @@ public class SightReaderActivity extends Activity {
 		setContentView(R.layout.sight_reading_surface_view);
 
         actionBar = getActionBar();
-		initialiseButtons();
+		initialiseDrawer();
 
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -86,6 +88,7 @@ public class SightReaderActivity extends Activity {
 		(new File(OurUtils.getPath("") + File.separator + "assets")).mkdirs();
 	}
 
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK){
             Intent i = new Intent(SightReaderActivity.this,
@@ -100,39 +103,8 @@ public class SightReaderActivity extends Activity {
         } 	
     }
 
-	private void initialiseButtons() {
-		/*// Set up the button which takes you to the camera
-		scan = (Button) findViewById(R.id.scan);
-		scan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                File file = new File(OurUtils.getPath("temp/tmp.png"));
-                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
-                startActivityForResult(cameraIntent, CAMERA_REQUEST);
-            }
-		});
-
-		// Set up the button which takes you to playback
-		play = (Button) findViewById(R.id.play);
-		play.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				Intent intent = new Intent(SightReaderActivity.this,
-						FileDialogActivity.class);
-				// set user not able to select directories
-				intent.putExtra(FileDialogActivity.CAN_SELECT_DIR, false);
-				// set user not able to create files
-				intent.putExtra(FileDialogActivity.SELECTION_MODE,
-						SelectionMode.MODE_OPEN);
-				// restrict file types visible
-				intent.putExtra(FileDialogActivity.FORMAT_FILTER,
-						new String[] { "midi" });
-				// set default directory for dialog
-				intent.putExtra(FileDialogActivity.START_PATH, OurUtils.getPath("midi/"));
-				startActivityForResult(intent, FILE_DIALOG_REQUEST);
-			}
-		});
-*/
+	private void initialiseDrawer() {
+        mTitle = mDrawerTitle = getTitle();
         mOptions = getResources().getStringArray(R.array.drawer_options);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerListView= (ListView) findViewById(R.id.left_drawer);
@@ -148,11 +120,16 @@ public class SightReaderActivity extends Activity {
             @Override
             public void onDrawerClosed(View drawerView) {
                 super.onDrawerClosed(drawerView);
+                actionBar.setTitle(mTitle);
+                invalidateOptionsMenu();
             }
 
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
+                actionBar.setTitle(mDrawerTitle);
+                invalidateOptionsMenu();
+
             }
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
@@ -172,6 +149,31 @@ public class SightReaderActivity extends Activity {
 
     private void selectItem(int i){
         Log.i(TAG," selected " + i);
+        switch(i){
+            case 0:
+                Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                File file = new File(OurUtils.getPath("temp/tmp.png"));
+                cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+                startActivityForResult(cameraIntent, CAMERA_REQUEST);
+                break;
+            case 2:
+                Intent intent = new Intent(SightReaderActivity.this,
+                        FileDialogActivity.class);
+                // set user not able to select directories
+                intent.putExtra(FileDialogActivity.CAN_SELECT_DIR, false);
+                // set user not able to create files
+                intent.putExtra(FileDialogActivity.SELECTION_MODE,
+                        SelectionMode.MODE_OPEN);
+                // restrict file types visible
+                intent.putExtra(FileDialogActivity.FORMAT_FILTER,
+                        new String[] { "midi" });
+                // set default directory for dialog
+                intent.putExtra(FileDialogActivity.START_PATH, OurUtils.getPath("midi/"));
+                startActivityForResult(intent, FILE_DIALOG_REQUEST);
+                break;
+            default:
+                break;
+        }
         mDrawerListView.setItemChecked(i, true);
         setTitle(mOptions[i]);
         mDrawerLayout.closeDrawer(mDrawerListView);
@@ -181,6 +183,12 @@ public class SightReaderActivity extends Activity {
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         mDrawerToggle.syncState();
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        boolean drawerOpen= mDrawerLayout.isDrawerOpen(mDrawerListView);
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override

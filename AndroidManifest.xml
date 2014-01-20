@@ -46,11 +46,11 @@
         </activity>
         <activity
             android:name="FileDialogActivity"
-            android:label="FileDialogActivity" >
+            android:label="@string/choose_file" >
         </activity>
         <activity
             android:name="PlaybackActivity"
-            android:label="PlaybackActivity" >
+            android:label="@string/playback" >
         </activity>
     </application>
 
