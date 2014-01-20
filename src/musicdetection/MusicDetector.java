@@ -1,16 +1,7 @@
 package musicdetection;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import musicrepresentation.Bar;
-import musicrepresentation.Piece;
-import musicrepresentation.Shift;
+import android.content.Context;
+import android.util.Log;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -24,11 +15,20 @@ import org.opencv.imgproc.Imgproc;
 import org.opencv.imgproc.Moments;
 import org.sightreader.SightReaderActivity;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import musicrepresentation.Bar;
+import musicrepresentation.Piece;
+import musicrepresentation.Shift;
 import utils.Interval;
 import utils.OurUtils;
 import utils.SheetStrip;
-import android.content.Context;
-import android.util.Log;
 
 public class MusicDetector {
 

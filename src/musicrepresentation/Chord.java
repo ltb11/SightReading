@@ -1,9 +1,8 @@
 package musicrepresentation;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.lang.Iterable;
+import java.util.List;
 
 public class Chord implements Iterable<AbstractNote>{
     private final List<AbstractNote> notes;

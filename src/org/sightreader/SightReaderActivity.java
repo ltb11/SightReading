@@ -1,14 +1,23 @@
 package org.sightreader;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 
 import com.lamerman.SelectionMode;
 
@@ -16,19 +25,22 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 
-import com.actionbarsherlock.app.SherlockActivity;
-
 import java.io.File;
 
 import utils.OurUtils;
 
-public class SightReaderActivity extends SherlockActivity {
+public class SightReaderActivity extends Activity {
 	public static final String TAG = "SightReaderActivity";
     private Button scan;
 	private Button play;
     private static final int CAMERA_REQUEST = 1888;
     private static final int FILE_DIALOG_REQUEST = 1066;
 	public final static long startTime = System.currentTimeMillis();
+    private ActionBar actionBar;
+    private DrawerLayout mDrawerLayout;
+    private String[] mOptions;
+    private ListView mDrawerListView;
+    private ActionBarDrawerToggle mDrawerToggle;
 
 	private BaseLoaderCallback mOpenCVCallBack = new BaseLoaderCallback(this) {
 		@Override
@@ -45,7 +57,7 @@ public class SightReaderActivity extends SherlockActivity {
 		}
 	};
 
-	public SightReaderActivity() {
+    public SightReaderActivity() {
 		Log.i(TAG, "Instantiated new " + this.getClass());
 	}
 
@@ -56,6 +68,7 @@ public class SightReaderActivity extends SherlockActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.sight_reading_surface_view);
 
+        actionBar = getActionBar();
 		initialiseButtons();
 
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -64,6 +77,7 @@ public class SightReaderActivity extends SherlockActivity {
 				mOpenCVCallBack)) {
 			Log.e("TEST", "Cannot connect to OpenCV Manager");
 		}
+
 
 		// Make sure the necessary folders exist
 		(new File(OurUtils.getPath("") + File.separator + "input")).mkdirs();
@@ -87,7 +101,7 @@ public class SightReaderActivity extends SherlockActivity {
     }
 
 	private void initialiseButtons() {
-		// Set up the button which takes you to the camera
+		/*// Set up the button which takes you to the camera
 		scan = (Button) findViewById(R.id.scan);
 		scan.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,7 +132,75 @@ public class SightReaderActivity extends SherlockActivity {
 				startActivityForResult(intent, FILE_DIALOG_REQUEST);
 			}
 		});
+*/
+        mOptions = getResources().getStringArray(R.array.drawer_options);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerListView= (ListView) findViewById(R.id.left_drawer);
+        mDrawerListView.setAdapter(new ArrayAdapter<String>(this,R.layout.drawer_list_item,mOptions));
+        mDrawerListView.setOnItemClickListener(new DrawerItemClickListener());
+        mDrawerToggle =new ActionBarDrawerToggle(
+                this,
+                mDrawerLayout,
+                R.drawable.ic_drawer,
+                R.string.drawer_open,
+                R.string.drawer_close
+        ){
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerClosed(drawerView);
+            }
 
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+            }
+        };
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
 	}
+
+
+    private class DrawerItemClickListener implements ListView.OnItemClickListener{
+
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            selectItem(i);
+        }
+    }
+
+    private void selectItem(int i){
+        Log.i(TAG," selected " + i);
+        mDrawerListView.setItemChecked(i, true);
+        setTitle(mOptions[i]);
+        mDrawerLayout.closeDrawer(mDrawerListView);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(mDrawerToggle.onOptionsItemSelected(item)){
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void setTitle(CharSequence title){
+        actionBar.setTitle(title);
+    }
+
 
 }

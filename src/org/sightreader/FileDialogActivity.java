@@ -1,9 +1,6 @@
 package org.sightreader;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.view.KeyEvent;
-import android.util.Log;
 
 import com.lamerman.FileDialog;
 

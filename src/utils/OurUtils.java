@@ -42,10 +42,6 @@ import musicdetection.Stave;
 import musicdetection.StaveLine;
 import musicrepresentation.Duration;
 import musicrepresentation.NoteName;
-
-import org.opencv.android.Utils;
-import android.content.Context;
-import android.content.res.AssetManager;
 public class OurUtils {
 
 	private static final double staveGapTolerance = 0.2;
@@ -84,11 +80,8 @@ public class OurUtils {
 						xMax));
 				double mean = Core.mean(section).val[0];
 				
-				// reduce the mean a little
-				//double m1 = mean*0.75; double m2 = mean-15;
 				mean = mean-16;//Math.min(m1,m2);
-				//Log.i("PREPROC",m1+"  -  "+m2);
-				
+
 				// clamp it
 				mean = Math.max(Math.min(mean, 255), 0);
 				Imgproc.threshold(section, section, mean, 256,
@@ -110,8 +103,6 @@ public class OurUtils {
 
 		Mat newImage = new Mat(newSize, image.type());
 		Imgproc.resize(image, newImage, newSize);
-
-		// Utils.writeImage(image, Utils.getPath("output/checkNote.png"));
 
 		return newImage;
 
@@ -487,34 +478,6 @@ public class OurUtils {
 		return divisions;
 	}
 
-	/*
-	 * public static List<BeamDivision> detectBeamDivisions(Mat sheet) { Mat
-	 * verticalProj = verticalProjection(sheet); List<BeamDivision>
-	 * potentialBeams = new LinkedList<BeamDivision>(); int[] v = new int[4];
-	 * boolean in = false; int lastEntry = 0; for (int i = 0; i <
-	 * verticalProj.cols(); i++) { verticalProj.get(0, i, v); if (in)
-	 * Log.d("Guillaume", "in: " + in); if (in && (v[0] <
-	 * MusicDetector.beamVerticalThresholdTolerance)) { if (i - lastEntry >
-	 * MusicDetector.beamMinLength) { Log.d("Guillaume",
-	 * "New line detected at x: " + lastEntry + "," + i); Mat region =
-	 * sheet.submat(new Range(0, sheet.rows()), new Range(lastEntry, i));
-	 * writeImage(region, getPath("output/proj" + i + ".jpg")); Mat
-	 * horizontalProj = horizontalProjection(region); List<Integer> divs =
-	 * detectDivisions(horizontalProj,
-	 * MusicDetector.beamHorizontalThresholdTolerance); Point p1 = null, p2 =
-	 * null; for (int j = 0; j < divs.size() - 1; j++) { int start =
-	 * divs.get(j); int end = divs.get(j + 1); if (end - start > 10) { if
-	 * (sheet.get(start, lastEntry)[0] == 255) { p1 = new Point(lastEntry,
-	 * start); p2 = new Point(i, end); break; } else if (sheet.get(end - 1,
-	 * lastEntry)[0] == 255) { p1 = new Point(lastEntry, end); p2 = new Point(i,
-	 * start); break; } Log.e("Guillaume",
-	 * "Could not find a valid match for point @position: " + lastEntry + "," +
-	 * start + "/" + i + "," + end); } } List<Point> toBeam = new
-	 * LinkedList<Point>(); toBeam.add(p1); toBeam.add(p2);
-	 * potentialBeams.add(new BeamDivision(toBeam)); } in = false; } else if
-	 * (!in && (v[0] > MusicDetector.beamVerticalThresholdTolerance)) { in =
-	 * true; lastEntry = i; } } return potentialBeams; }
-	 */
 
 	public static Point findNearestNeighbour(Point centre, Mat ref, int width,
 			int height) {
@@ -725,18 +688,4 @@ public class OurUtils {
 	public static boolean isAQuaverRest(Point p, Stave s) {
 		return Math.abs(s.staveGapAtPos(p) + s.getTopYAtPos(p) - p.y) < s.staveGapAtPos(p) / 2;
 	}
-
-/*
-	public static void saveSRFiles(MidiFile midi, List<Bitmap> images, String saveName) {
-        SRFileBuilder builder = new SRFileBuilder(saveName);
-	    Iterator<Bitmap> imagesIterator = images.iterator();
-        for (int i = 1; imagesIterator.hasNext(); i++) {
-            saveImage(imagesIterator.next(),getPath(IMAGE_FOLDER), saveName + i);
-	        builder.addImagePath(getPath(IMAGE_FOLDER) + saveName + i + ".png");
-        }
-	        Playback.saveMidiFile(midi, saveName);
-            builder.setMidiPath(saveName);
-	        builder.build();
-    }*/
-
 }
