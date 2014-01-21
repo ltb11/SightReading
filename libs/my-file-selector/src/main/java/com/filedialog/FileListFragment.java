@@ -44,8 +44,11 @@ public class FileListFragment extends ListFragment implements LoaderManager.Load
         super.onAttach(activity);
 
         try
-        { mListener = (CallBacks) activity;
-        }catch(ClassCastException e){
+        {
+            mListener = (CallBacks) activity;
+        }
+        catch(ClassCastException e)
+        {
             throw new ClassCastException(activity.toString() + " must implement Callbacks");
         }
     }

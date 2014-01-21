@@ -1,8 +1,7 @@
 package com.filedialog;
 
-import android.content.AsyncTaskLoader;
+import android.support.v4.content.AsyncTaskLoader;
 import android.content.Context;
-import android.support.v4.content.Loader;
 
 import java.io.File;
 import java.io.FileFilter;

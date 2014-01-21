@@ -70,14 +70,17 @@ public class FileListAdapter extends BaseAdapter {
     @Override
     public View getView(int index, View row, ViewGroup parent){
         View mRow = row;
-        if(mRow == null) mRow = mInflater.inflate(R.layout.file_item, parent,false);
+        if(mRow == null) mRow = mInflater.inflate(R.layout.tmp_file, parent,false);
 
-        File file = getItem(index); 
-        
+        File file = getItem(index);
+        setText(mRow,R.layout.tmp_file,file.getName());
+       /*
         setText(mRow,R.id.file_title,file.getName());
-        setText(mRow,R.id.file_size,file.length());
+        setText(mRow,R.id.file_size, "" + file.length());
         setText(mRow,R.id.file_extra,"EXTRA INFO");
         setIcon(mRow,R.id.file_icon, R.drawable.music_icon);
+        */
+        return mRow;
     }
 
     private void setIcon(View view, int icon_view, int icon){
