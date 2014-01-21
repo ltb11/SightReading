@@ -79,9 +79,8 @@ public class FileListFragment extends ListFragment implements LoaderManager.Load
         }
     }
 
-    @Override
     public Loader<List<File>> onCreateLoader(int id, Bundle args){
-        return new FileLoader(getActivity(),mPath);
+        return new FileLoader(getActivity(),mPath,mExtension);
     }
 
     @Override

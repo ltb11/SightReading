@@ -82,7 +82,7 @@ public class SightReaderActivity extends FragmentActivity implements FileListFra
 
         if(mContent != null){
             if(savedInstanceState == null){
-                FileListFragment fileList = FileListFragment.newInstance(OurUtils.getPath("midi/"));
+                FileListFragment fileList = FileListFragment.newInstance(OurUtils.getPath("midi/"),"midi");
                 mFragmentManager.beginTransaction().add(R.id.content_frame,fileList).commit();
             }
         }

@@ -2,6 +2,7 @@ package com.filedialog;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;
+import android.support.v4.content.Loader;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -14,10 +15,12 @@ import java.util.List;
 public class FileLoader extends AsyncTaskLoader<List<File>> {
 
     private final String mPath;
+    private final String mExtensions;
 
-    public FileLoader(Context c, String path){
+    public FileLoader(Context c, String path, String extensions){
         super(c);
         this.mPath = path;
+        this.mExtensions = extensions;
     }
     @Override
     public List<File> loadInBackground() {
@@ -36,7 +39,6 @@ public class FileLoader extends AsyncTaskLoader<List<File>> {
                 files.add(f);
             }
         }
-
         return files;
     }
 }

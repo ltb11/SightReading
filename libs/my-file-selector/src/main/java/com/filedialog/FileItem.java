@@ -9,15 +9,13 @@ import android.util.AttributeSet;
 
 
 
-public class FileItem  {
-   /* private static float CHECKMARK_AREA=-1;
+public class FileItem  extends GridLayout implements Checkable{
+    private static float CHECKMARK_AREA=-1;
     
     private CheckBox mCheckBox;
     private long mFileId;
     private String mFileName;
     private String mMimeType;
-    private int mPosition;
-    
     private int mPosition;
 
     public FileItem(Context c, AttributeSet as, int dS){
@@ -41,7 +39,7 @@ public class FileItem  {
     @Override
     public void onFinishInflate(){
         super.onFinishInflate();
-        mCheckBox = (CheckBox) findViewById(R.id.file_checkbox);
+        mCheckBox = (CheckBox) findViewById(R.id.);
     }
     
     public void setData(long fileId, int position, String fileName, String mimeType){
@@ -66,5 +64,5 @@ public class FileItem  {
 
     }
 
-*/
+
 }
