@@ -16,7 +16,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 
-import com.lamerman.SelectionMode;
 import com.leff.midi.MidiFile;
 
 import playback.Playback;
@@ -73,7 +72,7 @@ public class PlaybackActivity extends Activity {
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             public void onPrepared(MediaPlayer song){
-                seekBar.setMax(song.getDuration()); 
+                seekBar.setMax(song.getDuration());
                 mRunnable.run();
             }
         });
@@ -109,7 +108,6 @@ public class PlaybackActivity extends Activity {
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         if (requestCode ==  FILE_DIALOG_REQUEST && resultCode == RESULT_OK) {
-            filePath = data.getStringExtra(FileDialogActivity.RESULT_PATH);
             loadSheetMusic();
             player.release();
             player = Playback.getMidiFile(filePath);
@@ -182,12 +180,6 @@ public class PlaybackActivity extends Activity {
                     public void onClick(View view) {
                         seekBar.setProgress(0);
                         pause();
-                        Intent intent = new Intent(PlaybackActivity.this, FileDialogActivity.class);
-                        intent.putExtra(FileDialogActivity.CAN_SELECT_DIR, false);
-                        intent.putExtra(FileDialogActivity.SELECTION_MODE, SelectionMode.MODE_OPEN);
-                        intent.putExtra(FileDialogActivity.FORMAT_FILTER, new String[] { "midi" });
-                        intent.putExtra(FileDialogActivity.START_PATH, OurUtils.getPath("midi/"));
-                        startActivityForResult(intent, FILE_DIALOG_REQUEST);
                     }
                 });
 

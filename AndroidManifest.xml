@@ -42,10 +42,6 @@
             android:label="@string/processing">
         </activity>
         <activity
-            android:name="FileDialogActivity"
-            android:label="@string/choose_file" >
-        </activity>
-        <activity
             android:name="PlaybackActivity"
             android:label="@string/playback" >
         </activity>

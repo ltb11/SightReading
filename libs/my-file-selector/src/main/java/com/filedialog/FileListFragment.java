@@ -15,30 +15,49 @@ import android.support.v4.content.Loader;
 import java.io.File;
 import java.util.List;
 
+
 public class FileListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<List<File>>{
 
-    public static final String PATH = path;
+    public static final String PATH = "path";
+    public static final String EXTENSION = "extension";
+    private static final String DEFAULT_EXTENSION = "midi";
     private FileListAdapter mAdapter;
     private String mPath;
+    private String mExtension;
+    private CallBacks mListener;
+    private String midi;
 
-    public static FileListFragment newInstance(String path){
+    public interface CallBacks {
+        public void onFileSelected(File file);
+    }
+
+    public static FileListFragment newInstance(String path, String extensionToShow){
         FileListFragment frag = new FileListFragment();
         Bundle args = new Bundle();
-        args.putString(this.PATH,path);
+        args.putString(PATH,path);
+        args.putString(EXTENSION,extensionToShow);
         frag.setArguments(args);
         return frag;
     }
     @Override
     public void onAttach(Activity activity){
         super.onAttach(activity);
+
+        try
+        { mListener = (CallBacks) activity;
+        }catch(ClassCastException e){
+            throw new ClassCastException(activity.toString() + " must implement Callbacks");
+        }
     }
 
     @Override
     public void  onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         mAdapter = new FileListAdapter(getActivity());
-        mPath = getArguments() != null ? getArguments().getString(this.PATH):
-            Environment.getExternalStorageDirectory.getAbsolutePath();
+        mPath = getArguments() != null ? getArguments().getString(PATH):
+            Environment.getExternalStorageDirectory().getAbsolutePath();
+        mExtension = getArguments() != null ? getArguments().getString(EXTENSION):
+                DEFAULT_EXTENSION;
     }
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
@@ -55,13 +74,13 @@ public class FileListFragment extends ListFragment implements LoaderManager.Load
         FileListAdapter adapter = (FileListAdapter) lv.getAdapter();
         if(adapter != null){
             File f = (File) adapter.getItem(index);
-            mPath = file.getAbsolutePath();
+            mPath = f.getAbsolutePath();
             mListener.onFileSelected(f);
         }
     }
 
     @Override
-    public Loader<List<File>> onCreateLoader(int id,Bundle args){
+    public Loader<List<File>> onCreateLoader(int id, Bundle args){
         return new FileLoader(getActivity(),mPath);
     }
 

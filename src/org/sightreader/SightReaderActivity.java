@@ -8,6 +8,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.Menu;
@@ -17,9 +19,11 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 
-import com.lamerman.SelectionMode;
+
+import com.filedialog.FileListFragment;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
@@ -29,7 +33,7 @@ import java.io.File;
 
 import utils.OurUtils;
 
-public class SightReaderActivity extends Activity {
+public class SightReaderActivity extends FragmentActivity implements FileListFragment.CallBacks {
 	public static final String TAG = "SightReaderActivity";
     private Button scan;
 	private Button play;
@@ -43,6 +47,8 @@ public class SightReaderActivity extends Activity {
     private ActionBarDrawerToggle mDrawerToggle;
     private CharSequence mDrawerTitle;
     private CharSequence mTitle;
+    private FragmentManager mFragmentManager;
+    private FrameLayout mContent;
 
 	private BaseLoaderCallback mOpenCVCallBack = new BaseLoaderCallback(this) {
 		@Override
@@ -59,11 +65,8 @@ public class SightReaderActivity extends Activity {
 		}
 	};
 
-    public SightReaderActivity() {
-		Log.i(TAG, "Instantiated new " + this.getClass());
-	}
 
-	/** Called when the activity is first created. */
+    /** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		Log.i(TAG, "called onCreate");
@@ -72,6 +75,17 @@ public class SightReaderActivity extends Activity {
 
         actionBar = getActionBar();
 		initialiseDrawer();
+
+
+        mFragmentManager = getSupportFragmentManager();
+        mContent = (FrameLayout) findViewById(R.id.content_frame);
+
+        if(mContent != null){
+            if(savedInstanceState == null){
+                FileListFragment fileList = FileListFragment.newInstance(OurUtils.getPath("midi/"));
+                mFragmentManager.beginTransaction().add(R.id.content_frame,fileList).commit();
+            }
+        }
 
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -95,12 +109,6 @@ public class SightReaderActivity extends Activity {
                     ProcessingActivity.class);
             startActivity(i);
         }
-		if (requestCode ==  FILE_DIALOG_REQUEST && resultCode == RESULT_OK) {
-			String filePath = data.getStringExtra(FileDialogActivity.RESULT_PATH);
-			Intent intent = new Intent(SightReaderActivity.this, PlaybackActivity.class);
-			intent.putExtra(PlaybackActivity.FILE_PATH, filePath);
-			startActivity(intent);
-        } 	
     }
 
 	private void initialiseDrawer() {
@@ -138,6 +146,13 @@ public class SightReaderActivity extends Activity {
         actionBar.setHomeButtonEnabled(true);
 	}
 
+    @Override
+    public void onFileSelected(File file) {
+        Intent i = new Intent(SightReaderActivity.this,PlaybackActivity.class);
+        i.putExtra(PlaybackActivity.FILE_PATH,file.toURI().toString());
+        startActivity(i);
+    }
+
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener{
 
@@ -157,19 +172,7 @@ public class SightReaderActivity extends Activity {
                 startActivityForResult(cameraIntent, CAMERA_REQUEST);
                 break;
             case 2:
-                Intent intent = new Intent(SightReaderActivity.this,
-                        FileDialogActivity.class);
-                // set user not able to select directories
-                intent.putExtra(FileDialogActivity.CAN_SELECT_DIR, false);
-                // set user not able to create files
-                intent.putExtra(FileDialogActivity.SELECTION_MODE,
-                        SelectionMode.MODE_OPEN);
-                // restrict file types visible
-                intent.putExtra(FileDialogActivity.FORMAT_FILTER,
-                        new String[] { "midi" });
-                // set default directory for dialog
-                intent.putExtra(FileDialogActivity.START_PATH, OurUtils.getPath("midi/"));
-                startActivityForResult(intent, FILE_DIALOG_REQUEST);
+
                 break;
             default:
                 break;

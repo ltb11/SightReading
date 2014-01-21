@@ -1,4 +1,4 @@
-package com.filedialog
+package com.filedialog;
 
 import android.widget.GridLayout;
 import android.widget.Checkable;
@@ -9,8 +9,8 @@ import android.util.AttributeSet;
 
 
 
-public class FileItem extends GridLayout implements Checkable {
-    private static float CHECKMARK_AREA=-1;
+public class FileItem  {
+   /* private static float CHECKMARK_AREA=-1;
     
     private CheckBox mCheckBox;
     private long mFileId;
@@ -29,7 +29,6 @@ public class FileItem extends GridLayout implements Checkable {
         super(c,as);
         init();
     }
-
     public FileItem(Context c){
         super(c);
         init();
@@ -53,8 +52,19 @@ public class FileItem extends GridLayout implements Checkable {
     }
 
     @Override
+    public void setChecked(boolean b) {
+
+    }
+
+    @Override
     public boolean isChecked(){
         return mCheckBox.isChecked();
     }
 
+    @Override
+    public void toggle() {
+
+    }
+
+*/
 }

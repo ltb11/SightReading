@@ -7,13 +7,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.BaseAdapter;
 import android.content.Context;
-
 import java.util.List;
 import java.util.ArrayList;
 import java.io.File;
 
 
-public class FileListAdapter extends BaseAdapter implements ListAdapter {
+
+public class FileListAdapter extends BaseAdapter {
 
     private final LayoutInflater mInflater;
     private List<File> mFiles =  new ArrayList<File>();
@@ -69,7 +69,7 @@ public class FileListAdapter extends BaseAdapter implements ListAdapter {
 
     @Override
     public View getView(int index, View row, ViewGroup parent){
-        View mRow = view;
+        View mRow = row;
         if(mRow == null) mRow = mInflater.inflate(R.layout.file_item, parent,false);
 
         File file = getItem(index); 

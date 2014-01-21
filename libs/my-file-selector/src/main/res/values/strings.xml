@@ -4,5 +4,6 @@
     <string name="app_name">File Selector</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="empty_dir">No files to show</string>
 
 </resources>
