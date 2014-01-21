@@ -59,10 +59,6 @@ public class PlaybackActivity extends Activity {
         String fromProcess = intent.getStringExtra(PROCESSING_FLAG);
         fromProcessing = fromProcess != null && fromProcess.equals("true");
         player = Playback.getMidiFile(filePath);
-
-		// String path = OurUtils.getPath(folderName);
-		// midiFile = new File(path, midiFileName);
-		
         initialiseButtons();
         initialiseSeekBar();
         loadSheetMusic();

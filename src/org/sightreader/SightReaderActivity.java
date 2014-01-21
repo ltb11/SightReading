@@ -22,7 +22,6 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 
-
 import com.filedialog.FileListFragment;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -171,8 +170,11 @@ public class SightReaderActivity extends FragmentActivity implements FileListFra
                 cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
                 startActivityForResult(cameraIntent, CAMERA_REQUEST);
                 break;
+            case 1:
+                break;
             case 2:
-
+                break;
+            case 3:
                 break;
             default:
                 break;
@@ -212,6 +214,5 @@ public class SightReaderActivity extends FragmentActivity implements FileListFra
     public void setTitle(CharSequence title){
         actionBar.setTitle(title);
     }
-
 
 }

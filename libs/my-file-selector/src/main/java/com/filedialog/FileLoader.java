@@ -8,6 +8,9 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
 
 /**
  * Created by wrd11 on 20/01/14.
@@ -15,23 +18,23 @@ import java.util.List;
 public class FileLoader extends AsyncTaskLoader<List<File>> {
 
     private final String mPath;
-    private final String mExtensions;
+    private Set<String> mExtensions;
 
-    public FileLoader(Context c, String path, String extensions){
+    public FileLoader(Context c, String path, String[] extensions){
         super(c);
-        this.mPath = path;
-        this.mExtensions = extensions;
+        this.mPath = path; 
+        mExtensions = new HashSet<String>(Arrays.asList(extensions));
     }
     @Override
     public List<File> loadInBackground() {
         ArrayList<File> files = new ArrayList<File>();
-        Log.i("Will", "Trying to Load files at" + mPath);
+        Log.e("Will", "Trying to load files at " + mPath);
         final File path = new File(mPath);
 
         final File[] dir = path.listFiles(new FileFilter() {
             @Override
             public boolean accept(File file) {
-                return file.isFile() && !file.getName().startsWith(".");
+                return file.isFile() && checkExtension(file);
             }
         });
         if(dir!=null){
@@ -41,4 +44,11 @@ public class FileLoader extends AsyncTaskLoader<List<File>> {
         }
         return files;
     }
+    
+    private boolean checkExtension(File file){
+        String uri = file.toString();
+        String extension = uri.substring(uri.lastIndexOf(".")+1,uri.length()-1);
+        return mExtensions.contains(extension);
+    }
+
 }

@@ -20,8 +20,8 @@ import java.util.List;
 public class FileListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<List<File>>{
 
     public static final String PATH = "path";
-    public static final String EXTENSION = "extension";
-    private static final String DEFAULT_EXTENSION = "midi";
+    public static final String EXTENSIONS = "extensions";
+    private static final String[] DEFAULT_EXTENSIONS = {"midi"};
     private FileListAdapter mAdapter;
     private String mPath;
     private String mExtension;
@@ -32,11 +32,11 @@ public class FileListFragment extends ListFragment implements LoaderManager.Load
         public void onFileSelected(File file);
     }
 
-    public static FileListFragment newInstance(String path, String extensionToShow){
+    public static FileListFragment newInstance(String path, String[] extensionsToShow){
         FileListFragment frag = new FileListFragment();
         Bundle args = new Bundle();
         args.putString(PATH,path);
-        args.putString(EXTENSION,extensionToShow);
+        args.putStringArray(EXTENSIONS,extensionsToShow);
         frag.setArguments(args);
         Log.e("Will", "Trying to make fragment for " + path);
         return frag;
@@ -45,14 +45,10 @@ public class FileListFragment extends ListFragment implements LoaderManager.Load
     public void onAttach(Activity activity){
         super.onAttach(activity);
 
-        Log.e("Will", "Trying to load fragment for " + mPath);
 
-        try
-        {
+        try {
             mListener = (CallBacks) activity;
-        }
-        catch(ClassCastException e)
-        {
+        } catch(ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement Callbacks");
         }
     }
@@ -61,17 +57,18 @@ public class FileListFragment extends ListFragment implements LoaderManager.Load
     public void  onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         mAdapter = new FileListAdapter(getActivity());
+        if(getArguments() == null) Log.e("Will", "Arguments null");
         mPath = getArguments() != null ? getArguments().getString(PATH):
             Environment.getExternalStorageDirectory().getAbsolutePath();
-        mExtension = getArguments() != null ? getArguments().getString(EXTENSION):
-                DEFAULT_EXTENSION;
+        mExtension = getArguments() != null ? getArguments().getStringArray(EXTENSIONS):
+                DEFAULT_EXTENSIONS;
+        Log.e("Will", "Created fragment for " + mPath);
     }
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         setEmptyText(getString(R.string.empty_dir));
         setListAdapter(mAdapter);
         setListShown(false);
-
         getLoaderManager().initLoader(0,null,this);
         super.onActivityCreated(savedInstanceState);
     }
@@ -86,12 +83,17 @@ public class FileListFragment extends ListFragment implements LoaderManager.Load
         }
     }
 
+    @Override
     public Loader<List<File>> onCreateLoader(int id, Bundle args){
-        return new FileLoader(getActivity(),mPath,mExtension);
+        Log.e("Will", "Loader created with " + mPath);
+        return new FileLoader(getActivity(),mPath,mExtensions);
     }
 
     @Override
     public void onLoadFinished(Loader<List<File>> loader, List<File> data){
+        for(File f : data){
+            Log.e("Will", "Loader returned: " f.toString());
+        }
         mAdapter.setListItems(data);
         if(isResumed()){
             setListShown(true);
@@ -100,7 +102,8 @@ public class FileListFragment extends ListFragment implements LoaderManager.Load
         }
     }
     @Override
-    public void onLoaderReset(Loader<List<File>> loader){
+    public void onLoaderReset(Loader<List<File>> loader){  
+        Log.e("Will","Clearing adapter");
         mAdapter.clear();
     }
 }
