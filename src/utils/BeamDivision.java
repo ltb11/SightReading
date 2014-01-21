@@ -1,14 +1,13 @@
 package utils;
 
-import java.util.LinkedList;
+import android.util.Log;
+
+import org.opencv.core.Point;
+
 import java.util.List;
 import java.util.Map;
 
 import musicdetection.Line;
-
-import org.opencv.core.Point;
-
-import android.util.Log;
 
 public class BeamDivision {
 

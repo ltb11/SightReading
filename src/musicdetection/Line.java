@@ -1,8 +1,8 @@
 package musicdetection;
 
-import org.opencv.core.Point;
-
 import android.util.Pair;
+
+import org.opencv.core.Point;
 
 public class Line {
 

@@ -1,13 +1,13 @@
 package utils;
 
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+
 import java.util.LinkedList;
 import java.util.List;
 
 import musicdetection.Line;
 import musicdetection.StaveLine;
-
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
 
 public class ReducedSlice {
 	

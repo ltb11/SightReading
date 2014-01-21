@@ -1,5 +1,13 @@
 package musicdetection;
 
+import android.util.Log;
+
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Range;
+import org.opencv.core.Scalar;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -12,15 +20,7 @@ import musicrepresentation.Bar;
 import musicrepresentation.NoteName;
 import musicrepresentation.PlayedNote;
 import musicrepresentation.Shift;
-
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Range;
-import org.opencv.core.Scalar;
-
 import utils.OurUtils;
-import android.util.Log;
 
 public class Stave {
 

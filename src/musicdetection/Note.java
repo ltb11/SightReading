@@ -1,12 +1,12 @@
 package musicdetection;
 
-import musicrepresentation.NoteName;
-import musicrepresentation.PlayedNote;
-import musicrepresentation.Shift;
+import android.util.Log;
 
 import org.opencv.core.Point;
 
-import android.util.Log;
+import musicrepresentation.NoteName;
+import musicrepresentation.PlayedNote;
+import musicrepresentation.Shift;
 import utils.OurUtils;
 
 public class Note {
