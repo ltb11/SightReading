@@ -7,7 +7,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
         <activity
-            android:name=".FileSelectorActivity"
+            android:name="FileSelectorActivity"
             android:label="@string/app_name" >
         </activity>
     </application>

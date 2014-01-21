@@ -55,7 +55,7 @@ repositories {
 }
 
 dependencies {
-    //compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
+    compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
     //compile 'com.android.support:support-v4:18.0.+'
     compile 'org.opencv:opencv-android:2.4.6'
     compile fileTree(dir: 'libs', include:'*.jar')

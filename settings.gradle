@@ -1,2 +1,2 @@
-include ':libs:android-file-dialog',  'libs:my-file-selector'
+include ':libs:my-file-selector'
 

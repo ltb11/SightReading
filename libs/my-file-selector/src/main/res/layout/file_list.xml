@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+              
+    <FrameLayout android:layout_width="match_parent"
+                 android:layout_height="0dip"
+                 android:layout_weight="1" >
+
+        <ListView android:id="@+id/date_ordered_list"
+                  android:paddingStart="16dip"
+                  android:paddingEnd="16dip"
+                  android:paddingBottom="16dip"
+                  android:clipToPadding="false"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:scrollbarStyle="outsideOverlay" />
+                    
+        <TextView android:id="@+id/empty"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:layout_gravity="center" />
+    </FrameLayout>
+
+</LinearLayout>
