@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.os.Environment;
 
+import android.util.Log;
 import android.widget.ListView;
 import android.view.View;
 
@@ -37,11 +38,14 @@ public class FileListFragment extends ListFragment implements LoaderManager.Load
         args.putString(PATH,path);
         args.putString(EXTENSION,extensionToShow);
         frag.setArguments(args);
+        Log.e("Will", "Trying to make fragment for " + path);
         return frag;
     }
     @Override
     public void onAttach(Activity activity){
         super.onAttach(activity);
+
+        Log.e("Will", "Trying to load fragment for " + mPath);
 
         try
         {
@@ -76,7 +80,7 @@ public class FileListFragment extends ListFragment implements LoaderManager.Load
     public void onListItemClick(ListView lv, View v, int index, long id){
         FileListAdapter adapter = (FileListAdapter) lv.getAdapter();
         if(adapter != null){
-            File f = (File) adapter.getItem(index);
+            File f = adapter.getItem(index);
             mPath = f.getAbsolutePath();
             mListener.onFileSelected(f);
         }

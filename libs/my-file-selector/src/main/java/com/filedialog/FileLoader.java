@@ -2,6 +2,7 @@ package com.filedialog;
 
 import android.support.v4.content.AsyncTaskLoader;
 import android.content.Context;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -24,7 +25,7 @@ public class FileLoader extends AsyncTaskLoader<List<File>> {
     @Override
     public List<File> loadInBackground() {
         ArrayList<File> files = new ArrayList<File>();
-
+        Log.i("Will", "Trying to Load files at" + mPath);
         final File path = new File(mPath);
 
         final File[] dir = path.listFiles(new FileFilter() {
