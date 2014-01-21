@@ -48,6 +48,9 @@ public class SightReaderActivity extends FragmentActivity implements FileListFra
     private CharSequence mTitle;
     private FragmentManager mFragmentManager;
     private FrameLayout mContent;
+    private static final String[] MIDI_EXTENSION = {"midi"}; 
+    private static final String MIDI_LOCATION = OurUtils.getPath("midi");
+
 
 	private BaseLoaderCallback mOpenCVCallBack = new BaseLoaderCallback(this) {
 		@Override
@@ -81,7 +84,7 @@ public class SightReaderActivity extends FragmentActivity implements FileListFra
 
         if(mContent != null){
             if(savedInstanceState == null){
-                FileListFragment fileList = FileListFragment.newInstance(OurUtils.getPath("midi/"),"midi");
+                FileListFragment fileList = FileListFragment.newInstance(MIDI_LOCATION,MIDI_EXTENSION);
                 mFragmentManager.beginTransaction().add(R.id.content_frame,fileList).commit();
             }
         }

@@ -24,7 +24,7 @@ public class FileListFragment extends ListFragment implements LoaderManager.Load
     private static final String[] DEFAULT_EXTENSIONS = {"midi"};
     private FileListAdapter mAdapter;
     private String mPath;
-    private String mExtension;
+    private String[] mExtensions;
     private CallBacks mListener;
     private String midi;
 
@@ -60,7 +60,7 @@ public class FileListFragment extends ListFragment implements LoaderManager.Load
         if(getArguments() == null) Log.e("Will", "Arguments null");
         mPath = getArguments() != null ? getArguments().getString(PATH):
             Environment.getExternalStorageDirectory().getAbsolutePath();
-        mExtension = getArguments() != null ? getArguments().getStringArray(EXTENSIONS):
+        mExtensions = getArguments() != null ? getArguments().getStringArray(EXTENSIONS):
                 DEFAULT_EXTENSIONS;
         Log.e("Will", "Created fragment for " + mPath);
     }
@@ -92,7 +92,7 @@ public class FileListFragment extends ListFragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(Loader<List<File>> loader, List<File> data){
         for(File f : data){
-            Log.e("Will", "Loader returned: " f.toString());
+            Log.e("Will", "Loader returned: " + f.toString());
         }
         mAdapter.setListItems(data);
         if(isResumed()){
