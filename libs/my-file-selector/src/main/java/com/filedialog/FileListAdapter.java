@@ -71,7 +71,7 @@ public class FileListAdapter extends BaseAdapter {
         if(mRow == null) mRow = mInflater.inflate(R.layout.tmp_file, parent,false);
 
         File file = getItem(index);
-        setText(mRow,R.layout.tmp_file,file.getName());
+        setText(mRow,R.id.file_title,file.getName());
         return mRow;
     }
 
